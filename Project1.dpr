@@ -1,6 +1,8 @@
 program Project1;
 {$APPTYPE GUI}
 
+{$R *.dres}
+
 uses
   Vcl.Forms,
   Web.WebReq,
