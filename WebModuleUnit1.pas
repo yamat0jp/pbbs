@@ -8,7 +8,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.UI.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Phys,
   FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, Data.DB,
   FireDAC.Comp.Client, FireDAC.Comp.DataSet, Web.HTTPProd, Web.DSProd,
-  AnsiStrings, System.DateUtils;
+  AnsiStrings, System.DateUtils, FireDAC.Phys.FB, FireDAC.Phys.FBDef;
 
 type
   TWebModule1 = class(TWebModule)
@@ -389,6 +389,7 @@ begin
     com := Values['comment'];
     pass := Values['password'];
   end;
+  line := 0;
   if na = '' then
     na := '’N‚©‚³‚ñ';
   if sub = '' then

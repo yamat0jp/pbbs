@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{BDF576A7-D117-41EB-A13B-FEACE87EB794}</ProjectGuid>
-        <ProjectVersion>16.0</ProjectVersion>
+        <ProjectVersion>16.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <MainSource>pbbs_clone.dpr</MainSource>
         <Base>True</Base>
@@ -132,13 +132,13 @@
                 </Source>
             </Delphi.Personality>
             <Deployment>
-                <DeployFile LocalName="Win32\Debug\pbbs_clone.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\pbbs_clone.cgi" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>pbbs_clone.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\pbbs_clone.cgi" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\pbbs_clone.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>pbbs_clone.exe</RemoteName>
                         <Overwrite>true</Overwrite>

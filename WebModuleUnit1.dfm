@@ -93,9 +93,12 @@ object WebModule1: TWebModule1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=data.sdb'
-      'LockingMode=Normal'
-      'DriverID=SQLite')
+      'User_Name=sysdba'
+      'Password=masterkey'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
+      'CharacterSet=UTF8'
+      'ConnectionDef=pbbs')
+    Connected = True
     Left = 56
     Top = 80
   end
