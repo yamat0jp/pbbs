@@ -23,7 +23,6 @@ type
   private
     FServer: TIdHTTPWebBrokerBridge;
     procedure StartServer;
-    procedure OnGetSSLPassword(var APassword: String);
     { private êÈåæ }
   public
     { public êÈåæ }
@@ -37,7 +36,6 @@ implementation
 {$R *.dfm}
 
 uses
-  IdSSLOpenSSL,
   WinApi.Windows, Winapi.ShellApi;
 
 procedure TForm1.ApplicationEvents1Idle(Sender: TObject; var Done: Boolean);
@@ -52,7 +50,7 @@ var
   LURL: string;
 begin
   StartServer;
-  LURL := Format('https://localhost:%s', [EditPort.Text]);
+  LURL := Format('http://localhost:%s', [EditPort.Text]);
   ShellExecute(0,
         nil,
         PChar(LURL), nil, nil, SW_SHOWNOACTIVATE);
@@ -70,23 +68,8 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  LIOHandleSSL: TIdServerIOHandlerSSLOpenSSL;
 begin
   FServer := TIdHTTPWebBrokerBridge.Create(Self);
-  {
-  LIOHandleSSL := TIdServerIOHandlerSSLOpenSSL.Create(FServer);
-  LIOHandleSSL.SSLOptions.CertFile := 'C:\Users\fuke masasi\Documents\masasi\https\server.csr';
-  LIOHandleSSL.SSLOptions.RootCertFile := 'C:\Users\fuke masasi\Documents\masasi\https\server.pem';
-  LIOHandleSSL.SSLOptions.KeyFile := 'C:\Users\fuke masasi\Documents\masasi\https\server.key';
-  LIOHandleSSL.OnGetPassword := OnGetSSLPassword;
-  FServer.IOHandler := LIOHandleSSL;
-  }
-end;
-
-procedure TForm1.OnGetSSLPassword(var APassword: String);
-begin
-  APassword := 'kainushi';
 end;
 
 procedure TForm1.StartServer;
