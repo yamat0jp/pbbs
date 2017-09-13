@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{EBD6BA26-A02F-423C-99B8-F4DEC8D80EBB}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="pbbs.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="pbbs_clone.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="pbbs">
+        <MSBuild Projects="pbbs.dproj"/>
+    </Target>
+    <Target Name="pbbs:Clean">
+        <MSBuild Projects="pbbs.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pbbs:Make">
+        <MSBuild Projects="pbbs.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="pbbs_clone">
+        <MSBuild Projects="pbbs_clone.dproj"/>
+    </Target>
+    <Target Name="pbbs_clone:Clean">
+        <MSBuild Projects="pbbs_clone.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pbbs_clone:Make">
+        <MSBuild Projects="pbbs_clone.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="pbbs;pbbs_clone"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="pbbs:Clean;pbbs_clone:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="pbbs:Make;pbbs_clone:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
