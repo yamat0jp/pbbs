@@ -7,7 +7,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Web.HTTPProd, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, IniFiles, System.Types,
+  FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types,
   FireDAC.VCLUI.Wait, FireDAC.Comp.UI;
 
 type
@@ -49,7 +49,7 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private êÈåæ }
-    ini: TIniFile;
+    ini: TStringList;
   public
     { public êÈåæ }
   end;
@@ -65,20 +65,22 @@ implementation
 
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
-const
-  a = 30;
 var
   i: Integer;
 begin
   if TagString = 'main' then
   begin
     maintable.Last;
-    for i := 1 to a do
+    for i := 1 to ini.Values['Count'].ToInteger do
     begin
       ReplaceText := ReplaceText + main.Content;
       maintable.Prior;
     end;
-  end;
+  end
+  else if TagString = 'title' then
+    ReplaceText := ini.Values['title']
+  else if TagString = 'title2' then
+    ReplaceText := ini.Values['title2'];
 end;
 
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
@@ -87,16 +89,17 @@ var
   i: Integer;
   s, t: string;
 begin
-  i := ini.ReadInteger('Record', 'Count', 30);
+  i := ini.Values['Count'].ToInteger;
   s := '';
   dbname.First;
   while dbname.Eof = false do
   begin
     t := dbname.FieldByName('dbname').AsString;
     if maintable.Fields.Count < i then
-      s := s + '<p>' + t
+      s := s + '<p><a href=/?dbname=' + t + '>' + t + '</a>'
     else
-      s := s + '<p style=text-color:red>' + t;
+      s := s + '<p style=text-color:red><a href=' + t + '>' + t + '</a>';
+    dbname.Next;
   end;
   if TagString = 'full' then
     ReplaceText := s
@@ -113,12 +116,13 @@ procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
 var
   s: string;
   i: Integer;
+  rc: TResourceStream;
 begin
   s := Request.QueryFields.Values['dbname'];
   if s <> '' then
     if dbname.Locate('dbname', s) = false then
     begin
-      if dbname.FieldCount = 0 then
+      if dbname.Fields.Count = 0 then
         i := 1
       else
       begin
@@ -129,7 +133,14 @@ begin
       Response.SendRedirect('/');
     end
     else
-      Response.SendRedirect('/?dbname=' + s);
+    begin
+      rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
+      try
+        Response.Content := indexpage.ContentFromStream(rc);
+      finally
+        rc.Free;
+      end;
+    end;
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -156,7 +167,9 @@ begin
     finally
       rc.Free;
     end;
-  end;
+  end
+  else
+    Response.SendRedirect('/');
 end;
 
 procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
@@ -179,8 +192,16 @@ begin
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
+var
+  s: TResourceStream;
 begin
-  ini := TIniFile.Create('setting');
+  ini := TStringList.Create;
+  s := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
+  try
+    ini.LoadFromStream(s);
+  finally
+    s.Free;
+  end;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
