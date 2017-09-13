@@ -1,0 +1,6 @@
+admin RCDATA "admin.htm"
+index RCDATA "index.htm"
+login RCDATA "login.htm"
+mente RCDATA "maintenance(rename).htm"
+search RCDATA "search.htm"
+Resource_1 RCDATA "setup.htm"
