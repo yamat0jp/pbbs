@@ -29,18 +29,6 @@ object WebModule1: TWebModule1
     end>
   Height = 383
   Width = 415
-  object PbbsConnection: TFDConnection
-    Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
-      'User_Name=sysdba'
-      'Password=masterkey'
-      'CharacterSet=utf8'
-      'DriverID=FB')
-    Connected = True
-    LoginPrompt = False
-    Left = 51
-    Top = 32
-  end
   object dbname: TFDTable
     Active = True
     IndexFieldNames = 'TBNUMBER'
@@ -104,7 +92,6 @@ object WebModule1: TWebModule1
   end
   object raw: TFDTable
     IndexFieldNames = 'CMNUMBER'
-    Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'raw'
     TableName = 'raw'
     Left = 216
@@ -136,9 +123,11 @@ object WebModule1: TWebModule1
     Left = 264
     Top = 64
   end
-  object PageProducer4: TPageProducer
-    Left = 272
-    Top = 320
+  object top: TPageProducer
+    HTMLDoc.Strings = (
+      '<#img><#full></div>')
+    Left = 312
+    Top = 16
   end
   object PageProducer5: TPageProducer
     Left = 352
@@ -149,6 +138,7 @@ object WebModule1: TWebModule1
       '<p><#number><#title>'
       '<p><#name>|<#datetime>'
       '<p><#comment>')
+    DataSet = maintable
     Left = 264
     Top = 16
   end
@@ -156,5 +146,17 @@ object WebModule1: TWebModule1
     Provider = 'Forms'
     Left = 120
     Top = 48
+  end
+  object PbbsConnection: TFDConnection
+    Params.Strings = (
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
+      'User_Name=sysdba'
+      'Password=masterkey'
+      'CharacterSet=uniCODE_FSS'
+      'DriverID=FB')
+    Connected = True
+    LoginPrompt = False
+    Left = 62
+    Top = 29
   end
 end

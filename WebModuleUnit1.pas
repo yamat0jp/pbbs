@@ -12,7 +12,6 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
 
 type
   TWebModule1 = class(TWebModule)
-    PbbsConnection: TFDConnection;
     dbname: TFDTable;
     maintable: TFDTable;
     raw: TFDTable;
@@ -29,10 +28,11 @@ type
     rawCMNUMBER: TIntegerField;
     rawRAW: TWideMemoField;
     indexpage: TPageProducer;
-    PageProducer4: TPageProducer;
+    top: TPageProducer;
     PageProducer5: TPageProducer;
     main: TDataSetPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
+    PbbsConnection: TFDConnection;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -73,6 +73,8 @@ begin
     maintable.Last;
     for i := 1 to ini.Values['Count'].ToInteger do
     begin
+      if maintable.Bof = true then
+        break;
       ReplaceText := ReplaceText + main.Content;
       maintable.Prior;
     end;
@@ -86,25 +88,31 @@ end;
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  i: Integer;
+  i, j, k: Integer;
   s, t: string;
 begin
   i := ini.Values['Count'].ToInteger;
+  j := ini.Values['titlecount'].ToInteger;
+  k := 1;
   s := '';
   dbname.First;
   while dbname.Eof = false do
   begin
+    if k mod j = 1 then
+      s := s + '<img src=slide' + ((k div j) + 1).ToString +
+        '.jpg height=465 alt="" style=float:right>';
+    inc(k);
     t := dbname.FieldByName('dbname').AsString;
     if maintable.Fields.Count < i then
       s := s + '<p><a href=/?dbname=' + t + '>' + t + '</a>'
     else
-      s := s + '<p style=text-color:red><a href=' + t + '>' + t + '</a>';
+      s := s + '<p style=color:red><a href=/?dbname=' + t + '>' + t + '</a>';
     dbname.Next;
   end;
-  if TagString = 'full' then
+  if TagString = 'main' then
     ReplaceText := s
   else if TagString = 'script' then
-    ReplaceText := '<script src=' + TagParams.Values['src'] + '></script>'
+    ReplaceText:='<script src='+TagParams.Values['src']+'></script>'
   else if TagString = 'style' then
     ReplaceText := '<link rel=stylesheet href=' + TagParams.Values['href'] + '>'
   else if TagString = 'name' then
@@ -134,6 +142,7 @@ begin
     end
     else
     begin
+      Response.ContentType:='text/html;charset=utf-8';
       rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
       try
         Response.Content := indexpage.ContentFromStream(rc);
@@ -152,6 +161,7 @@ begin
   s := Request.QueryFields.Values['dbname'];
   if s = '' then
   begin
+    Response.ContentType:='text/html;charset=utf-8';
     rc := TResourceStream.Create(HInstance, 'top', RT_RCDATA);
     try
       Response.Content := PageProducer1.ContentFromStream(rc);

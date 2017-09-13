@@ -1,3 +1,4 @@
 count=30
+titlecount=10
 title=pybbs
 title2=<a href=/>pybbs</a>
