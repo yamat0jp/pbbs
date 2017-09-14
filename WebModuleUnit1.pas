@@ -281,25 +281,29 @@ end;
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num: string;
-  pass: string;
-  i: Integer;
+  num, pass, s: string;
+  i, j: Integer;
 begin
   if Request.MethodType = mtGet then
   begin
     num := Request.QueryFields.Values['job'];
+    i := maintable.RecordCount;
+    j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      i := 1 + maintable.Fields.Count div ini.Values['count'].ToInteger;
+      if i - num.ToInteger < j then
+        s := ''
+      else
+        s := '&page=' + (1 + i div j).ToString;
       Response.SendRedirect(AnsiString('/?db=' + dbname.FieldByName('tbnumber')
-        .AsString + '&page=' + i.ToString + '#' + num));
+        .AsString + s + '#' + num));
     end;
   end
   else
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if maintable.Locate('cmnumber', num.ToInteger) = true then
+    if maintable.Locate('cmnumber', num) = true then
     begin
       raw.Open;
       if raw.FieldByName('password').AsString = pass then
