@@ -64,6 +64,11 @@ object WebModule1: TWebModule1
       Origin = 'TBNUMBER'
       Required = True
     end
+    object maintableCMNUMBER: TIntegerField
+      FieldName = 'CMNUMBER'
+      Origin = 'CMNUMBER'
+      Required = True
+    end
     object maintableTITLE: TStringField
       FieldName = 'TITLE'
       Origin = 'TITLE'
@@ -79,19 +84,17 @@ object WebModule1: TWebModule1
       Origin = '"COMMENT"'
       BlobType = ftWideMemo
     end
-    object maintableCMNUMBER: TIntegerField
-      AutoGenerateValue = arAutoInc
-      FieldName = 'CMNUMBER'
-      Origin = 'CMNUMBER'
-      Required = True
-    end
-    object maintableDATETIME: TDateField
+    object maintableDATETIME: TStringField
       FieldName = 'DATETIME'
       Origin = 'DATETIME'
+      Size = 30
     end
   end
   object raw: TFDTable
     IndexFieldNames = 'CMNUMBER'
+    MasterSource = DataSource2
+    MasterFields = 'CMNUMBER'
+    Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'raw'
     TableName = 'raw'
     Left = 216
@@ -102,10 +105,14 @@ object WebModule1: TWebModule1
       Required = True
     end
     object rawRAW: TWideMemoField
-      FieldKind = fkCalculated
       FieldName = 'RAW'
+      Origin = 'RAW'
       BlobType = ftWideMemo
-      Calculated = True
+    end
+    object rawPASSWORD: TStringField
+      FieldName = 'PASSWORD'
+      Origin = '"PASSWORD"'
+      Size = 8
     end
   end
   object PageProducer1: TPageProducer
@@ -135,10 +142,12 @@ object WebModule1: TWebModule1
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
-      '<p><#number><#title>'
+      '<p><a href=/user?job=<#cmnumber>>[ <#cmnumber> ]</a>'
+      '<a name=<#cmnumber>></a><#title>'
       '<p><#name>|<#datetime>'
-      '<p><#comment>')
+      '<p><#com>')
     DataSet = maintable
+    OnHTMLTag = mainHTMLTag
     Left = 264
     Top = 16
   end
@@ -152,11 +161,16 @@ object WebModule1: TWebModule1
       'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
-      'CharacterSet=uniCODE_FSS'
+      'CharacterSet=UTF8'
       'DriverID=FB')
     Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
+  end
+  object DataSource2: TDataSource
+    DataSet = maintable
+    Left = 136
+    Top = 104
   end
 end
