@@ -16,7 +16,6 @@ type
     maintable: TFDTable;
     raw: TFDTable;
     PageProducer1: TPageProducer;
-    DataSource1: TDataSource;
     dbnameTBNUMBER: TIntegerField;
     dbnameDBNAME: TStringField;
     maintableTITLE: TStringField;
@@ -34,7 +33,7 @@ type
     maintableTBNUMBER: TIntegerField;
     maintableCMNUMBER: TIntegerField;
     rawCMNUMBER: TIntegerField;
-    DataSource2: TDataSource;
+    FDQuery1: TFDQuery;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -76,10 +75,10 @@ begin
   begin
     for i := 1 to ini.Values['Count'].ToInteger do
     begin
-      if maintable.Bof = true then
+      if FDQuery1.Eof = true then
         break;
-      ReplaceText := main.Content + '<hr>' + ReplaceText;
-      maintable.Prior;
+      ReplaceText := ReplaceText + '<hr>' + main.Content;
+      FDQuery1.Next;
     end;
   end
   else if TagString = 'title' then
@@ -98,7 +97,7 @@ var
 begin
   if TagString = 'com' then
   begin
-    s := maintable.CreateBlobStream(maintable.FieldByName('comment'), bmRead);
+    s := FDQuery1.CreateBlobStream(FDQuery1.FieldByName('comment'), bmRead);
     t := TStringList.Create;
     try
       t.LoadFromStream(s);
@@ -205,6 +204,9 @@ begin
       Response.Content := main.Content;
       Exit;
     end;
+    FDQuery1.ParamByName('param').AsInteger := dbname.FieldByName('tbnumber')
+      .AsInteger;
+    FDQuery1.Open;
     s := Request.QueryFields.Values['page'];
     if s <> '' then
     begin
@@ -212,12 +214,12 @@ begin
       j := s.ToInteger;
       if i * j < maintable.RecordCount then
       begin
-        maintable.First;
-        maintable.MoveBy(i * j);
+        FDQuery1.First;
+        FDQuery1.MoveBy(i * j);
       end;
     end
     else
-      maintable.Last;
+      FDQuery1.First;
     Response.ContentType := 'text/html;charset=utf-8';
     rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
     try

@@ -31,7 +31,6 @@ object WebModule1: TWebModule1
   Width = 415
   object dbname: TFDTable
     Active = True
-    IndexFieldNames = 'TBNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'dbname'
     TableName = 'dbname'
@@ -51,9 +50,6 @@ object WebModule1: TWebModule1
   end
   object maintable: TFDTable
     Active = True
-    IndexFieldNames = 'TBNUMBER'
-    MasterSource = DataSource1
-    MasterFields = 'TBNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'maintable'
     TableName = 'maintable'
@@ -91,9 +87,6 @@ object WebModule1: TWebModule1
     end
   end
   object raw: TFDTable
-    IndexFieldNames = 'CMNUMBER'
-    MasterSource = DataSource2
-    MasterFields = 'CMNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'raw'
     TableName = 'raw'
@@ -120,11 +113,6 @@ object WebModule1: TWebModule1
     Left = 184
     Top = 64
   end
-  object DataSource1: TDataSource
-    DataSet = dbname
-    Left = 64
-    Top = 104
-  end
   object indexpage: TPageProducer
     OnHTMLTag = indexpageHTMLTag
     Left = 264
@@ -146,7 +134,7 @@ object WebModule1: TWebModule1
       '<a name=<#cmnumber>></a><#title>'
       '<p><#name>|<#datetime>'
       '<p><#com>')
-    DataSet = maintable
+    DataSet = FDQuery1
     OnHTMLTag = mainHTMLTag
     Left = 264
     Top = 16
@@ -168,9 +156,18 @@ object WebModule1: TWebModule1
     Left = 62
     Top = 29
   end
-  object DataSource2: TDataSource
-    DataSet = maintable
-    Left = 136
-    Top = 104
+  object FDQuery1: TFDQuery
+    Connection = PbbsConnection
+    SQL.Strings = (
+      'select * from maintable where tbnumber = :param;')
+    Left = 320
+    Top = 64
+    ParamData = <
+      item
+        Name = 'PARAM'
+        DataType = ftString
+        ParamType = ptInput
+        Value = '4'
+      end>
   end
 end
