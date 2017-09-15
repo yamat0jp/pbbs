@@ -20,7 +20,6 @@ type
     dbnameDBNAME: TStringField;
     maintableTITLE: TStringField;
     maintableNAME: TStringField;
-    maintableCOMMENT: TWideMemoField;
     indexpage: TPageProducer;
     top: TPageProducer;
     PageProducer5: TPageProducer;
@@ -35,6 +34,8 @@ type
     rawCMNUMBER: TIntegerField;
     FDQuery1: TFDQuery;
     full: TFDQuery;
+    comment: TFDQuery;
+    maintableCOMMENT: TStringField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -49,12 +50,10 @@ type
     procedure WebModuleDestroy(Sender: TObject);
     procedure WebModule1AdminHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure mainHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
   private
     { private éŒ¾ }
     ini: TStringList;
-    tag: Variant;
+    Tag: Variant;
   public
     { public éŒ¾ }
   end;
@@ -88,27 +87,7 @@ begin
   else if TagString = 'title2' then
     ReplaceText := ini.Values['title2']
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.tag;
-end;
-
-procedure TWebModule1.mainHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  s: TStream;
-  t: TStringList;
-begin
-  if TagString = 'com' then
-  begin
-    s := maintable.CreateBlobStream(maintable.FieldByName('comment'), bmRead);
-    t := TStringList.Create;
-    try
-      t.LoadFromStream(s);
-      ReplaceText := t.Text;
-    finally
-      s.Free;
-      t.Free;
-    end;
-  end;
+    ReplaceText := Self.Tag;
 end;
 
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
@@ -225,7 +204,7 @@ begin
   end
   else
     FDQuery1.First;
-  tag:=DB;
+  Tag := DB;
   Response.ContentType := 'text/html;charset=utf-8';
   rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
   try
@@ -239,11 +218,10 @@ procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   na, sub, com, pass: string;
-  i, j: Integer;
+  i, j, ep: Integer;
   s: TStringList;
   t: TMatch;
-  s1, s2: string;
-  st: TStream;
+  s1, s2, text: string;
   d: Variant;
 begin
   d := Request.QueryFields.Values['db'];
@@ -262,30 +240,29 @@ begin
   end;
   s := TStringList.Create;
   try
-    s.Text := com;
+    s.text := com;
     for i := 0 to s.Count - 1 do
     begin
       com := s[i];
+      if (Length(com) > 0) and (com[1] = ' ') then
+        com := '&nbsp;' + Copy(com, 2, Length(com));
       s2 := '<p>';
+      ep := 1;
       t := TRegEx.Match(com, '>>[0-9]+');
       while t.Success = true do
       begin
         s1 := Copy(t.Value, 3, t.Length);
-        s2 := s2 + Copy(com, 1, t.Index) +
+        s2 := s2 + Copy(com, ep, t.Index - ep) +
           '<a class=minpreview data-preview-url=/?key=' + s1 +
           ' href=/user?job=' + s1 + '>>>' + s1 + '</a>';
+        ep := t.Index + t.Length;
         t := t.NextMatch;
       end;
-      s[i] := s2 + Copy(com, t.Index + t.Length, Length(com));
+      text := text + s2 + Copy(com, ep, Length(com));
     end;
-    maintable.AppendRecord([d, j, sub, na, nil, DateTimeToStr(Now)]);
-    maintable.Edit;
-    st := maintable.CreateBlobStream(maintable.FieldByName('comment'), bmWrite);
-    s.SaveToStream(st);
-    maintable.Post;
+    maintable.AppendRecord([d, j, sub, na, text, DateTimeToStr(Now)]);
   finally
     s.Free;
-    st.Free;
   end;
   raw.Open;
   raw.AppendRecord([j, com, pass]);

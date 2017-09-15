@@ -16,9 +16,6 @@ Coordinates=215,166,65,36
 [rawPASSWORD]
 Coordinates=376,1,109,36
 
-[maintableCOMMENT]
-Coordinates=376,56,136,36
-
 [rawCMNUMBER]
 Coordinates=376,111,110,36
 
@@ -63,5 +60,5 @@ Coordinates=550,56,105,36
 Coordinates=215,276,74,36
 
 []
-Coordinates=0,314,91,36
+Coordinates=376,56,136,36
 

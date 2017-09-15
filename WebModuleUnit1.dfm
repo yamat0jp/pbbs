@@ -72,10 +72,10 @@ object WebModule1: TWebModule1
       Origin = 'NAME'
       Size = 30
     end
-    object maintableCOMMENT: TWideMemoField
+    object maintableCOMMENT: TStringField
       FieldName = 'COMMENT'
       Origin = '"COMMENT"'
-      BlobType = ftWideMemo
+      Size = 32765
     end
     object maintableDATETIME: TStringField
       FieldName = 'DATETIME'
@@ -132,9 +132,8 @@ object WebModule1: TWebModule1
         '/a>'
       '<a name=<#cmnumber>></a><#title>'
       '<p><#name>|<#datetime>'
-      '<p><#com>')
+      '<p><#comment>')
     DataSet = FDQuery1
-    OnHTMLTag = mainHTMLTag
     Left = 264
     Top = 16
   end
@@ -177,6 +176,22 @@ object WebModule1: TWebModule1
         DataType = ftString
         ParamType = ptInput
         Value = '1'
+      end>
+  end
+  object comment: TFDQuery
+    Connection = PbbsConnection
+    SQL.Strings = (
+      'update maintable set comment=:com where = :id;')
+    Left = 64
+    Top = 208
+    ParamData = <
+      item
+        Name = 'COM'
+        ParamType = ptInput
+      end
+      item
+        Name = 'ID'
+        ParamType = ptInput
       end>
   end
 end
