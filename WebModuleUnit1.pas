@@ -8,7 +8,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Web.HTTPProd, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types, RegularExpressions,
-  FireDAC.VCLUI.Wait, FireDAC.Comp.UI;
+  FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants;
 
 type
   TWebModule1 = class(TWebModule)
@@ -33,6 +33,8 @@ type
     maintableTBNUMBER: TIntegerField;
     maintableCMNUMBER: TIntegerField;
     rawCMNUMBER: TIntegerField;
+    FDQuery1: TFDQuery;
+    full: TFDQuery;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -74,10 +76,10 @@ begin
   begin
     for i := 1 to ini.Values['Count'].ToInteger do
     begin
-      if maintable.Eof = true then
+      if FDQuery1.Eof = true then
         break;
       ReplaceText := ReplaceText + '<hr>' + main.Content;
-      maintable.Next;
+      FDQuery1.Next;
     end;
   end
   else if TagString = 'title' then
@@ -85,7 +87,7 @@ begin
   else if TagString = 'title2' then
     ReplaceText := ini.Values['title2']
   else if TagString = 'tbnumber' then
-    ReplaceText := dbname.FieldByName('tbnumber').AsString;
+    ReplaceText := FDQuery1.FieldByName('tbnumber').AsString;
 end;
 
 procedure TWebModule1.mainHTMLTag(Sender: TObject; Tag: TTag;
@@ -127,10 +129,13 @@ begin
     inc(k);
     t1 := dbname.FieldByName('tbnumber').AsString;
     t2 := dbname.FieldByName('dbname').AsString;
-    if maintable.RecordCount < i then
+    full.ParamByName('param').AsString := t1;
+    full.Open;
+    if full.Fields[0].AsInteger < i then
       s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
     else
       s := s + '<p style=color:red><a href=/?db=' + t1 + '>' + t2 + '</a>';
+    full.Close;
     dbname.Next;
   end;
   if TagString = 'main' then
@@ -195,28 +200,29 @@ begin
     end;
     Exit;
   end;
-  dbname.Locate('tbnumber', DB);
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
-    maintable.Locate('cmnumber', s);
+    maintable.Locate('tbnumber;cmnumber', VarArrayOf([DB, s]));
     Response.ContentType := 'text/plain';
     Response.Content := main.Content;
     Exit;
   end;
+  FDQuery1.ParamByName('param').AsString := DB;
+  FDQuery1.Open;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
   begin
     i := ini.Values['count'].ToInteger;
     j := s.ToInteger;
-    if i * j < maintable.RecordCount then
+    if i * j < FDQuery1.RecordCount then
     begin
-      maintable.First;
-      maintable.MoveBy(i * j);
+      FDQuery1.First;
+      FDQuery1.MoveBy(i * j);
     end;
   end
   else
-    maintable.First;
+    FDQuery1.First;
   Response.ContentType := 'text/html;charset=utf-8';
   rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
   try
@@ -240,6 +246,7 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
+  dbname.Locate('tbnumber', DB);
   if (maintable.Bof = true) and (maintable.Eof = true) then
     j := 1
   else
@@ -282,14 +289,13 @@ var
   i, j: Integer;
 begin
   t := Request.QueryFields.Values['db'];
-  if t <> '' then
-    dbname.Locate('tbnumber', t)
-  else
-    Response.SendRedirect('/');
   if Request.MethodType = mtGet then
   begin
     num := Request.QueryFields.Values['job'];
-    i := maintable.RecordCount;
+    full.ParamByName('param').AsString:=t;
+    full.Open;
+    i := full.Fields[0].AsInteger;
+    full.Close;
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
@@ -325,7 +331,6 @@ begin
     s.Free;
   end;
   dbname.Open;
-  maintable.Filter := 'tbnumber = ' + dbname.FieldByName('tbnumber').AsString;
   maintable.Open;
 end;
 

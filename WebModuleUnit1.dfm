@@ -49,7 +49,6 @@ object WebModule1: TWebModule1
   end
   object maintable: TFDTable
     Active = True
-    Filtered = True
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'maintable'
     TableName = 'maintable'
@@ -136,7 +135,7 @@ object WebModule1: TWebModule1
       '<a name=<#cmnumber>></a><#title>'
       '<p><#name>|<#datetime>'
       '<p><#com>')
-    DataSet = maintable
+    DataSet = FDQuery1
     OnHTMLTag = mainHTMLTag
     Left = 264
     Top = 16
@@ -156,5 +155,31 @@ object WebModule1: TWebModule1
     LoginPrompt = False
     Left = 62
     Top = 29
+  end
+  object FDQuery1: TFDQuery
+    Connection = PbbsConnection
+    SQL.Strings = (
+      'select * from maintable where tbnumber = :param;')
+    Left = 320
+    Top = 72
+    ParamData = <
+      item
+        Name = 'PARAM'
+        ParamType = ptInput
+      end>
+  end
+  object full: TFDQuery
+    Connection = PbbsConnection
+    SQL.Strings = (
+      'select count(*) from maintable where tbnumber = :param;')
+    Left = 280
+    Top = 152
+    ParamData = <
+      item
+        Name = 'PARAM'
+        DataType = ftString
+        ParamType = ptInput
+        Value = '1'
+      end>
   end
 end
