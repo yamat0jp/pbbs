@@ -28,7 +28,6 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    Active = True
     IndexFieldNames = 'TBNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'dbname'
@@ -48,7 +47,6 @@ object WebModule1: TWebModule1
     end
   end
   object maintable: TFDTable
-    Active = True
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'maintable'
     TableName = 'maintable'
@@ -151,7 +149,6 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
