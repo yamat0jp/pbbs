@@ -8,7 +8,6 @@ object WebModule1: TWebModule1
       MethodType = mtGet
       Name = 'NavHandler'
       PathInfo = '/'
-      Producer = PageProducer1
       OnAction = WebModule1NavHandlerAction
     end
     item
@@ -22,7 +21,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1AdminHandlerAction
     end
     item
-      MethodType = mtPost
       Name = 'RegistHandler'
       PathInfo = '/regist'
       OnAction = WebModule1RegistHandlerAction
@@ -31,6 +29,7 @@ object WebModule1: TWebModule1
   Width = 415
   object dbname: TFDTable
     Active = True
+    IndexFieldNames = 'TBNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'dbname'
     TableName = 'dbname'
@@ -50,6 +49,7 @@ object WebModule1: TWebModule1
   end
   object maintable: TFDTable
     Active = True
+    Filtered = True
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'maintable'
     TableName = 'maintable'
@@ -130,11 +130,13 @@ object WebModule1: TWebModule1
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
-      '<p><a href=/user?job=<#cmnumber>>[ <#cmnumber> ]</a>'
+      
+        '<p><a href=/user?db=<#tbnumber>&job=<#cmnumber>>[ <#cmnumber> ]<' +
+        '/a>'
       '<a name=<#cmnumber>></a><#title>'
       '<p><#name>|<#datetime>'
       '<p><#com>')
-    DataSet = FDQuery1
+    DataSet = maintable
     OnHTMLTag = mainHTMLTag
     Left = 264
     Top = 16
@@ -149,25 +151,10 @@ object WebModule1: TWebModule1
       'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
-      'CharacterSet=UTF8'
       'DriverID=FB')
     Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
-  end
-  object FDQuery1: TFDQuery
-    Connection = PbbsConnection
-    SQL.Strings = (
-      'select * from maintable where tbnumber = :param;')
-    Left = 320
-    Top = 64
-    ParamData = <
-      item
-        Name = 'PARAM'
-        DataType = ftString
-        ParamType = ptInput
-        Value = '4'
-      end>
   end
 end

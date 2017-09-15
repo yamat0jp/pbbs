@@ -33,7 +33,6 @@ type
     maintableTBNUMBER: TIntegerField;
     maintableCMNUMBER: TIntegerField;
     rawCMNUMBER: TIntegerField;
-    FDQuery1: TFDQuery;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -75,10 +74,10 @@ begin
   begin
     for i := 1 to ini.Values['Count'].ToInteger do
     begin
-      if FDQuery1.Eof = true then
+      if maintable.Eof = true then
         break;
       ReplaceText := ReplaceText + '<hr>' + main.Content;
-      FDQuery1.Next;
+      maintable.Next;
     end;
   end
   else if TagString = 'title' then
@@ -97,7 +96,7 @@ var
 begin
   if TagString = 'com' then
   begin
-    s := FDQuery1.CreateBlobStream(FDQuery1.FieldByName('comment'), bmRead);
+    s := maintable.CreateBlobStream(maintable.FieldByName('comment'), bmRead);
     t := TStringList.Create;
     try
       t.LoadFromStream(s);
@@ -180,12 +179,12 @@ end;
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s: string;
+  s, DB: string;
   i, j: Integer;
   rc: TResourceStream;
 begin
-  s := Request.QueryFields.Values['db'];
-  if s = '' then
+  DB := Request.QueryFields.Values['db'];
+  if DB = '' then
   begin
     Response.ContentType := 'text/html;charset=utf-8';
     rc := TResourceStream.Create(HInstance, 'top', RT_RCDATA);
@@ -194,58 +193,53 @@ begin
     finally
       rc.Free;
     end;
-  end
-  else if dbname.Locate('tbnumber', s) = true then
+    Exit;
+  end;
+  dbname.Locate('tbnumber', DB);
+  s := Request.QueryFields.Values['key'];
+  if s <> '' then
   begin
-    s := Request.QueryFields.Values['key'];
-    if (s <> '') and (maintable.Locate('cmnumber', s) = true) then
+    maintable.Locate('cmnumber', s);
+    Response.ContentType := 'text/plain';
+    Response.Content := main.Content;
+    Exit;
+  end;
+  s := Request.QueryFields.Values['page'];
+  if s <> '' then
+  begin
+    i := ini.Values['count'].ToInteger;
+    j := s.ToInteger;
+    if i * j < maintable.RecordCount then
     begin
-      Response.ContentType := 'text/plain';
-      Response.Content := main.Content;
-      Exit;
-    end;
-    FDQuery1.ParamByName('param').AsInteger := dbname.FieldByName('tbnumber')
-      .AsInteger;
-    FDQuery1.Open;
-    s := Request.QueryFields.Values['page'];
-    if s <> '' then
-    begin
-      i := ini.Values['count'].ToInteger;
-      j := s.ToInteger;
-      if i * j < maintable.RecordCount then
-      begin
-        FDQuery1.First;
-        FDQuery1.MoveBy(i * j);
-      end;
-    end
-    else
-      FDQuery1.First;
-    Response.ContentType := 'text/html;charset=utf-8';
-    rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
-    try
-      Response.Content := indexpage.ContentFromStream(rc);
-    finally
-      rc.Free;
+      maintable.First;
+      maintable.MoveBy(i * j);
     end;
   end
   else
-    Response.SendRedirect('/');
+    maintable.First;
+  Response.ContentType := 'text/html;charset=utf-8';
+  rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
+  try
+    Response.Content := indexpage.ContentFromStream(rc);
+  finally
+    rc.Free;
+  end;
 end;
 
 procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  na, sub, com, pass: string;
+  na, sub, com, pass, DB: string;
   i, j: Integer;
   s: TStringList;
   t: TMatch;
   s1, s2: string;
 begin
+  DB := Request.QueryFields.Values['db'];
   com := Request.ContentFields.Values['comment'];
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
-  i := Request.QueryFields.Values['db'].ToInteger;
   if (maintable.Bof = true) and (maintable.Eof = true) then
     j := 1
   else
@@ -271,21 +265,27 @@ begin
       end;
       s[i] := s2 + Copy(com, t.Index + t.Length, Length(com));
     end;
-    maintable.AppendRecord([i, j, sub, na, s.Text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([DB.ToInteger, j, sub, na, s.Text,
+      DateTimeToStr(Now)]);
   finally
     s.Free;
   end;
   raw.Open;
   raw.AppendRecord([j, com, pass]);
-  Response.SendRedirect('/?db=' + dbname.FieldByName('tbnumber').AsAnsiString);
+  Response.SendRedirect('/?db=' + AnsiString(DB));
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num, pass, s: string;
+  num, pass, s, t: string;
   i, j: Integer;
 begin
+  t := Request.QueryFields.Values['db'];
+  if t <> '' then
+    dbname.Locate('tbnumber', t)
+  else
+    Response.SendRedirect('/');
   if Request.MethodType = mtGet then
   begin
     num := Request.QueryFields.Values['job'];
@@ -297,8 +297,7 @@ begin
         s := ''
       else
         s := '&page=' + (1 + i div j).ToString;
-      Response.SendRedirect(AnsiString('/?db=' + dbname.FieldByName('tbnumber')
-        .AsString + s + '#' + num));
+      Response.SendRedirect(AnsiString('/?db=' + t + s + '#' + num));
     end;
   end
   else
@@ -325,11 +324,16 @@ begin
   finally
     s.Free;
   end;
+  dbname.Open;
+  maintable.Filter := 'tbnumber = ' + dbname.FieldByName('tbnumber').AsString;
+  maintable.Open;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
   ini.Free;
+  dbname.Close;
+  maintable.Close;
 end;
 
 end.
