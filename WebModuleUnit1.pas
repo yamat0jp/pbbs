@@ -40,7 +40,6 @@ type
     rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
-    css: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -140,7 +139,7 @@ begin
   while dbname.Eof = false do
   begin
     if k mod j = 1 then
-      s := s + '<img src=slide' + ((k div j) + 1).ToString +
+      s := s + '<div class=slide><img src=slide' + ((k div j) + 1).ToString +
         '.jpg height=465 alt="" style=float:right>';
     inc(k);
     t1 := dbname.FieldByName('tbnumber').AsString;
@@ -152,8 +151,12 @@ begin
     else
       s := s + '<p style=color:red><a href=/?db=' + t1 + '>' + t2 + '</a>';
     full.Close;
+    if k mod j = 1 then
+      s := s + '</div>';
     dbname.Next;
   end;
+  if k mod j <> 1 then
+    s := s + '</div>';
   if TagString = 'main' then
     ReplaceText := s
   else if TagString = 'script' then
@@ -287,18 +290,35 @@ procedure TWebModule1.WebModule1CssHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
+  t, b: TStringList;
   rc: TResourceStream;
 begin
   s := Request.QueryFields.Values['name'];
-  if (s = 'top') or (s = 'main') or (s = 'livepreview_css') then
-  begin
-    rc := TResourceStream.Create(HInstance, s, RT_RCDATA);
-    try
+  t := TStringList.Create;
+  b := TStringList.Create;
+  try
+    t.Add('top_css');
+    t.Add('main_css');
+    t.Add('livepreview_css');
+    t.Add('normalize_css');
+    t.Add('min');
+    t.Add('top');
+    t.Add('sub');
+    t.Add('modernizr');
+    t.Add('ui_min');
+    t.Add('ui_custom');
+    t.Add('livepreview');
+    if t.IndexOf(s) > -1 then
+    begin
+      rc := TResourceStream.Create(HInstance, s, RT_RCDATA);
       Response.ContentType := 'text/plain';
-      Response.Content := css.ContentFromStream(rc);
-    finally
-      rc.Free;
+      b.LoadFromStream(rc);
+      Response.Content := b.text;
     end;
+  finally
+    rc.Free;
+    t.Free;
+    b.Free;
   end;
 end;
 

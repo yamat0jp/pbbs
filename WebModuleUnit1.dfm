@@ -47,6 +47,11 @@ object WebModule1: TWebModule1
       Name = 'CssHandler'
       PathInfo = '/css'
       OnAction = WebModule1CssHandlerAction
+    end
+    item
+      Name = 'ScriptHandler'
+      PathInfo = '/js'
+      OnAction = WebModule1CssHandlerAction
     end>
   Height = 383
   Width = 415
@@ -160,12 +165,12 @@ object WebModule1: TWebModule1
       '</title>'
       '</head>'
       '<body>'
-      #9'<#style href="/css?name=top">'
-      #9'<#style href="/css?name=normalize">'
-      #9'<#script src="js/jquery-1.10.2.min.js">'
-      #9'<#script src="js/top.js">'
-      #9'<#script src="js/modernizr.custom.min.js">'
-      #9'<#script src="js/jquery-ui-1.10.3.custom.min.js">'
+      #9'<#style href="/css?name=top_css">'
+      #9'<#style href="/css?name=normalize_css">'
+      #9'<#script src="/js?name=min">'
+      #9'<#script src="/js?name=top">'
+      #9'<#script src="/js?name=modernizr">'
+      #9'<#script src="/js?name=ui_custom">'
       '<div id="fb-root"></div>'
       '<script>(function(d, s, id) {'
       '  var js, fjs = d.getElementsByTagName(s)[0];'
@@ -176,27 +181,27 @@ object WebModule1: TWebModule1
         'v2.8";'
       '  fjs.parentNode.insertBefore(js, fjs);'
       '}(document, '#39'script'#39', '#39'facebook-jssdk'#39'));</script>'
-      '<header><h1 style="text-align: center;">'#28961#26009#38651#23376#25522#31034#26495#12408#12424#12358#12371#12381
-      '</h1></header><div class="slideshow">'
-      #9'<div class="slideshow-slides"><div class="slide">'
+      
+        '<header><h1 style="text-align: center;">'#28961#26009#38651#23376#25522#31034#26495#12408#12424#12358#12371#12381'</h1></heade' +
+        'r>'
+      ''
+      '<div class="slideshow">'
+      '        <div class="slideshow-slides"><div class="slide">'
       '    <#main>'
       ''
-      '</div>'
-      '</div>'
+      '        </div></div>'
       #9'<div class="slideshow-nav">'
-      #9'<a href="#" class="prev">prev'
-      '</a>'
-      #9'<a href="#" class="next">next'
-      '</a>'
-      #9'</div>'
-      #9'<div class="slideshow-indicator"></div>'
+      #9'<a href="#" class="prev">prev</a>'
+      #9'<a href="#" class="next">next</a>'
+      '    </div>'
+      '    <div class="slideshow-indicator"></div>'
+      ''
+      '    <p>[ <#name class="info"> ] ='#12362#30693#12425#12379
+      '    <p>[ <a href="/master">master</a> ] ='#31649#29702#20154
       
-        '    <p>[ <#name class="info"> ] ='#12362#30693#12425#12379'<p>[ <a href="/master">mast' +
-        'er'
-      
-        '</a> ] ='#31649#29702#20154'<div class="fb-like" data-href="http://pybbs.herokuap' +
-        'p.com" data-layout="box_count" data-action="like" data-size="sma' +
-        'll" data-show-faces="true" data-share="false"></div><footer>'
+        '<div class="fb-like" data-href="http://pybbs.herokuapp.com" data' +
+        '-layout="box_count" data-action="like" data-size="small" data-sh' +
+        'ow-faces="true" data-share="false"></div><footer>'
       '<p><br>'
       '<p><a href="/search">'#26908#32034
       '</a>'
@@ -238,7 +243,7 @@ object WebModule1: TWebModule1
       '<html>'
       '  <head>'
       '    <title><#title></title>'
-      '    <meta charset="utf-8">'
+      '    <meta charset="utf-8"><#style rel=/css?main_css>'
       '  </head>'
       ''
       '  <body>'
@@ -389,10 +394,6 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = searchHTMLTag
     Left = 184
-    Top = 224
-  end
-  object css: TPageProducer
-    Left = 232
     Top = 224
   end
 end
