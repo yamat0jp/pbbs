@@ -40,6 +40,7 @@ type
     rawRAW: TStringField;
     rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
+    search: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -60,6 +61,10 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1DeleteHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1SearchHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure searchHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -157,6 +162,51 @@ begin
     ReplaceText := 'info';
 end;
 
+procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  s, t, text, word: string;
+  i: Integer;
+  x: Boolean;
+  com: TStringList;
+begin
+  if TagString = 'main' then
+  begin
+    word := Request.ContentFields.Values['word1'];
+    maintable.First;
+    raw.Open;
+    com := TStringList.Create;
+    try
+      while maintable.Eof = false do
+      begin
+        s := maintable.FieldByName('cmnumber').AsString;
+        t := maintable.FieldByName('tbnumber').AsString;
+        text := '<p><a href=/user?db=' + t + '&job=' + s + '>' + s + '</a>';
+        com.text := raw.Lookup('tbnumber;cmnumber', VarArrayOf([t, s]), 'raw');
+        x := false;
+        for i := 0 to com.Count - 1 do
+        begin
+          s := com[i];
+          if Pos(word, s) > 0 then
+          begin
+            text := text + '<p style=background:yellow>' + s + '</p>';
+            if x = false then
+              x := true;
+          end
+          else
+            text := text + '<p>' + s + '</p>';
+        end;
+        if x = true then
+          ReplaceText := ReplaceText + text;
+        maintable.Next;
+      end;
+    finally
+      com.Free;
+      raw.Close;
+    end;
+  end;
+end;
+
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -211,7 +261,7 @@ begin
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     s := Request.ContentFields.ValueFromIndex[i];
-    maintable.Locate('tbnumber;cmnumber', VarArrayOf([tag, s]));
+    maintable.Locate('tbnumber;cmnumber', VarArrayOf([Tag, s]));
     maintable.Delete;
     raw.Open;
     raw.Locate('cmnumber', s);
@@ -342,13 +392,27 @@ begin
       text := text + s2 + Copy(com, ep, Length(com));
     end;
     maintable.AppendRecord([k, d, j, sub, na, text, DateTimeToStr(Now)]);
+    raw.Open;
+    raw.AppendRecord([k, d, j, s.text, pass]);
+    raw.Close;
   finally
     s.Free;
   end;
-  raw.Open;
-  raw.AppendRecord([k, d, j, s.text, pass]);
-  raw.Close;
   Response.SendRedirect('/?db=' + AnsiString(d) + '#article');
+end;
+
+procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  rc: TResourceStream;
+begin
+  rc := TResourceStream.Create(HInstance, 'search', RT_RCDATA);
+  try
+    Response.ContentType := 'text/html;charset=utf-8';
+    Response.Content := search.ContentFromStream(rc);
+  finally
+    rc.Free;
+  end;
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;

@@ -36,6 +36,11 @@ object WebModule1: TWebModule1
       Name = 'DeleteHandler'
       PathInfo = '/delete'
       OnAction = WebModule1DeleteHandlerAction
+    end
+    item
+      Name = 'SearchHandler'
+      PathInfo = '/search'
+      OnAction = WebModule1SearchHandlerAction
     end>
   Height = 383
   Width = 415
@@ -179,7 +184,6 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
@@ -212,11 +216,16 @@ object WebModule1: TWebModule1
   end
   object admain: TDataSetPageProducer
     HTMLDoc.Strings = (
-      '<tr><td><input type=checkbox name=delete value=<#cmnumber></td>'
+      '<tr><td><input type=checkbox name=delete value=<#cmnumber>></td>'
       ' <td><#cmnumber></td> <td><#datetime></td>'
       ' <td><#name></td><td><#title></td></tr>')
     DataSet = FDQuery1
     Left = 112
+    Top = 224
+  end
+  object search: TPageProducer
+    OnHTMLTag = searchHTMLTag
+    Left = 184
     Top = 224
   end
 end
