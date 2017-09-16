@@ -146,10 +146,9 @@ object WebModule1: TWebModule1
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
-      
-        '<p><a href=/user?db=<#tbnumber>&job=<#cmnumber>>[ <#cmnumber> ]<' +
-        '/a>'
-      '<a name=<#cmnumber>></a><#title>'
+      '<p><a name=<#cmnumber>></a>'
+      '<a href=/user?db=<#tbnumber>&job=<#cmnumber>>[ <#cmnumber> ]</a>'
+      '<#title>'
       '<p><#name>|<#datetime>'
       '<p><#comment>')
     DataSet = FDQuery1

@@ -246,9 +246,11 @@ begin
   else
   begin
     FDQuery1.Last;
+    maintable.Last;
     j := FDQuery1.FieldByName('cmnumber').AsInteger + 1;
-    k := FDQuery1.FieldByName('id').AsInteger + 1;
+    k := maintable.FieldByName('id').AsInteger + 1;
   end;
+  FDQuery1.Close;
   s := TStringList.Create;
   try
     s.text := com;
@@ -264,8 +266,8 @@ begin
       begin
         s1 := Copy(t.Value, 3, t.Length);
         s2 := s2 + Copy(com, ep, t.Index - ep) +
-          '<a class=minpreview data-preview-url=/?key=' + s1 +
-          ' href=/user?job=' + s1 + '>>>' + s1 + '</a>';
+          '<a class=minpreview data-preview-url=/?db=' + d + '&key=' + s1 +
+          ' href=/user?db=' + d + '&job=' + s1 + '>>>' + s1 + '</a>';
         ep := t.Index + t.Length;
         t := t.NextMatch;
       end;
@@ -277,6 +279,7 @@ begin
   end;
   raw.Open;
   raw.AppendRecord([k, d, j, s.text, pass]);
+  raw.Close;
   Response.SendRedirect('/?db=' + AnsiString(d) + '#article');
 end;
 
@@ -314,12 +317,14 @@ begin
       if raw.Locate('tbnumber;cmnumber;password', VarArrayOf([t, num, pass])) = true
       then
       begin
-        i:=maintable.FieldByName('id').AsInteger;
+        i := maintable.FieldByName('id').AsInteger;
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
         maintable.InsertRecord([i, t, num, nil, nil,
           '<p><i><b>ìäçeé“Ç…ÇÊÇËçÌèúÇ≥ÇÍÇ‹ÇµÇΩ</b></i>', time]);
-        raw.Delete;
+        raw.Edit;
+        raw.FieldByName('raw').AsString := '';
+        raw.Post;
       end;
     end;
     Response.SendRedirect('/?db=' + t + '&job=' + num);
