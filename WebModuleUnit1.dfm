@@ -30,6 +30,12 @@ object WebModule1: TWebModule1
       Name = 'LoginHandler'
       PathInfo = '/login'
       OnAction = WebModule1LoginHandlerAction
+    end
+    item
+      MethodType = mtPost
+      Name = 'DeleteHandler'
+      PathInfo = '/delete'
+      OnAction = WebModule1DeleteHandlerAction
     end>
   Height = 383
   Width = 415
@@ -146,9 +152,10 @@ object WebModule1: TWebModule1
     Left = 312
     Top = 16
   end
-  object PageProducer5: TPageProducer
-    Left = 352
-    Top = 320
+  object admin: TPageProducer
+    OnHTMLTag = adminHTMLTag
+    Left = 64
+    Top = 224
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
@@ -202,5 +209,14 @@ object WebModule1: TWebModule1
         ParamType = ptInput
         Value = '1'
       end>
+  end
+  object admain: TDataSetPageProducer
+    HTMLDoc.Strings = (
+      '<tr><td><input type=checkbox name=delete value=<#cmnumber></td>'
+      ' <td><#cmnumber></td> <td><#datetime></td>'
+      ' <td><#name></td><td><#title></td></tr>')
+    DataSet = FDQuery1
+    Left = 112
+    Top = 224
   end
 end

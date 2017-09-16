@@ -17,9 +17,6 @@ Visible=True
 [PbbsConnection]
 Coordinates=376,166,109,36
 
-[PageProducer5]
-Coordinates=376,221,104,36
-
 [PageProducer1]
 Coordinates=376,331,104,36
 
@@ -31,4 +28,7 @@ Coordinates=215,276,74,36
 
 []
 Coordinates=237,350,132,36
+
+[admin]
+Coordinates=376,221,104,36
 

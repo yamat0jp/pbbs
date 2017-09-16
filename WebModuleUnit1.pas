@@ -18,7 +18,7 @@ type
     PageProducer1: TPageProducer;
     indexpage: TPageProducer;
     top: TPageProducer;
-    PageProducer5: TPageProducer;
+    admin: TPageProducer;
     main: TDataSetPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     PbbsConnection: TFDConnection;
@@ -39,6 +39,7 @@ type
     rawCMNUMBER: TIntegerField;
     rawRAW: TStringField;
     rawPASSWORD: TStringField;
+    admain: TDataSetPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -54,6 +55,10 @@ type
     procedure WebModule1AdminHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1LoginHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1DeleteHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private êÈåæ }
@@ -71,6 +76,25 @@ implementation
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}
+
+procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  i: Integer;
+begin
+  if TagString = 'main' then
+  begin
+    for i := 1 to ini.Values['count'].ToInteger do
+    begin
+      if FDQuery1.Eof = true then
+        break;
+      ReplaceText := ReplaceText + admain.Content;
+      FDQuery1.Next;
+    end;
+  end
+  else if TagString = 'tbnumber' then
+    ReplaceText := Self.Tag;
+end;
 
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
@@ -140,9 +164,9 @@ var
   i, j: Integer;
   rc: TResourceStream;
 begin
-  if Request.MethodType = mtGet then
+  s := Request.QueryFields.Values['dbname'];
+  if s <> '' then
   begin
-    s := Request.QueryFields.Values['dbname'];
     if dbname.Locate('dbname', s) = false then
     begin
       if (dbname.Bof = true) and (dbname.Eof = true) then
@@ -160,20 +184,41 @@ begin
       Response.SendRedirect('/');
     end;
   end
-  else if ini.Values['password'] = Request.QueryFields.Values['password'] then
+  else if true or (ini.Values['password'] = Request.ContentFields.Values
+    ['password']) then
   begin
-    s := Request.QueryFields.Values['db'];
-    FDQuery1.ParamByName('param').AsString := s;
+    Tag := Request.QueryFields.Values['db'];
+    FDQuery1.ParamByName('param').AsString := Tag;
     FDQuery1.Open;
     Response.ContentType := 'text/html;charset=utf-8';
     rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
     try
-      Response.Content := indexpage.ContentFromStream(rc);
+      Response.Content := admin.ContentFromStream(rc);
     finally
       rc.Free;
     end;
     FDQuery1.Close;
   end;
+end;
+
+procedure TWebModule1.WebModule1DeleteHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s: string;
+  i: Integer;
+begin
+  Tag := Request.QueryFields.Values['db'];
+  for i := 0 to Request.ContentFields.Count - 1 do
+  begin
+    s := Request.ContentFields.ValueFromIndex[i];
+    maintable.Locate('tbnumber;cmnumber', VarArrayOf([tag, s]));
+    maintable.Delete;
+    raw.Open;
+    raw.Locate('cmnumber', s);
+    raw.Delete;
+    raw.Close;
+  end;
+  Response.SendRedirect('/admin?db=' + AnsiString(Tag));
 end;
 
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
@@ -185,7 +230,7 @@ begin
   Response.ContentType := 'text/html;charset=utf-8';
   rc := TResourceStream.Create(HInstance, 'login', RT_RCDATA);
   try
-    Response.Content := indexpage.ContentFromStream(rc);
+    Response.Content := admin.ContentFromStream(rc);
   finally
     rc.Free;
   end;
