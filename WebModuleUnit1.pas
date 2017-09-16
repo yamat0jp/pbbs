@@ -173,36 +173,72 @@ begin
   if TagString = 'main' then
   begin
     word := Request.ContentFields.Values['word1'];
-    maintable.First;
-    raw.Open;
-    com := TStringList.Create;
-    try
-      while maintable.Eof = false do
-      begin
-        s := maintable.FieldByName('cmnumber').AsString;
-        t := maintable.FieldByName('tbnumber').AsString;
-        text := '<p><a href=/user?db=' + t + '&job=' + s + '>' + s + '</a>';
-        com.text := raw.Lookup('tbnumber;cmnumber', VarArrayOf([t, s]), 'raw');
-        x := false;
-        for i := 0 to com.Count - 1 do
-        begin
-          s := com[i];
-          if Pos(word, s) > 0 then
-          begin
-            text := text + '<p style=background:yellow>' + s + '</p>';
-            if x = false then
-              x := true;
-          end
-          else
-            text := text + '<p>' + s + '</p>';
-        end;
-        if x = true then
-          ReplaceText := ReplaceText + text;
-        maintable.Next;
+    if Request.ContentFields.Values['filter'] = 'name' then
+    begin
+      maintable.Filter := 'NAME = ' + QuotedStr(word);
+      maintable.Filtered := true;
+      raw.Open;
+      com := TStringList.Create;
+      try
+        if maintable.FindFirst = true then
+          repeat
+            s := maintable.FieldByName('cmnumber').AsString;
+            t := maintable.FieldByName('tbnumber').AsString;
+            com.text := raw.Lookup('tbnumber;cmnumber',
+              VarArrayOf([t, s]), 'raw');
+            text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>'
+              + s + '</a>';
+            text := text + '<p style=color:green>' + maintable.FieldByName
+              ('title').AsString;
+            for i := 0 to com.Count - 1 do
+              text := text + '<p>' + com[i] + '</P>';
+            ReplaceText := ReplaceText + '<hr' + text;
+          until maintable.FindNext = false;
+      finally
+        maintable.Filtered := false;
+        raw.Close;
+        com.Free;
       end;
-    finally
-      com.Free;
-      raw.Close;
+    end
+    else
+    begin
+      maintable.First;
+      raw.Open;
+      com := TStringList.Create;
+      try
+        while maintable.Eof = false do
+        begin
+          s := maintable.FieldByName('cmnumber').AsString;
+          t := maintable.FieldByName('tbnumber').AsString;
+          text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
+            s + '</a>';
+          text := text + '<p style=color:green>' + maintable.FieldByName
+            ('title').AsString;
+          text := text + '<p style=color:blue>' + maintable.FieldByName
+            ('name').AsString;
+          com.text := raw.Lookup('tbnumber;cmnumber',
+            VarArrayOf([t, s]), 'raw');
+          x := false;
+          for i := 0 to com.Count - 1 do
+          begin
+            s := com[i];
+            if Pos(word, s) > 0 then
+            begin
+              text := text + '<p style=background:yellow>' + s + '</p>';
+              if x = false then
+                x := true;
+            end
+            else
+              text := text + '<p>' + s + '</p>';
+          end;
+          if x = true then
+            ReplaceText := ReplaceText + '<hr>' + text;
+          maintable.Next;
+        end;
+      finally
+        com.Free;
+        raw.Close;
+      end;
     end;
   end;
 end;

@@ -88,15 +88,15 @@ object WebModule1: TWebModule1
       FieldName = 'CMNUMBER'
       Origin = 'CMNUMBER'
     end
-    object maintableNAME: TStringField
-      FieldName = 'NAME'
-      Origin = 'NAME'
-      Size = 30
-    end
     object maintableTITLE: TStringField
       FieldName = 'TITLE'
       Origin = 'TITLE'
       Size = 80
+    end
+    object maintableNAME: TStringField
+      FieldName = 'NAME'
+      Origin = 'NAME'
+      Size = 30
     end
     object maintableCOMMENT: TStringField
       FieldName = 'COMMENT'
