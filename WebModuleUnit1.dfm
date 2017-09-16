@@ -28,15 +28,17 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    IndexFieldNames = 'ID'
+    IndexName = 'RDB$PRIMARY1'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'dbname'
-    TableName = 'dbname'
+    UpdateOptions.UpdateTableName = 'DBNAME'
+    TableName = 'DBNAME'
     Left = 64
     Top = 152
     object dbnameID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
     end
     object dbnameTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
@@ -49,15 +51,17 @@ object WebModule1: TWebModule1
     end
   end
   object maintable: TFDTable
-    IndexFieldNames = 'ID'
+    IndexName = 'RDB$PRIMARY2'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'maintable'
-    TableName = 'maintable'
+    UpdateOptions.UpdateTableName = 'MAINTABLE'
+    TableName = 'MAINTABLE'
     Left = 136
     Top = 152
     object maintableID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
     end
     object maintableTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
@@ -67,15 +71,15 @@ object WebModule1: TWebModule1
       FieldName = 'CMNUMBER'
       Origin = 'CMNUMBER'
     end
-    object maintableTITLE: TStringField
-      FieldName = 'TITLE'
-      Origin = 'TITLE'
-      Size = 80
-    end
     object maintableNAME: TStringField
       FieldName = 'NAME'
       Origin = 'NAME'
       Size = 30
+    end
+    object maintableTITLE: TStringField
+      FieldName = 'TITLE'
+      Origin = 'TITLE'
+      Size = 80
     end
     object maintableCOMMENT: TStringField
       FieldName = 'COMMENT'
@@ -89,7 +93,7 @@ object WebModule1: TWebModule1
     end
   end
   object raw: TFDTable
-    IndexFieldNames = 'ID'
+    IndexName = 'RDB$PRIMARY3'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'RAWTABLE'
     TableName = 'RAWTABLE'
@@ -98,6 +102,8 @@ object WebModule1: TWebModule1
     object rawID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
     end
     object rawTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
@@ -161,6 +167,7 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29

@@ -24,9 +24,6 @@ type
     PbbsConnection: TFDConnection;
     FDQuery1: TFDQuery;
     full: TFDQuery;
-    dbnameID: TIntegerField;
-    dbnameTBNUMBER: TIntegerField;
-    dbnameDBNAME: TStringField;
     maintableID: TIntegerField;
     maintableTBNUMBER: TIntegerField;
     maintableCMNUMBER: TIntegerField;
@@ -34,6 +31,9 @@ type
     maintableTITLE: TStringField;
     maintableCOMMENT: TStringField;
     maintableDATETIME: TStringField;
+    dbnameID: TIntegerField;
+    dbnameTBNUMBER: TIntegerField;
+    dbnameDBNAME: TStringField;
     rawID: TIntegerField;
     rawTBNUMBER: TIntegerField;
     rawCMNUMBER: TIntegerField;
@@ -135,7 +135,7 @@ procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
-  i: Integer;
+  i, j: Integer;
   rc: TResourceStream;
 begin
   s := Request.QueryFields.Values['dbname'];
@@ -143,13 +143,17 @@ begin
     if dbname.Locate('dbname', s) = false then
     begin
       if (dbname.Bof = true) and (dbname.Eof = true) then
-        i := 1
+      begin
+        i := 1;
+        j := 1;
+      end
       else
       begin
         dbname.Last;
         i := dbname.FieldByName('tbnumber').AsInteger + 1;
+        j := dbname.FieldByName('id').AsInteger + 1;
       end;
-      dbname.AppendRecord([nil,i, s]);
+      dbname.AppendRecord([j, i, s]);
       Response.SendRedirect('/');
     end
     else
@@ -221,7 +225,7 @@ procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   na, sub, com, pass: string;
-  i, j, ep: Integer;
+  i, j, k, ep: Integer;
   s: TStringList;
   t: TMatch;
   s1, s2, text: string;
@@ -235,11 +239,15 @@ begin
   FDQuery1.ParamByName('param').AsInteger := d;
   FDQuery1.Open;
   if (FDQuery1.Bof = true) and (FDQuery1.Eof = true) then
-    j := 1
+  begin
+    j := 1;
+    k := 1;
+  end
   else
   begin
     FDQuery1.Last;
     j := FDQuery1.FieldByName('cmnumber').AsInteger + 1;
+    k := FDQuery1.FieldByName('id').AsInteger + 1;
   end;
   s := TStringList.Create;
   try
@@ -263,13 +271,13 @@ begin
       end;
       text := text + s2 + Copy(com, ep, Length(com));
     end;
-    maintable.AppendRecord([nil, d, j, sub, na, text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([k, d, j, sub, na, text, DateTimeToStr(Now)]);
   finally
     s.Free;
   end;
   raw.Open;
-  raw.AppendRecord([nil, d, j, com, pass]);
-  Response.SendRedirect('/?db=' + AnsiString(d));
+  raw.AppendRecord([k, d, j, s.text, pass]);
+  Response.SendRedirect('/?db=' + AnsiString(d) + '#article');
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
@@ -306,9 +314,10 @@ begin
       if raw.Locate('tbnumber;cmnumber;password', VarArrayOf([t, num, pass])) = true
       then
       begin
-        maintable.Delete;
+        i:=maintable.FieldByName('id').AsInteger;
         time := maintable.FieldByName('datetime').AsString;
-        maintable.InsertRecord([nil, t, num, nil, nil,
+        maintable.Delete;
+        maintable.InsertRecord([i, t, num, nil, nil,
           '<p><i><b>ìäçeé“Ç…ÇÊÇËçÌèúÇ≥ÇÍÇ‹ÇµÇΩ</b></i>', time]);
         raw.Delete;
       end;

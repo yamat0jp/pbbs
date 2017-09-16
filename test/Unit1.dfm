@@ -14,8 +14,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object DBGrid1: TDBGrid
-    Left = 16
-    Top = 120
+    Left = 8
+    Top = 72
     Width = 601
     Height = 120
     DataSource = DataSource1
@@ -34,13 +34,26 @@ object Form1: TForm1
     DataSource = DataSource1
     TabOrder = 1
   end
-  object DBMemo1: TDBMemo
-    Left = 416
-    Top = 8
-    Width = 185
-    Height = 89
-    DataSource = DataSource1
+  object DBGrid2: TDBGrid
+    Left = 120
+    Top = 203
+    Width = 320
+    Height = 88
+    DataSource = DataSource2
     TabOrder = 2
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+  end
+  object DBNavigator2: TDBNavigator
+    Left = 369
+    Top = 25
+    Width = 240
+    Height = 25
+    DataSource = DataSource2
+    TabOrder = 3
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
@@ -59,9 +72,10 @@ object Form1: TForm1
   end
   object FDTable1: TFDTable
     Active = True
+    IndexName = 'RDB$PRIMARY2'
     Connection = FDConnection1
-    UpdateOptions.UpdateTableName = 'maintable'
-    TableName = 'maintable'
+    UpdateOptions.UpdateTableName = 'MAINTABLE'
+    TableName = 'MAINTABLE'
     Left = 264
     Top = 24
   end
@@ -69,5 +83,19 @@ object Form1: TForm1
     Provider = 'Forms'
     Left = 344
     Top = 80
+  end
+  object FDTable2: TFDTable
+    Active = True
+    IndexName = 'RDB$PRIMARY3'
+    Connection = FDConnection1
+    UpdateOptions.UpdateTableName = 'RAWTABLE'
+    TableName = 'RAWTABLE'
+    Left = 472
+    Top = 240
+  end
+  object DataSource2: TDataSource
+    DataSet = FDTable2
+    Left = 536
+    Top = 240
   end
 end

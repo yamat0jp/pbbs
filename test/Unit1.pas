@@ -20,7 +20,10 @@ type
     FDTable1: TFDTable;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     DBNavigator1: TDBNavigator;
-    DBMemo1: TDBMemo;
+    DBGrid2: TDBGrid;
+    FDTable2: TFDTable;
+    DataSource2: TDataSource;
+    DBNavigator2: TDBNavigator;
   private
     { Private êÈåæ }
   public
