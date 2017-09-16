@@ -17,7 +17,6 @@ type
     raw: TFDTable;
     PageProducer1: TPageProducer;
     indexpage: TPageProducer;
-    top: TPageProducer;
     admin: TPageProducer;
     main: TDataSetPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
@@ -41,6 +40,7 @@ type
     rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
+    css: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -65,6 +65,8 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure searchHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1CssHandlerAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     ini: TStringList;
@@ -248,7 +250,6 @@ procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
 var
   s: string;
   i, j: Integer;
-  rc: TResourceStream;
 begin
   s := Request.QueryFields.Values['dbname'];
   if s <> '' then
@@ -277,13 +278,27 @@ begin
     FDQuery1.ParamByName('param').AsString := Tag;
     FDQuery1.Open;
     Response.ContentType := 'text/html;charset=utf-8';
-    rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
+    Response.Content := admin.Content;
+    FDQuery1.Close;
+  end;
+end;
+
+procedure TWebModule1.WebModule1CssHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s: string;
+  rc: TResourceStream;
+begin
+  s := Request.QueryFields.Values['name'];
+  if (s = 'top') or (s = 'main') or (s = 'livepreview_css') then
+  begin
+    rc := TResourceStream.Create(HInstance, s, RT_RCDATA);
     try
-      Response.Content := admin.ContentFromStream(rc);
+      Response.ContentType := 'text/plain';
+      Response.Content := css.ContentFromStream(rc);
     finally
       rc.Free;
     end;
-    FDQuery1.Close;
   end;
 end;
 
@@ -309,17 +324,10 @@ end;
 
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  rc: TResourceStream;
 begin
   Tag := Request.QueryFields.Values['db'];
   Response.ContentType := 'text/html;charset=utf-8';
-  rc := TResourceStream.Create(HInstance, 'login', RT_RCDATA);
-  try
-    Response.Content := admin.ContentFromStream(rc);
-  finally
-    rc.Free;
-  end;
+  Response.Content := admin.Content;
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -327,18 +335,12 @@ procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
 var
   s, DB: string;
   i, j: Integer;
-  rc: TResourceStream;
 begin
   DB := Request.QueryFields.Values['db'];
   if DB = '' then
   begin
     Response.ContentType := 'text/html;charset=utf-8';
-    rc := TResourceStream.Create(HInstance, 'top', RT_RCDATA);
-    try
-      Response.Content := PageProducer1.ContentFromStream(rc);
-    finally
-      rc.Free;
-    end;
+    Response.Content := PageProducer1.Content;
     Exit;
   end;
   s := Request.QueryFields.Values['key'];
@@ -346,7 +348,7 @@ begin
   begin
     FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
       ')and(cmnumber = ' + s + ');');
-    Response.ContentType := 'text/plain';
+    Response.ContentType := 'text/html;charset=utf-8';
     Response.Content := main.Content;
     Exit;
   end;
@@ -367,12 +369,7 @@ begin
     FDQuery1.First;
   Tag := DB;
   Response.ContentType := 'text/html;charset=utf-8';
-  rc := TResourceStream.Create(HInstance, 'index', RT_RCDATA);
-  try
-    Response.Content := indexpage.ContentFromStream(rc);
-  finally
-    rc.Free;
-  end;
+  Response.Content := indexpage.Content;
 end;
 
 procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
@@ -427,6 +424,10 @@ begin
       end;
       text := text + s2 + Copy(com, ep, Length(com));
     end;
+    if sub = '' then
+      sub := 'タイトルなし.';
+    if na = '' then
+      na := '誰かさん';
     maintable.AppendRecord([k, d, j, sub, na, text, DateTimeToStr(Now)]);
     raw.Open;
     raw.AppendRecord([k, d, j, s.text, pass]);
@@ -434,7 +435,7 @@ begin
   finally
     s.Free;
   end;
-  Response.SendRedirect('/?db=' + AnsiString(d) + '#article');
+  Response.SendRedirect('/?db=' + AnsiString(d) + '#bottom');
 end;
 
 procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
@@ -495,7 +496,7 @@ begin
         raw.Post;
       end;
     end;
-    Response.SendRedirect('/?db=' + t + '&job=' + num);
+    Response.SendRedirect(AnsiString('/?db=' + t + '&job=' + num));
   end;
 end;
 

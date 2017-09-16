@@ -7,9 +7,6 @@ Coordinates=49,143,42,36
 [maintable]
 Coordinates=10,10,79,190
 
-[top]
-Coordinates=215,221,40,36
-
 [dbname]
 Coordinates=188,10,76,102
 Visible=True
