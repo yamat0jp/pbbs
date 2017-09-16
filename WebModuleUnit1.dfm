@@ -24,6 +24,12 @@ object WebModule1: TWebModule1
       Name = 'RegistHandler'
       PathInfo = '/regist'
       OnAction = WebModule1RegistHandlerAction
+    end
+    item
+      MethodType = mtGet
+      Name = 'LoginHandler'
+      PathInfo = '/login'
+      OnAction = WebModule1LoginHandlerAction
     end>
   Height = 383
   Width = 415

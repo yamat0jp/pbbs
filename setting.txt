@@ -1,4 +1,5 @@
 count=30
 titlecount=10
 title=pybbs
+password=admin
 title2=<a href=/>pybbs</a>

@@ -53,6 +53,8 @@ type
     procedure WebModuleDestroy(Sender: TObject);
     procedure WebModule1AdminHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1LoginHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -138,8 +140,9 @@ var
   i, j: Integer;
   rc: TResourceStream;
 begin
-  s := Request.QueryFields.Values['dbname'];
-  if s <> '' then
+  if Request.MethodType = mtGet then
+  begin
+    s := Request.QueryFields.Values['dbname'];
     if dbname.Locate('dbname', s) = false then
     begin
       if (dbname.Bof = true) and (dbname.Eof = true) then
@@ -155,17 +158,37 @@ begin
       end;
       dbname.AppendRecord([j, i, s]);
       Response.SendRedirect('/');
-    end
-    else
-    begin
-      Response.ContentType := 'text/html;charset=utf-8';
-      rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
-      try
-        Response.Content := indexpage.ContentFromStream(rc);
-      finally
-        rc.Free;
-      end;
     end;
+  end
+  else if ini.Values['password'] = Request.QueryFields.Values['password'] then
+  begin
+    s := Request.QueryFields.Values['db'];
+    FDQuery1.ParamByName('param').AsString := s;
+    FDQuery1.Open;
+    Response.ContentType := 'text/html;charset=utf-8';
+    rc := TResourceStream.Create(HInstance, 'admin', RT_RCDATA);
+    try
+      Response.Content := indexpage.ContentFromStream(rc);
+    finally
+      rc.Free;
+    end;
+    FDQuery1.Close;
+  end;
+end;
+
+procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  rc: TResourceStream;
+begin
+  Tag := Request.QueryFields.Values['db'];
+  Response.ContentType := 'text/html;charset=utf-8';
+  rc := TResourceStream.Create(HInstance, 'login', RT_RCDATA);
+  try
+    Response.Content := indexpage.ContentFromStream(rc);
+  finally
+    rc.Free;
+  end;
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
