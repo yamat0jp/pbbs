@@ -28,39 +28,44 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    IndexFieldNames = 'TBNUMBER'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'dbname'
     TableName = 'dbname'
     Left = 64
     Top = 152
+    object dbnameID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+    end
     object dbnameTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
       Origin = 'TBNUMBER'
-      Required = True
     end
     object dbnameDBNAME: TStringField
       FieldName = 'DBNAME'
       Origin = 'DBNAME'
-      Required = True
-      Size = 80
+      Size = 30
     end
   end
   object maintable: TFDTable
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'maintable'
     TableName = 'maintable'
     Left = 136
     Top = 152
+    object maintableID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+    end
     object maintableTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
       Origin = 'TBNUMBER'
-      Required = True
     end
     object maintableCMNUMBER: TIntegerField
       FieldName = 'CMNUMBER'
       Origin = 'CMNUMBER'
-      Required = True
     end
     object maintableTITLE: TStringField
       FieldName = 'TITLE'
@@ -84,20 +89,28 @@ object WebModule1: TWebModule1
     end
   end
   object raw: TFDTable
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'raw'
-    TableName = 'raw'
+    UpdateOptions.UpdateTableName = 'RAWTABLE'
+    TableName = 'RAWTABLE'
     Left = 216
     Top = 152
+    object rawID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+    end
+    object rawTBNUMBER: TIntegerField
+      FieldName = 'TBNUMBER'
+      Origin = 'TBNUMBER'
+    end
     object rawCMNUMBER: TIntegerField
       FieldName = 'CMNUMBER'
       Origin = 'CMNUMBER'
-      Required = True
     end
-    object rawRAW: TWideMemoField
+    object rawRAW: TStringField
       FieldName = 'RAW'
       Origin = 'RAW'
-      BlobType = ftWideMemo
+      Size = 32765
     end
     object rawPASSWORD: TStringField
       FieldName = 'PASSWORD'
@@ -176,22 +189,6 @@ object WebModule1: TWebModule1
         DataType = ftString
         ParamType = ptInput
         Value = '1'
-      end>
-  end
-  object comment: TFDQuery
-    Connection = PbbsConnection
-    SQL.Strings = (
-      'update maintable set comment=:com where = :id;')
-    Left = 64
-    Top = 208
-    ParamData = <
-      item
-        Name = 'COM'
-        ParamType = ptInput
-      end
-      item
-        Name = 'ID'
-        ParamType = ptInput
       end>
   end
 end

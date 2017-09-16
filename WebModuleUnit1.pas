@@ -16,26 +16,29 @@ type
     maintable: TFDTable;
     raw: TFDTable;
     PageProducer1: TPageProducer;
-    dbnameTBNUMBER: TIntegerField;
-    dbnameDBNAME: TStringField;
-    maintableTITLE: TStringField;
-    maintableNAME: TStringField;
     indexpage: TPageProducer;
     top: TPageProducer;
     PageProducer5: TPageProducer;
     main: TDataSetPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     PbbsConnection: TFDConnection;
-    maintableDATETIME: TStringField;
-    rawRAW: TWideMemoField;
-    rawPASSWORD: TStringField;
-    maintableTBNUMBER: TIntegerField;
-    maintableCMNUMBER: TIntegerField;
-    rawCMNUMBER: TIntegerField;
     FDQuery1: TFDQuery;
     full: TFDQuery;
-    comment: TFDQuery;
+    dbnameID: TIntegerField;
+    dbnameTBNUMBER: TIntegerField;
+    dbnameDBNAME: TStringField;
+    maintableID: TIntegerField;
+    maintableTBNUMBER: TIntegerField;
+    maintableCMNUMBER: TIntegerField;
+    maintableNAME: TStringField;
+    maintableTITLE: TStringField;
     maintableCOMMENT: TStringField;
+    maintableDATETIME: TStringField;
+    rawID: TIntegerField;
+    rawTBNUMBER: TIntegerField;
+    rawCMNUMBER: TIntegerField;
+    rawRAW: TStringField;
+    rawPASSWORD: TStringField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -146,7 +149,7 @@ begin
         dbname.Last;
         i := dbname.FieldByName('tbnumber').AsInteger + 1;
       end;
-      dbname.AppendRecord([i, s]);
+      dbname.AppendRecord([nil,i, s]);
       Response.SendRedirect('/');
     end
     else
@@ -260,19 +263,19 @@ begin
       end;
       text := text + s2 + Copy(com, ep, Length(com));
     end;
-    maintable.AppendRecord([d, j, sub, na, text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([nil, d, j, sub, na, text, DateTimeToStr(Now)]);
   finally
     s.Free;
   end;
   raw.Open;
-  raw.AppendRecord([j, com, pass]);
-  Response.SendRedirect('/?db=' + d);
+  raw.AppendRecord([nil, d, j, com, pass]);
+  Response.SendRedirect('/?db=' + AnsiString(d));
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num, pass, s, t: string;
+  num, pass, s, t, time: string;
   i, j: Integer;
 begin
   t := Request.QueryFields.Values['db'];
@@ -297,12 +300,20 @@ begin
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if maintable.Locate('cmnumber', num) = true then
+    if maintable.Locate('tbnumber;cmnumber', VarArrayOf([t, num])) = true then
     begin
       raw.Open;
-      if raw.FieldByName('password').AsString = pass then
+      if raw.Locate('tbnumber;cmnumber;password', VarArrayOf([t, num, pass])) = true
+      then
+      begin
         maintable.Delete;
+        time := maintable.FieldByName('datetime').AsString;
+        maintable.InsertRecord([nil, t, num, nil, nil,
+          '<p><i><b>ìäçeé“Ç…ÇÊÇËçÌèúÇ≥ÇÍÇ‹ÇµÇΩ</b></i>', time]);
+        raw.Delete;
+      end;
     end;
+    Response.SendRedirect('/?db=' + t + '&job=' + num);
   end;
 end;
 
