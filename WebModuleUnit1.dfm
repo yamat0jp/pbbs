@@ -279,7 +279,7 @@ object WebModule1: TWebModule1
       '    <#footer>'
       '    <#main>'
       '    <a id=bottom></a>'
-      '    <#footer refer="true">'
+      '    <#footer>'
       '  </body>'
       '</html>')
     OnHTMLTag = indexpageHTMLTag
@@ -400,6 +400,11 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = searchHTMLTag
     Left = 184
+    Top = 224
+  end
+  object footer: TPageProducer
+    OnHTMLTag = footerHTMLTag
+    Left = 240
     Top = 224
   end
 end

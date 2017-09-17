@@ -40,6 +40,7 @@ type
     rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
+    footer: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -68,10 +69,12 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1ImageHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure footerHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private 宣言 }
     ini: TStringList;
-    Tag: Variant;
+    Tag, page: integer;
   public
     { public 宣言 }
   end;
@@ -88,7 +91,7 @@ implementation
 procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  i: Integer;
+  i: integer;
 begin
   if TagString = 'main' then
   begin
@@ -101,17 +104,52 @@ begin
     end;
   end
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag;
+    ReplaceText := Self.Tag.ToString;
+end;
+
+procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  s, t: string;
+  i, j: integer;
+begin
+  if TagParams.Values['admin'] = 'true' then
+    s := '/admin?db='
+  else
+    s := '/?db=';
+  s := s + Self.Tag.ToString + '&page=';
+  ReplaceText := '<div style=text-align:center><b>[</b>';
+  if page = 0 then
+  begin
+    t := '<<';
+    for j := 1 to 10 do
+      t := t + ' <a href=' + s + j.ToString + '>' + j.ToString + '</a> ';
+    t := t + '>> <b>]</b>  recent</div>';
+  end
+  else
+  begin
+    i := page - 1;
+    t := '<a href=' + s + i.ToString + '><<</a>';
+    for j := 1 to 10 do
+      if page = j then
+        t := t + page.ToString
+      else
+        t := t + ' <a href=' + s + j.ToString + '>' + j.ToString + '</a> ';
+    i := page + 1;
+    t := t + '<a href=' + s + i.ToString + '>>></a> <b>]</b>  <a href=' + s +
+      '0>recent</a></div>';
+  end;
+  ReplaceText := ReplaceText + t;
 end;
 
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  i: Integer;
+  i: integer;
 begin
   if TagString = 'main' then
   begin
-    for i := 1 to ini.Values['Count'].ToInteger do
+    for i := 1 to ini.Values['count'].ToInteger do
     begin
       if FDQuery1.Eof = true then
         break;
@@ -124,13 +162,15 @@ begin
   else if TagString = 'title2' then
     ReplaceText := ini.Values['title2']
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag;
+    ReplaceText := Self.Tag.ToString
+  else if TagString = 'footer' then
+    ReplaceText := footer.ContentFromString('<#list admin=false>');
 end;
 
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  i, j, k: Integer;
+  i, j, k: integer;
   s, t1, t2: string;
 begin
   if TagString = 'main' then
@@ -174,8 +214,8 @@ end;
 procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  s, t, text, word: string;
-  i: Integer;
+  s, t, Text, word: string;
+  i: integer;
   x: Boolean;
   com: TStringList;
 begin
@@ -193,15 +233,15 @@ begin
           repeat
             s := maintable.FieldByName('cmnumber').AsString;
             t := maintable.FieldByName('tbnumber').AsString;
-            com.text := raw.Lookup('tbnumber;cmnumber',
+            com.Text := raw.Lookup('tbnumber;cmnumber',
               VarArrayOf([t, s]), 'raw');
-            text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>'
+            Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>'
               + s + '</a>';
-            text := text + '<p style=color:green>' + maintable.FieldByName
+            Text := Text + '<p style=color:green>' + maintable.FieldByName
               ('title').AsString;
             for i := 0 to com.Count - 1 do
-              text := text + '<p>' + com[i] + '</P>';
-            ReplaceText := ReplaceText + '<hr' + text;
+              Text := Text + '<p>' + com[i] + '</P>';
+            ReplaceText := ReplaceText + '<hr' + Text;
           until maintable.FindNext = false;
       finally
         maintable.Filtered := false;
@@ -219,13 +259,13 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
+          Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
             s + '</a>';
-          text := text + '<p style=color:green>' + maintable.FieldByName
+          Text := Text + '<p style=color:green>' + maintable.FieldByName
             ('title').AsString;
-          text := text + '<p style=color:blue>' + maintable.FieldByName
+          Text := Text + '<p style=color:blue>' + maintable.FieldByName
             ('name').AsString;
-          com.text := raw.Lookup('tbnumber;cmnumber',
+          com.Text := raw.Lookup('tbnumber;cmnumber',
             VarArrayOf([t, s]), 'raw');
           x := false;
           for i := 0 to com.Count - 1 do
@@ -233,15 +273,15 @@ begin
             s := com[i];
             if Pos(word, s) > 0 then
             begin
-              text := text + '<p style=background:yellow>' + s + '</p>';
+              Text := Text + '<p style=background:yellow>' + s + '</p>';
               if x = false then
                 x := true;
             end
             else
-              text := text + '<p>' + s + '</p>';
+              Text := Text + '<p>' + s + '</p>';
           end;
           if x = true then
-            ReplaceText := ReplaceText + '<hr>' + text;
+            ReplaceText := ReplaceText + '<hr>' + Text;
           maintable.Next;
         end;
       finally
@@ -256,7 +296,7 @@ procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
-  i, j: Integer;
+  i, j: integer;
 begin
   s := Request.QueryFields.Values['dbname'];
   if s <> '' then
@@ -281,8 +321,8 @@ begin
   else if true or (ini.Values['password'] = Request.ContentFields.Values
     ['password']) then
   begin
-    Tag := Request.QueryFields.Values['db'];
-    FDQuery1.ParamByName('param').AsString := Tag;
+    Tag := Request.QueryFields.Values['db'].ToInteger;
+    FDQuery1.ParamByName('param').AsInteger := Tag;
     FDQuery1.Open;
     Response.ContentType := 'text/html;charset=utf-8';
     Response.Content := admin.Content;
@@ -322,7 +362,7 @@ begin
       else
         Response.ContentType := 'text/javascript';
       b.LoadFromStream(rc);
-      Response.Content := b.text;
+      Response.Content := b.Text;
     end;
   finally
     rc.Free;
@@ -335,9 +375,9 @@ procedure TWebModule1.WebModule1DeleteHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
-  i: Integer;
+  i: integer;
 begin
-  Tag := Request.QueryFields.Values['db'];
+  Tag := Request.QueryFields.Values['db'].ToInteger;
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     s := Request.ContentFields.ValueFromIndex[i];
@@ -348,7 +388,7 @@ begin
     raw.Delete;
     raw.Close;
   end;
-  Response.SendRedirect('/admin?db=' + AnsiString(Tag));
+  Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
 end;
 
 procedure TWebModule1.WebModule1ImageHandlerAction(Sender: TObject;
@@ -368,7 +408,7 @@ end;
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Tag := Request.QueryFields.Values['db'];
+  Tag := Request.QueryFields.Values['db'].ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := admin.Content;
 end;
@@ -377,7 +417,7 @@ procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, DB: string;
-  i, j: Integer;
+  i, j: integer;
 begin
   DB := Request.QueryFields.Values['db'];
   if DB = '' then
@@ -400,8 +440,9 @@ begin
   s := Request.QueryFields.Values['page'];
   if s <> '' then
   begin
+    page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
-    j := s.ToInteger;
+    j := page - 1;
     if i * j < FDQuery1.RecordCount then
     begin
       FDQuery1.First;
@@ -410,7 +451,7 @@ begin
   end
   else
     FDQuery1.First;
-  Tag := DB;
+  Tag := DB.ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
 end;
@@ -419,10 +460,10 @@ procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   na, sub, com, pass: string;
-  i, j, k, ep: Integer;
+  i, j, k, ep: integer;
   s: TStringList;
   t: TMatch;
-  s1, s2, text: string;
+  s1, s2, Text: string;
   d: Variant;
 begin
   d := Request.QueryFields.Values['db'];
@@ -447,7 +488,7 @@ begin
   FDQuery1.Close;
   s := TStringList.Create;
   try
-    s.text := com;
+    s.Text := com;
     for i := 0 to s.Count - 1 do
     begin
       com := s[i];
@@ -465,15 +506,15 @@ begin
         ep := t.Index + t.Length;
         t := t.NextMatch;
       end;
-      text := text + s2 + Copy(com, ep, Length(com));
+      Text := Text + s2 + Copy(com, ep, Length(com));
     end;
     if sub = '' then
       sub := 'タイトルなし.';
     if na = '' then
       na := '誰かさん';
-    maintable.AppendRecord([k, d, j, sub, na, text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([k, d, j, sub, na, Text, DateTimeToStr(Now)]);
     raw.Open;
-    raw.AppendRecord([k, d, j, s.text, pass]);
+    raw.AppendRecord([k, d, j, s.Text, pass]);
     raw.Close;
   finally
     s.Free;
@@ -499,7 +540,7 @@ procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   num, pass, s, t, time: string;
-  i, j: Integer;
+  i, j: integer;
 begin
   t := Request.QueryFields.Values['db'];
   if Request.MethodType = mtGet then
