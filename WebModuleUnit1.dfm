@@ -200,6 +200,7 @@ object WebModule1: TWebModule1
       #9'<a href="#" class="next">next</a>'
       '        </div>'
       '    <div class="slideshow-indicator"></div>'
+      '</div>'
       ''
       '    <p>[ <#name class="info"> ] ='#12362#30693#12425#12379
       '    <p>[ <a href="/master">master</a> ] ='#31649#29702#20154

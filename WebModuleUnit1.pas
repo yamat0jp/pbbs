@@ -294,6 +294,7 @@ procedure TWebModule1.WebModule1CssHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
+  i: integer;
   t, b: TStringList;
   rc: TResourceStream;
 begin
@@ -312,10 +313,14 @@ begin
     t.Add('ui_min');
     t.Add('ui_custom');
     t.Add('livepreview');
-    if t.IndexOf(s) > -1 then
+    i := t.IndexOf(s);
+    if i > -1 then
     begin
       rc := TResourceStream.Create(HInstance, s, RT_RCDATA);
-      Response.ContentType := 'text/plain';
+      if i < 4 then
+        Response.ContentType := 'text/css'
+      else
+        Response.ContentType := 'text/javascript';
       b.LoadFromStream(rc);
       Response.Content := b.text;
     end;
@@ -352,7 +357,10 @@ var
   s: string;
 begin
   s := Request.QueryFields.Values['name'];
-  Response.ContentType := 'image/jpeg';
+  if s = 'splites' then
+    Response.ContentType := 'image/png'
+  else
+    Response.ContentType := 'image/jpeg';
   Response.ContentStream := TResourceStream.Create(HInstance, s, RT_RCDATA);
   Response.SendResponse;
 end;
