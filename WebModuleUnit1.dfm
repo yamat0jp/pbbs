@@ -280,12 +280,12 @@ object WebModule1: TWebModule1
       '    </form>'
       '    <#footer>'
       
-        '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#26368#26032#35352#20107 +
-        #12408#31227#21205'</a>'
+        '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#12506#12540#12472#19979 +
+        #37096#12408#31227#21205'</a>'
       '    <#main>'
       
-        '    <p style=text-align:end><a href=/?db=<#tbnumber>#top>'#12506#12540#12472#12398'top' +
-        #12408#31227#21205'</a>'
+        '    <p style=text-align:end><a href=/?db=<#tbnumber>#top>'#12506#12540#12472#20808#38957#12408#31227 +
+        #21205'</a>'
       '    <a id=bottom></a>'
       
         '    <p style=text-align:center><a href=/admin?db=<#tbnumber>>'#31649#29702#32773 +

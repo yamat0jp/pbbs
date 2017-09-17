@@ -227,22 +227,24 @@ begin
       maintable.Filter := 'NAME = ' + QuotedStr(word);
       maintable.Filtered := true;
       raw.Open;
+      x := maintable.FindFirst;
       com := TStringList.Create;
       try
-        if maintable.FindFirst = true then
-          repeat
-            s := maintable.FieldByName('cmnumber').AsString;
-            t := maintable.FieldByName('tbnumber').AsString;
-            com.Text := raw.Lookup('tbnumber;cmnumber',
-              VarArrayOf([t, s]), 'raw');
-            Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>'
-              + s + '</a>';
-            Text := Text + '<p style=color:green>' + maintable.FieldByName
-              ('title').AsString;
-            for i := 0 to com.Count - 1 do
-              Text := Text + '<p>' + com[i] + '</P>';
-            ReplaceText := ReplaceText + '<hr' + Text;
-          until maintable.FindNext = false;
+        while x = true do
+        begin
+          s := maintable.FieldByName('cmnumber').AsString;
+          t := maintable.FieldByName('tbnumber').AsString;
+          com.Text := raw.Lookup('tbnumber;cmnumber',
+            VarArrayOf([t, s]), 'raw');
+          Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
+            s + '</a>';
+          Text := Text + '<p style=color:green>' + maintable.FieldByName
+            ('title').AsString;
+          for i := 0 to com.Count - 1 do
+            Text := Text + '<p>' + com[i] + '</P>';
+          ReplaceText := ReplaceText + '<hr' + Text;
+          x := maintable.FindNext;
+        end;
       finally
         maintable.Filtered := false;
         raw.Close;
@@ -318,7 +320,8 @@ begin
       Response.SendRedirect('/');
     end;
   end
-  else if false or (ini.Values['password'] = Request.ContentFields.Values['password']) then
+  else if false or (ini.Values['password'] = Request.ContentFields.Values
+    ['password']) then
     Response.SendRedirect('/login?db=' + Tag.ToString)
   else
   begin
@@ -443,16 +446,24 @@ begin
   begin
     page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
-    j := page - 1;
-    if i * j < FDQuery1.RecordCount then
+    if page = 0 then
     begin
-      FDQuery1.First;
-      FDQuery1.MoveBy(i * j);
+      FDQuery1.Last;
+      FDQuery1.MoveBy(-i + 1);
+    end
+    else
+    begin
+      j := page - 1;
+      if i * j < FDQuery1.RecordCount then
+      begin
+        FDQuery1.First;
+        FDQuery1.MoveBy(i * j);
+        Tag := DB.ToInteger;
+      end
+      else
+        Response.SendRedirect('/?db='+db+'&page=0');
     end;
-  end
-  else
-    FDQuery1.First;
-  Tag := DB.ToInteger;
+  end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
 end;
