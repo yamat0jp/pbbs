@@ -66,6 +66,8 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1CssHandlerAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1ImageHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -131,34 +133,36 @@ var
   i, j, k: Integer;
   s, t1, t2: string;
 begin
-  i := ini.Values['Count'].ToInteger;
-  j := ini.Values['titlecount'].ToInteger;
-  k := 1;
-  s := '';
-  dbname.First;
-  while dbname.Eof = false do
-  begin
-    if k mod j = 1 then
-      s := s + '<div class=slide><img src=slide' + ((k div j) + 1).ToString +
-        '.jpg height=465 alt="" style=float:right>';
-    inc(k);
-    t1 := dbname.FieldByName('tbnumber').AsString;
-    t2 := dbname.FieldByName('dbname').AsString;
-    full.ParamByName('param').AsString := t1;
-    full.Open;
-    if full.Fields[0].AsInteger < i then
-      s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
-    else
-      s := s + '<p style=color:red><a href=/?db=' + t1 + '>' + t2 + '</a>';
-    full.Close;
-    if k mod j = 1 then
-      s := s + '</div>';
-    dbname.Next;
-  end;
-  if k mod j <> 1 then
-    s := s + '</div>';
   if TagString = 'main' then
-    ReplaceText := s
+  begin
+    i := ini.Values['Count'].ToInteger;
+    j := ini.Values['titlecount'].ToInteger;
+    k := 1;
+    s := '';
+    dbname.First;
+    while dbname.Eof = false do
+    begin
+      if k mod j = 1 then
+        s := s + '<div class=slide><img src=/img?name=slide' + ((k div j) + 1)
+          .ToString + ' height=465 alt="" style=float:right>';
+      inc(k);
+      t1 := dbname.FieldByName('tbnumber').AsString;
+      t2 := dbname.FieldByName('dbname').AsString;
+      full.ParamByName('param').AsString := t1;
+      full.Open;
+      if full.Fields[0].AsInteger < i then
+        s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
+      else
+        s := s + '<p style=color:red><a href=/?db=' + t1 + '>' + t2 + '</a>';
+      full.Close;
+      if k mod j = 1 then
+        s := s + '</div>';
+      dbname.Next;
+    end;
+    if k mod j <> 1 then
+      s := s + '</div>';
+    ReplaceText := s;
+  end
   else if TagString = 'script' then
     ReplaceText := '<script src=' + TagParams.Values['src'] + '></script>'
   else if TagString = 'style' then
@@ -340,6 +344,17 @@ begin
     raw.Close;
   end;
   Response.SendRedirect('/admin?db=' + AnsiString(Tag));
+end;
+
+procedure TWebModule1.WebModule1ImageHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s: string;
+begin
+  s := Request.QueryFields.Values['name'];
+  Response.ContentType := 'image/jpeg';
+  Response.ContentStream := TResourceStream.Create(HInstance, s, RT_RCDATA);
+  Response.SendResponse;
 end;
 
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;

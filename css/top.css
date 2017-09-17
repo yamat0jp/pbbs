@@ -27,7 +27,7 @@
 
 .slideshow-nav a:before,
 .slideshow-indicator a:before {
-	content:url(../img/sprites.png);
+	content:url(/img?name=sprites);
 	display:inline-block;
 	font-size:0;
 	line-height:0

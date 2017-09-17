@@ -52,6 +52,11 @@ object WebModule1: TWebModule1
       Name = 'ScriptHandler'
       PathInfo = '/js'
       OnAction = WebModule1CssHandlerAction
+    end
+    item
+      Name = 'ImageHandler'
+      PathInfo = '/img'
+      OnAction = WebModule1ImageHandlerAction
     end>
   Height = 383
   Width = 415
@@ -186,14 +191,14 @@ object WebModule1: TWebModule1
         'r>'
       ''
       '<div class="slideshow">'
-      '        <div class="slideshow-slides"><div class="slide">'
+      '        <div class="slideshow-slides">'
       '    <#main>'
       ''
-      '        </div></div>'
+      '        </div>'
       #9'<div class="slideshow-nav">'
       #9'<a href="#" class="prev">prev</a>'
       #9'<a href="#" class="next">next</a>'
-      '    </div>'
+      '        </div>'
       '    <div class="slideshow-indicator"></div>'
       ''
       '    <p>[ <#name class="info"> ] ='#12362#30693#12425#12379

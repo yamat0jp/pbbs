@@ -120,36 +120,6 @@
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>setting</ResourceId>
         </RcItem>
-        <RcItem Include="livepreview-demo.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>livepreview_css</ResourceId>
-        </RcItem>
-        <RcItem Include="main.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>main_css</ResourceId>
-        </RcItem>
-        <RcItem Include="normalize.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>normalize_css</ResourceId>
-        </RcItem>
-        <RcItem Include="smart.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>smart_css</ResourceId>
-        </RcItem>
-        <RcItem Include="tablet.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>tablet_css</ResourceId>
-        </RcItem>
-        <RcItem Include="top.css">
-            <ContainerId>ResourceItem</ContainerId>
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>top_css</ResourceId>
-        </RcItem>
         <RcItem Include="js\jquery-1.10.2.min.js">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
@@ -189,6 +159,64 @@
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>top</ResourceId>
+        </RcItem>
+        <RcItem Include="css\livepreview-demo.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>livepreview_css</ResourceId>
+        </RcItem>
+        <RcItem Include="css\main.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>main_css</ResourceId>
+        </RcItem>
+        <RcItem Include="css\normalize.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>normalize_css</ResourceId>
+        </RcItem>
+        <RcItem Include="css\smart.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>smart_css</ResourceId>
+        </RcItem>
+        <RcItem Include="css\tablet.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>tablet_css</ResourceId>
+        </RcItem>
+        <RcItem Include="css\top.css">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>top_css</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide1.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide1</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide2.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide2</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide3.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide3</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide4.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide4</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide5.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide5</ResourceId>
+        </RcItem>
+        <RcItem Include="img\slide6.jpg">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>slide6</ResourceId>
+        </RcItem>
+        <RcItem Include="img\sprites.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>sprites</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -230,7 +258,19 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="normalize.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="css\top.css" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="img\slide1.jpg" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="css\main.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -242,7 +282,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="livepreview-demo.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="img\slide6.jpg" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="css\normalize.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -266,19 +312,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="smart.css" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="maintenance(rename).htm" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="tablet.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="img\slide4.jpg" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -296,8 +336,20 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="css\livepreview-demo.css" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="livepreview-demo.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="img\slide2.jpg" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -308,13 +360,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="setup.htm" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="main.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="main.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="setup.htm" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -404,7 +456,31 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="img\slide3.jpg" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="img\slide5.jpg" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="js\top.js" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="css\smart.css" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="css\tablet.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -422,7 +498,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="main.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="img\sprites.png" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -431,12 +507,6 @@
                 <DeployFile LocalName="Win64\Debug\Project1.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>Project1.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="top.css" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
