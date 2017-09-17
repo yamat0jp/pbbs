@@ -1,6 +1,3 @@
-mente RCDATA "maintenance(rename).htm"
-search RCDATA "search.htm"
-setup RCDATA "setup.htm"
 setting RCDATA "setting.txt"
 min RCDATA "js\\jquery-1.10.2.min.js"
 livepreview RCDATA "js\\jquery-live-preview.js"

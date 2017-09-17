@@ -318,8 +318,9 @@ begin
       Response.SendRedirect('/');
     end;
   end
-  else if true or (ini.Values['password'] = Request.ContentFields.Values
-    ['password']) then
+  else if false or (ini.Values['password'] = Request.ContentFields.Values['password']) then
+    Response.SendRedirect('/login?db=' + Tag.ToString)
+  else
   begin
     Tag := Request.QueryFields.Values['db'].ToInteger;
     FDQuery1.ParamByName('param').AsInteger := Tag;

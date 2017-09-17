@@ -249,12 +249,14 @@ object WebModule1: TWebModule1
       '<html>'
       '  <head>'
       '    <title><#title></title>'
-      '    <meta charset="utf-8"><#style rel=/css?main_css>'
+      
+        '    <meta charset="utf-8"><link rel=stylesheet href=/css?name=ma' +
+        'in_css>'
       '  </head>'
       ''
       '  <body>'
       '    <#title2>'
-      '    <p>'
+      '    <p><a id=top></a>'
       '    <p>'
       '    <form action="/regist?db=<#tbnumber>" method="post">'
       '    <p>'#12362#21517#21069'<input name="name" value="<#username>">'
@@ -277,8 +279,17 @@ object WebModule1: TWebModule1
         ' type="submit" value="'#21066#38500'">'
       '    </form>'
       '    <#footer>'
+      
+        '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#26368#26032#35352#20107 +
+        #12408#31227#21205'</a>'
       '    <#main>'
+      
+        '    <p style=text-align:end><a href=/?db=<#tbnumber>#top>'#12506#12540#12472#12398'top' +
+        #12408#31227#21205'</a>'
       '    <a id=bottom></a>'
+      
+        '    <p style=text-align:center><a href=/admin?db=<#tbnumber>>'#31649#29702#32773 +
+        #29992#12525#12464#12452#12531'</a>'
       '    <#footer>'
       '  </body>'
       '</html>')
@@ -312,10 +323,14 @@ object WebModule1: TWebModule1
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
       '<p><a name=<#cmnumber>></a>'
-      '<a href=/user?db=<#tbnumber>&job=<#cmnumber>>[ <#cmnumber> ]</a>'
-      '<#title>'
-      '<p><#name>|<#datetime>'
-      '<p><#comment>')
+      
+        '<section id=number><a href=/user?db=<#tbnumber>&job=<#cmnumber> ' +
+        'style=text-decoration:none>[ <#cmnumber> ]</a></section>'
+      '<section id=title><#title></section><br>'
+      
+        '<section id=name><#name></section> | <section id=date><#datetime' +
+        '></section>'
+      '<section id=comment><#comment></section>')
     DataSet = FDQuery1
     Left = 264
     Top = 16
