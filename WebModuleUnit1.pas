@@ -8,7 +8,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Web.HTTPProd, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types, RegularExpressions,
-  FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants;
+  FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants, System.NetEncoding;
 
 type
   TWebModule1 = class(TWebModule)
@@ -547,7 +547,7 @@ begin
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
-  str := Request.CookieFields.Values['name'];
+  str := TNetEncoding.URL.Decode(Request.CookieFields.Values['name']);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
 end;
@@ -609,8 +609,9 @@ begin
     Name := 'name';
     Domain:=Request.Host;
     Path := '/';
-    Expires := 7;
-    Value := na;
+    Expires := Now()+7;
+    Value := AnsiString(na);
+    Secure := false;
   end;
   Response.SendRedirect('/?db=' + AnsiString(Tag.ToString) + '#bottom');
 end;
