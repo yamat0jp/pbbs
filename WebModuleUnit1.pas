@@ -430,6 +430,7 @@ begin
     Response.Content := PageProducer1.Content;
     Exit;
   end;
+  tag:=db.ToInteger;
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
@@ -447,10 +448,7 @@ begin
     page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
     if page = 0 then
-    begin
-      FDQuery1.Last;
-      FDQuery1.MoveBy(-i + 1);
-    end
+      Response.SendRedirect('/?db='+db)
     else
     begin
       j := page - 1;
@@ -461,8 +459,14 @@ begin
         Tag := DB.ToInteger;
       end
       else
-        Response.SendRedirect('/?db='+db+'&page=0');
+        Response.SendRedirect('/?db='+db);
     end;
+  end
+  else
+  begin
+    page:=0;
+    FDQuery1.Last;
+    FDQuery1.MoveBy(-ini.Values['count'].ToInteger+1);
   end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
