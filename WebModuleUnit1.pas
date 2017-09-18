@@ -41,6 +41,7 @@ type
     admain: TDataSetPageProducer;
     search: TPageProducer;
     footer: TPageProducer;
+    key: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -70,6 +71,8 @@ type
     procedure WebModule1ImageHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure footerHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
+    procedure keyHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
@@ -166,6 +169,12 @@ begin
     ReplaceText := Self.Tag.ToString
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list admin=false>');
+end;
+
+procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  ReplaceText:=main.Content;
 end;
 
 function TWebModule1.LinkCreator(const line: string; index: integer): string;
@@ -456,7 +465,7 @@ end;
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s, DB: string;
+  s, t, DB: string;
   i, j: integer;
 begin
   DB := Request.QueryFields.Values['db'];
@@ -470,10 +479,13 @@ begin
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
+    t:=FDQuery1.SQL.Text;
     FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
       ')and(cmnumber = ' + s + ');');
     Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := main.Content;
+    Response.Content := key.Content;
+    FDQuery1.Close;
+    FDQuery1.SQL.Text:=t;
     Exit;
   end;
   FDQuery1.ParamByName('param').AsString := DB;

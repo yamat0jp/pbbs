@@ -252,6 +252,14 @@ object WebModule1: TWebModule1
       
         '    <meta charset="utf-8"><link rel=stylesheet href=/css?name=ma' +
         'in_css>'
+      
+        '    <script type=text/javascript src=http://ajax.googleapis.com/' +
+        'ajax/libs/jquery/1.8.1/jquery.min.js></script>'
+      
+        '    <script type=text/javascript href=/css?name=livepreview></sc' +
+        'ript>'
+      '    <script type=text/javascript href=/css?name=sub></script>'
+      '    <link rel=stylesheet href=/css?name=livepreview_css>'
       '  </head>'
       ''
       '  <body>'
@@ -322,7 +330,7 @@ object WebModule1: TWebModule1
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
-      '<p><a name=<#cmnumber>></a>'
+      '<p><a id=<#cmnumber>></a>'
       
         '<section id=number><a href=/user?db=<#tbnumber>&job=<#cmnumber> ' +
         'style=text-decoration:none>[ <#cmnumber> ]</a></section>'
@@ -421,6 +429,21 @@ object WebModule1: TWebModule1
   object footer: TPageProducer
     OnHTMLTag = footerHTMLTag
     Left = 240
+    Top = 224
+  end
+  object key: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8><title></title>'
+      '<link rel=stylesheet href=/css?name=main_css>'
+      '</head>'
+      '<body>'
+      '<#main>'
+      '</body>'
+      '</html>')
+    OnHTMLTag = keyHTMLTag
+    Left = 296
     Top = 224
   end
 end
