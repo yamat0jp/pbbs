@@ -256,9 +256,9 @@ object WebModule1: TWebModule1
         '    <script type=text/javascript src=http://ajax.googleapis.com/' +
         'ajax/libs/jquery/1.8.1/jquery.min.js></script>'
       
-        '    <script type=text/javascript href=/css?name=livepreview></sc' +
-        'ript>'
-      '    <script type=text/javascript href=/css?name=sub></script>'
+        '    <script type=text/javascript src=/css?name=livepreview></scr' +
+        'ipt>'
+      '    <script type=text/javascript src=/css?name=sub></script>'
       '    <link rel=stylesheet href=/css?name=livepreview_css>'
       '  </head>'
       ''
@@ -266,18 +266,7 @@ object WebModule1: TWebModule1
       '    <#title2>'
       '    <p><a id=top></a>'
       '    <p>'
-      '    <form action="/regist?db=<#tbnumber>" method="post">'
-      '    <p>'#12362#21517#21069'<input name="name" value="<#username>">'
-      '    <p>'#12479#12452#12488#12523'<input name="title">'
-      '      <input type="submit" value="'#36865#20449'">'
-      '    <p>'
-      '    <p>'
-      
-        '    <p><textarea name="comment" style="HEIGHT: 156px; WIDTH: 633' +
-        'px" rows="1" cols="39"></textarea>'
-      '    <p>'
-      '    <p>'#12497#12473#12527#12540#12489'<input name="password" type="password">'
-      '    </form>'
+      '    <#form>'
       '    <p>'
       '      <hr size="1" width="100%">'
       '      <form action="/user?db=<#tbnumber>" method="post">'
@@ -350,10 +339,11 @@ object WebModule1: TWebModule1
   end
   object PbbsConnection: TFDConnection
     Params.Strings = (
-      'Database=DATA.FDB'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
@@ -367,7 +357,9 @@ object WebModule1: TWebModule1
     ParamData = <
       item
         Name = 'PARAM'
+        DataType = ftString
         ParamType = ptInput
+        Value = '1'
       end>
   end
   object full: TFDQuery
@@ -445,5 +437,9 @@ object WebModule1: TWebModule1
     OnHTMLTag = keyHTMLTag
     Left = 296
     Top = 224
+  end
+  object htmlfile: TPageProducer
+    Left = 64
+    Top = 280
   end
 end

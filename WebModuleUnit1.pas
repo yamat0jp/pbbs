@@ -42,6 +42,7 @@ type
     search: TPageProducer;
     footer: TPageProducer;
     key: TPageProducer;
+    htmlfile: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -149,9 +150,37 @@ end;
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
+  s: TStringList;
   i: integer;
 begin
-  if TagString = 'main' then
+  if TagString = 'form' then
+  begin
+    full.ParamByName('param').AsInteger := Self.Tag;
+    full.Open;
+    s := TStringList.Create;
+    try
+      if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
+      begin
+        s.Add('<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>');
+        s.Add('<p><a href=/{{db}}/search>検索ページ</a></p>');
+      end
+      else
+      begin
+        s.Add('<form action=/regist?db=' + Self.Tag.ToString +
+          ' method="post">');
+        s.Add('<p>お名前<input name="name" value="">');
+        s.Add('<p>タイトル<input name="title">');
+        s.Add('<input type="submit" value="送信"><p><p>');
+        s.Add('<p><textarea name="comment" style="HEIGHT: 156px; WIDTH: 633px" rows="1" cols="39"></textarea>');
+        s.Add('<p><p>パスワード<input name="password" type="password"></form>');
+      end;
+      ReplaceText := s.Text;
+    finally
+      full.Close;
+      s.Free;
+    end;
+  end
+  else if TagString = 'main' then
   begin
     for i := 1 to ini.Values['count'].ToInteger do
     begin
@@ -174,7 +203,7 @@ end;
 procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  ReplaceText:=main.Content;
+  ReplaceText := main.Content;
 end;
 
 function TWebModule1.LinkCreator(const line: string; index: integer): string;
@@ -259,7 +288,7 @@ end;
 procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  s, t, text, word: string;
+  s, t, Text, word: string;
   i: integer;
   x: Boolean;
   com: TStringList;
@@ -279,15 +308,15 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          com.text := raw.Lookup('tbnumber;cmnumber',
+          com.Text := raw.Lookup('tbnumber;cmnumber',
             VarArrayOf([t, s]), 'raw');
-          text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
+          Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
-          text := text + '<p id=title style=color:green;display:inline>' +
+          Text := Text + '<p id=title style=color:green;display:inline>' +
             maintable.FieldByName('title').AsString;
           for i := 0 to com.Count - 1 do
-            text := text + '<p>' + com[i] + '</p>';
-          ReplaceText := ReplaceText + '<hr>' + text;
+            Text := Text + '<p>' + com[i] + '</p>';
+          ReplaceText := ReplaceText + '<hr>' + Text;
           x := maintable.FindNext;
         end;
       finally
@@ -306,13 +335,13 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          text := '<p style=display:inline><a href=/user?db=' + t + '&job=' + s
+          Text := '<p style=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
-          text := text + '<p style=color:green;display:inline>' +
+          Text := Text + '<p style=color:green;display:inline>' +
             maintable.FieldByName('title').AsString;
-          text := text + '<p style=color:blue;display:inline>' +
+          Text := Text + '<p style=color:blue;display:inline>' +
             maintable.FieldByName('name').AsString;
-          com.text := raw.Lookup('tbnumber;cmnumber',
+          com.Text := raw.Lookup('tbnumber;cmnumber',
             VarArrayOf([t, s]), 'raw');
           x := false;
           for i := 0 to com.Count - 1 do
@@ -320,15 +349,15 @@ begin
             s := com[i];
             if Pos(word, s) > 0 then
             begin
-              text := text + '<p style=background:yellow>' + s + '</p>';
+              Text := Text + '<p style=background:yellow>' + s + '</p>';
               if x = false then
                 x := true;
             end
             else
-              text := text + '<p>' + s + '</p>';
+              Text := Text + '<p>' + s + '</p>';
           end;
           if x = true then
-            ReplaceText := ReplaceText + '<hr>' + text;
+            ReplaceText := ReplaceText + '<hr>' + Text;
           maintable.Next;
         end;
       finally
@@ -411,7 +440,7 @@ begin
       else
         Response.ContentType := 'text/javascript';
       b.LoadFromStream(rc);
-      Response.Content := b.text;
+      Response.Content := b.Text;
     end;
   finally
     rc.Free;
@@ -479,13 +508,13 @@ begin
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
-    t:=FDQuery1.SQL.Text;
+    t := FDQuery1.SQL.Text;
     FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
       ')and(cmnumber = ' + s + ');');
     Response.ContentType := 'text/html;charset=utf-8';
     Response.Content := key.Content;
     FDQuery1.Close;
-    FDQuery1.SQL.Text:=t;
+    FDQuery1.SQL.Text := t;
     Exit;
   end;
   FDQuery1.ParamByName('param').AsString := DB;
@@ -523,7 +552,7 @@ end;
 procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  na, sub, com, pass, text: string;
+  na, sub, com, pass, Text: string;
   i, j, k: integer;
   s: TStringList;
 begin
@@ -549,22 +578,22 @@ begin
   FDQuery1.Close;
   s := TStringList.Create;
   try
-    s.text := com;
-    text := '';
+    s.Text := com;
+    Text := '';
     for i := 0 to s.Count - 1 do
     begin
       com := s[i];
       if (Length(com) > 0) and (com[1] = ' ') then
         com := '&nbsp;' + Copy(com, 2, Length(com));
-      text := text + LinkCreator(LinkCreator('<p>' + com, 1), 2);
+      Text := Text + LinkCreator(LinkCreator('<p>' + com, 1), 2);
     end;
     if sub = '' then
       sub := 'タイトルなし.';
     if na = '' then
       na := '誰かさん';
-    maintable.AppendRecord([k, Tag, j, sub, na, text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([k, Tag, j, sub, na, Text, DateTimeToStr(Now)]);
     raw.Open;
-    raw.AppendRecord([k, Tag, j, s.text, pass]);
+    raw.AppendRecord([k, Tag, j, s.Text, pass]);
     raw.Close;
   finally
     s.Free;
