@@ -342,7 +342,7 @@ object WebModule1: TWebModule1
   end
   object PbbsConnection: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
+      'Database=DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
@@ -403,9 +403,10 @@ object WebModule1: TWebModule1
       '      <p>'#26908#32034#12527#12540#12489
       ''
       '      <p><input name="word1">'
+      '    <p><input type="radio" name="filter" value="name">'#21517#21069#12363#12425#26908#32034
       
-        '    <p><input type="radio" name="filter" value="name">'#21517#21069#12363#12425#26908#32034' <in' +
-        'put type="radio" checked="true" name="filter" value=com>'#26412#25991#12363#12425#26908#32034
+        '     <input type="radio" checked="true" name="filter" value=com>' +
+        #26412#25991#12363#12425#26908#32034
       '    <p>'
       '    <input type="submit" value="'#26908#32034'">'
       '    </form>'

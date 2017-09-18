@@ -238,11 +238,11 @@ begin
             VarArrayOf([t, s]), 'raw');
           Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
             s + '</a>';
-          Text := Text + '<p style=color:green>' + maintable.FieldByName
-            ('title').AsString;
+          Text := Text + '<div id=title style=color:green>' + maintable.FieldByName
+            ('title').AsString+'</div>';
           for i := 0 to com.Count - 1 do
-            Text := Text + '<p>' + com[i] + '</P>';
-          ReplaceText := ReplaceText + '<hr' + Text;
+            Text := Text + '<p>' + com[i] + '</p>';
+          ReplaceText := ReplaceText + '<hr>' + Text;
           x := maintable.FindNext;
         end;
       finally
@@ -430,7 +430,7 @@ begin
     Response.Content := PageProducer1.Content;
     Exit;
   end;
-  tag:=db.ToInteger;
+  Tag := DB.ToInteger;
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
@@ -448,7 +448,7 @@ begin
     page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
     if page = 0 then
-      Response.SendRedirect('/?db='+db)
+      Response.SendRedirect('/?db=' + DB)
     else
     begin
       j := page - 1;
@@ -459,14 +459,14 @@ begin
         Tag := DB.ToInteger;
       end
       else
-        Response.SendRedirect('/?db='+db);
+        Response.SendRedirect('/?db=' + DB);
     end;
   end
   else
   begin
-    page:=0;
+    page := 0;
     FDQuery1.Last;
-    FDQuery1.MoveBy(-ini.Values['count'].ToInteger+1);
+    FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
@@ -540,23 +540,16 @@ end;
 
 procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  rc: TResourceStream;
 begin
-  rc := TResourceStream.Create(HInstance, 'search', RT_RCDATA);
-  try
-    Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := search.ContentFromStream(rc);
-  finally
-    rc.Free;
-  end;
+  Response.ContentType := 'text/html;charset=utf-8';
+  Response.Content := search.Content
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   num, pass, s, t, time: string;
-  i, j: integer;
+  i, j, k: integer;
 begin
   t := Request.QueryFields.Values['db'];
   if Request.MethodType = mtGet then
@@ -569,10 +562,11 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      if i - num.ToInteger < j then
+      k:= num.ToInteger;
+      if i - k < j then
         s := ''
       else
-        s := '&page=' + (1 + i div j).ToString;
+        s := '&page=' + (1 + (k - 1) div j).ToString;
       Response.SendRedirect(AnsiString('/?db=' + t + s + '#' + num));
     end;
   end
