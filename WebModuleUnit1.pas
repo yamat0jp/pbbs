@@ -75,10 +75,13 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure keyHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure htmlfileHTMLTag(Sender: TObject; Tag: TTag;
+      const TagString: string; TagParams: TStrings; var ReplaceText: string);
   private
     { private 宣言 }
     ini: TStringList;
     Tag, page: integer;
+    str: string;
   public
     { public 宣言 }
     function LinkCreator(const line: string; index: integer): string;
@@ -147,35 +150,29 @@ begin
   ReplaceText := ReplaceText + t;
 end;
 
+procedure TWebModule1.htmlfileHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  if TagString = 'tbnumber' then
+    ReplaceText := Self.Tag.ToString
+  else if TagString = 'name' then
+    ReplaceText := str;
+end;
+
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  s: TStringList;
   i: integer;
 begin
   if TagString = 'form' then
   begin
     full.ParamByName('param').AsInteger := Self.Tag;
     full.Open;
-    s := TStringList.Create;
-    try
-      if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
-        s.Add('<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>')
-      else
-      begin
-        s.Add('<form action=/regist?db=' + Self.Tag.ToString +
-          ' method="post">');
-        s.Add('<p>お名前<input name="name" value="">');
-        s.Add('<p>タイトル<input name="title">');
-        s.Add('<input type="submit" value="送信"><p><p>');
-        s.Add('<p><textarea name="comment" style="HEIGHT: 156px; WIDTH: 633px" rows="1" cols="39"></textarea>');
-        s.Add('<p><p>パスワード<input name="password" type="password"></form>');
-      end;
-      ReplaceText := s.Text;
-    finally
-      full.Close;
-      s.Free;
-    end;
+    if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
+      ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>'
+    else
+      ReplaceText := htmlfile.Content;
+    full.Close;
   end
   else if TagString = 'main' then
   begin
@@ -259,7 +256,7 @@ begin
       inc(k);
       t1 := dbname.FieldByName('tbnumber').AsString;
       t2 := dbname.FieldByName('dbname').AsString;
-      full.ParamByName('param').AsString := t1;
+      full.ParamByName('param').AsInteger := t1.ToInteger;
       full.Open;
       if full.Fields[0].AsInteger < i then
         s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
@@ -515,7 +512,7 @@ begin
     Exit;
   end;
   FDQuery1.Close;
-  FDQuery1.ParamByName('param').AsString := DB;
+  FDQuery1.ParamByName('param').AsInteger := Tag;
   FDQuery1.Open;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
@@ -527,7 +524,7 @@ begin
     else
     begin
       j := page - 1;
-      full.ParamByName('param').AsString := DB;
+      full.ParamByName('param').AsInteger := Tag;
       full.Open;
       if i * j < full.Fields[0].AsInteger then
       begin
@@ -536,7 +533,11 @@ begin
         Tag := DB.ToInteger;
       end
       else
+      begin
         Response.SendRedirect('/?db=' + AnsiString(DB));
+        full.Close;
+        Exit;
+      end;
       full.Close;
     end;
   end
@@ -546,6 +547,7 @@ begin
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
+  str := Request.CookieFields.Values['name'];
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
 end;
@@ -602,6 +604,14 @@ begin
   finally
     s.Free;
   end;
+  with Response.Cookies.Add do
+  begin
+    Name := 'name';
+    Domain:=Request.Host;
+    Path := '/';
+    Expires := 7;
+    Value := na;
+  end;
   Response.SendRedirect('/?db=' + AnsiString(Tag.ToString) + '#bottom');
 end;
 
@@ -622,7 +632,7 @@ begin
   if Request.MethodType = mtGet then
   begin
     num := Request.QueryFields.Values['job'];
-    full.ParamByName('param').AsString := t;
+    full.ParamByName('param').AsInteger := t.ToInteger;
     full.Open;
     i := full.Fields[0].AsInteger;
     full.Close;

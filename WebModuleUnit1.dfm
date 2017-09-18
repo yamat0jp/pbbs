@@ -438,6 +438,16 @@ object WebModule1: TWebModule1
     Top = 224
   end
   object htmlfile: TPageProducer
+    HTMLDoc.Strings = (
+      '<form action=/regist?db=<#tbnumber> method="post">'
+      '<p>'#12362#21517#21069'<input name="name" value="<#name>">'
+      '<p>'#12479#12452#12488#12523'<input name="title">'
+      '<input type="submit" value="'#36865#20449'"><p><p>'
+      
+        '<p><textarea name="comment" style="HEIGHT: 156px; WIDTH: 633px" ' +
+        'rows="1" cols="39"></textarea>'
+      '<p><p>'#12497#12473#12527#12540#12489'<input name="password" type="password"></form>')
+    OnHTMLTag = htmlfileHTMLTag
     Left = 64
     Top = 280
   end
