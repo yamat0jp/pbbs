@@ -236,10 +236,10 @@ begin
           t := maintable.FieldByName('tbnumber').AsString;
           com.Text := raw.Lookup('tbnumber;cmnumber',
             VarArrayOf([t, s]), 'raw');
-          Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
-            s + '</a>';
-          Text := Text + '<div id=title style=color:green>' + maintable.FieldByName
-            ('title').AsString+'</div>';
+          Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
+            + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
+          Text := Text + '<p id=title style=color:green;display:inline>' +
+            maintable.FieldByName('title').AsString;
           for i := 0 to com.Count - 1 do
             Text := Text + '<p>' + com[i] + '</p>';
           ReplaceText := ReplaceText + '<hr>' + Text;
@@ -261,12 +261,12 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          Text := '<p><a href=/user?db=' + t + '&job=' + s + ' target=_blank>' +
-            s + '</a>';
-          Text := Text + '<p style=color:green>' + maintable.FieldByName
-            ('title').AsString;
-          Text := Text + '<p style=color:blue>' + maintable.FieldByName
-            ('name').AsString;
+          Text := '<p style=display:inline><a href=/user?db=' + t + '&job=' + s
+            + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
+          Text := Text + '<p style=color:green;display:inline>' +
+            maintable.FieldByName('title').AsString;
+          Text := Text + '<p style=color:blue;display:inline>' +
+            maintable.FieldByName('name').AsString;
           com.Text := raw.Lookup('tbnumber;cmnumber',
             VarArrayOf([t, s]), 'raw');
           x := false;
@@ -322,7 +322,7 @@ begin
   end
   else if false or (ini.Values['password'] = Request.ContentFields.Values
     ['password']) then
-    Response.SendRedirect('/login?db=' + Tag.ToString)
+    Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
   else
   begin
     Tag := Request.QueryFields.Values['db'].ToInteger;
@@ -448,7 +448,7 @@ begin
     page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
     if page = 0 then
-      Response.SendRedirect('/?db=' + DB)
+      Response.SendRedirect('/?db=' + AnsiString(DB))
     else
     begin
       j := page - 1;
@@ -459,7 +459,7 @@ begin
         Tag := DB.ToInteger;
       end
       else
-        Response.SendRedirect('/?db=' + DB);
+        Response.SendRedirect('/?db=' + AnsiString(DB));
     end;
   end
   else
@@ -562,7 +562,7 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      k:= num.ToInteger;
+      k := num.ToInteger;
       if i - k < j then
         s := ''
       else
