@@ -57,6 +57,11 @@ object WebModule1: TWebModule1
       Name = 'ImageHandler'
       PathInfo = '/img'
       OnAction = WebModule1ImageHandlerAction
+    end
+    item
+      Name = 'TitleHandler'
+      PathInfo = '/title'
+      OnAction = WebModule1TitleHandlerAction
     end>
   Height = 383
   Width = 415
@@ -449,6 +454,44 @@ object WebModule1: TWebModule1
       '<p><p>'#12497#12473#12527#12540#12489'<input name="password" type="password"></form>')
     OnHTMLTag = htmlfileHTMLTag
     Left = 64
+    Top = 280
+  end
+  object title: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8><title>'#12479#12452#12488#12523#19968#35239'</title>'
+      
+        '<script src=http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jq' +
+        'uery.min.js></script>'
+      '<script src=/css?name=min></script>'
+      '<script src=/css?name=top></script>'
+      '<link rel=stylesheet href=/css?name=top_css>'
+      '</head>'
+      '<body>'
+      '<#main>'
+      '<p><a href=/>'#12418#12393#12427'</a>'
+      '<footer>PR '#12522#12531#12463
+      
+        '<p><a href=https://www.amazon.co.jp/%E9%AB%98%E6%A0%A1%E5%8D%92%' +
+        'E6%A5%AD%E3%81%BE%E3%81%A7%E3%81%AE%E3%82%B5%E3%83%83%E3%82%AB%E' +
+        '3%83%BC%E6%88%A6%E8%A1%93-sanuki_kainushi-ebook/dp/B00AXBM08Q/re' +
+        'f=sr_1_7?ie=UTF8&qid=1479369992&sr=8-7&keywords=sanuki_kainushi>' +
+        #39640#26657#21330#26989#12414#12391#12398#12469#12483#12459#12540#25126#34899'</a><br>'
+      'amazon kindle</p>'
+      '<p>'
+      
+        '<p><a href=https://www.amazon.co.jp/%E4%B8%AD%E5%AD%A6%E5%8D%92%' +
+        'E6%A5%AD%E3%81%BE%E3%81%A7%E3%81%AE%E3%82%B5%E3%83%83%E3%82%AB%E' +
+        '3%83%BC%E6%88%A6%E8%A1%93-sanuki_kainushi-ebook/dp/B014X0S874/re' +
+        'f=sr_1_3?s=digital-text&ie=UTF8&qid=1479370246&sr=1-3>'#20013#23398#21330#26989#12414#12391#12398#12469#12483#12459 +
+        #12540#25126#34899'</a><br>'
+      'amazon kindle</p>'
+      '</footer>'
+      '</body>'
+      '</html>')
+    OnHTMLTag = titleHTMLTag
+    Left = 112
     Top = 280
   end
 end

@@ -43,6 +43,7 @@ type
     footer: TPageProducer;
     key: TPageProducer;
     htmlfile: TPageProducer;
+    title: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -77,6 +78,10 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure htmlfileHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1TitleHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure titleHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private 宣言 }
     ini: TStringList;
@@ -362,6 +367,38 @@ begin
   end;
 end;
 
+procedure TWebModule1.titleHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  i, j: integer;
+  s: string;
+begin
+  dbname.First;
+  while dbname.Eof = false do
+  begin
+    j := dbname.FieldByName('tbnumber').AsInteger;
+    FDQuery1.ParamByName('param').AsInteger := j;
+    FDQuery1.Open;
+    FDQuery1.First;
+    full.ParamByName('param').AsInteger := j;
+    full.Open;
+    i := full.Fields[0].AsInteger;
+    full.Close;
+    if i = ini.Values['count'].ToInteger then
+      s := ' style=color:red'
+    else
+      s := '';
+    ReplaceText := ReplaceText + '<a href=/?db=' + j.ToString + s + '>' +
+      dbname.FieldByName('dbname').AsString + '</a>↓<div>タイトル:' +
+      FDQuery1.FieldByName('title').AsString;
+    FDQuery1.Last;
+    ReplaceText := ReplaceText + '記事数:' + j.ToString + '更新時刻:' +
+      FDQuery1.FieldByName('datetime').AsString + '</div>';
+    FDQuery1.Close;
+    dbname.Next;
+  end;
+end;
+
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -607,9 +644,9 @@ begin
   with Response.Cookies.Add do
   begin
     Name := 'name';
-    Domain:=Request.Host;
+    Domain := Request.Host;
     Path := '/';
-    Expires := Now()+7;
+    Expires := Now() + 7;
     Value := AnsiString(na);
     Secure := false;
   end;
@@ -621,6 +658,12 @@ procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
 begin
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := search.Content
+end;
+
+procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  Response.Content := title.Content;
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
