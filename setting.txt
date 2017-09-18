@@ -1,5 +1,5 @@
-count=3
-titlecount=3
+count=10
+titlecount=7
 title=pybbs
 password=admin
 title2=<a href=/>pybbs</a>

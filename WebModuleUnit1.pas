@@ -160,10 +160,7 @@ begin
     s := TStringList.Create;
     try
       if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
-      begin
-        s.Add('<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>');
-        s.Add('<p><a href=/{{db}}/search>検索ページ</a></p>');
-      end
+        s.Add('<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>')
       else
       begin
         s.Add('<form action=/regist?db=' + Self.Tag.ToString +
@@ -517,6 +514,7 @@ begin
     FDQuery1.SQL.Text := t;
     Exit;
   end;
+  FDQuery1.Close;
   FDQuery1.ParamByName('param').AsString := DB;
   FDQuery1.Open;
   s := Request.QueryFields.Values['page'];
@@ -529,7 +527,9 @@ begin
     else
     begin
       j := page - 1;
-      if i * j < FDQuery1.RecordCount then
+      full.ParamByName('param').AsString := DB;
+      full.Open;
+      if i * j < full.Fields[0].AsInteger then
       begin
         FDQuery1.First;
         FDQuery1.MoveBy(i * j);
@@ -537,6 +537,7 @@ begin
       end
       else
         Response.SendRedirect('/?db=' + AnsiString(DB));
+      full.Close;
     end;
   end
   else
@@ -561,19 +562,22 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
+  FDQuery1.Close;
   FDQuery1.ParamByName('param').AsInteger := Tag;
   FDQuery1.Open;
-  if (FDQuery1.Bof = true) and (FDQuery1.Eof = true) then
+  if (maintable.Bof = true) and (maintable.Eof = true) then
+    k := 0
+  else
   begin
-    j := 1;
-    k := 1;
-  end
+    maintable.Last;
+    k := maintable.FieldByName('id').AsInteger + 1;
+  end;
+  if (FDQuery1.Bof = true) and (FDQuery1.Eof = true) then
+    j := 1
   else
   begin
     FDQuery1.Last;
-    maintable.Last;
     j := FDQuery1.FieldByName('cmnumber').AsInteger + 1;
-    k := maintable.FieldByName('id').AsInteger + 1;
   end;
   FDQuery1.Close;
   s := TStringList.Create;
