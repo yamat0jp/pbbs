@@ -289,8 +289,8 @@ begin
   alerttable.Open;
   while alerttable.Eof = false do
   begin
-    ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName
-      ('message').AsString + alerttable.FieldByName('datetime').AsString;
+    ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName('message')
+      .AsString + alerttable.FieldByName('datetime').AsString;
     alerttable.Next;
   end;
   alerttable.Close;
@@ -363,8 +363,7 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          com.Text := raw.Lookup('tbnumber;cmnumber',
-            VarArrayOf([t, s]), 'raw');
+          com.Text := raw.Lookup('id',maintable.FieldByName('id').AsInteger, 'raw');
           Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p id=title style=color:green;display:inline>' +
@@ -396,8 +395,8 @@ begin
             maintable.FieldByName('title').AsString;
           Text := Text + '<p style=color:blue;display:inline>' +
             maintable.FieldByName('name').AsString;
-          com.Text := raw.Lookup('tbnumber;cmnumber',
-            VarArrayOf([t, s]), 'raw');
+          com.Text := raw.Lookup('id', maintable.FieldByName('id')
+            .AsInteger, 'raw');
           x := false;
           for i := 0 to com.Count - 1 do
           begin
@@ -761,7 +760,7 @@ begin
       sub := 'タイトルなし.';
     if na = '' then
       na := '誰かさん';
-    maintable.AppendRecord([k, Tag, j, sub, na, Text, DateTimeToStr(Now)]);
+    maintable.AppendRecord([k, Tag, j, na, sub, Text, DateTimeToStr(Now)]);
     raw.Open;
     raw.AppendRecord([k, s.Text, pass]);
     raw.Close;
