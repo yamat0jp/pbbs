@@ -61,7 +61,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1TitleHandlerAction
     end
     item
-      MethodType = mtGet
       Name = 'HelpHandler'
       PathInfo = '/help'
       OnAction = WebModule1HelpHandlerAction

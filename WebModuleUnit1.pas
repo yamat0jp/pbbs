@@ -290,7 +290,7 @@ begin
   while alerttable.Eof = false do
   begin
     ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName
-      ('message').AsString;
+      ('message').AsString + alerttable.FieldByName('datetime').AsString;
     alerttable.Next;
   end;
   alerttable.Close;
@@ -527,7 +527,7 @@ begin
         com := '<p style=font-weight:bold>' + Request.ContentFields.Values
           ['com'] + '<p><a href=/user?db=' + s + '&job=' + t +
           ' style=text-decoration:none>[' + s + '-' + t + ']</a> ' +
-          Copy(raw.FieldByName('raw').AsString, 1, 100) + ' ...<p>' + time;
+          Copy(raw.FieldByName('raw').AsString, 1, 100) + ' ...<p>';
         raw.Close;
         alerttable.AppendRecord([i, com, time]);
         alerttable.Close;
@@ -606,7 +606,14 @@ procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
   if Request.MethodType = mtPost then
-    str := 'ëóêMÇµÇ‹ÇµÇΩ.'
+  begin
+    str := 'ëóêMÇµÇ‹ÇµÇΩ.';
+    alerttable.Open;
+    alerttable.Last;
+    alerttable.AppendRecord([alerttable.FieldByName('id').AsInteger + 1,
+      Request.ContentFields.Values['help'], DateTimeToStr(Now)]);
+    alerttable.Close;
+  end
   else
     str := '';
   Response.ContentType := 'text/html;charset=utf-8';
