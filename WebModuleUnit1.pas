@@ -44,6 +44,7 @@ type
     key: TPageProducer;
     htmlfile: TPageProducer;
     title: TPageProducer;
+    help: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -81,6 +82,10 @@ type
     procedure WebModule1TitleHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure titleHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1HelpHandlerAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
+    procedure helpHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
@@ -153,6 +158,13 @@ begin
       '0>recent</a></div>';
   end;
   ReplaceText := ReplaceText + t;
+end;
+
+procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  if TagString = 'message' then
+    ReplaceText := str;
 end;
 
 procedure TWebModule1.htmlfileHTMLTag(Sender: TObject; Tag: TTag;
@@ -501,6 +513,17 @@ begin
   Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
 end;
 
+procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  if Request.MethodType = mtPost then
+    str := 'ëóêMÇµÇ‹ÇµÇΩ.'
+  else
+    str := '';
+  Response.ContentType := 'text/html;charset=utf-8';
+  Response.Content := help.Content;
+end;
+
 procedure TWebModule1.WebModule1ImageHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -664,7 +687,7 @@ end;
 procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Response.ContentType:='text/html;charset=utf-8';
+  Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := title.Content;
 end;
 

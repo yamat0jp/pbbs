@@ -63,6 +63,11 @@ object WebModule1: TWebModule1
       Name = 'TitleHandler'
       PathInfo = '/title'
       OnAction = WebModule1TitleHandlerAction
+    end
+    item
+      Name = 'HelpHandler'
+      PathInfo = '/help'
+      OnAction = WebModule1HelpHandlerAction
     end>
   Height = 383
   Width = 415
@@ -496,6 +501,32 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = titleHTMLTag
     Left = 112
+    Top = 280
+  end
+  object help: TPageProducer
+    HTMLDoc.Strings = (
+      '<!DOCTYPE html>'
+      ''
+      '<html><head><meta charset=utf-8><title>'#20351#12356#26041'</title></head>'
+      '<body>'
+      '<P>'#35370#21839#32773#12398#30342#12373#12435'</P>'
+      '<form action=/help method=post>'
+      #9'<p>'#12362#21839#12356#21512#12431#12379'<'#21066#38500#20381#38972#12394#12393#20309#12391#12418'></p>'
+      #9'<textarea name=help style=height:100px;width:250px>'
+      #25237#31295#32773#21517#12394#12393#65306
+      #30456#35527#20869#23481#65306
+      #12381#12398#20182#65306'</textarea><br>'
+      #9'<input type=submit value="'#36865#20449'"></form>'
+      #9'<p><#message></p><br>'
+      '<p>'#38283#30330#32773#12398#30342#12373#12435
+      '<p>pybbs'#12398'API'
+      '<p>ArticleAPI ... ~/read/api/<b>dbname</b>/<b>number</b>'
+      '<p>ListAPI ... ~/list/api/<b>dbname</b>'
+      '<p style=text-align:center><a href=/>'#25147#12427'</a>'
+      '</body>'
+      '</html>')
+    OnHTMLTag = helpHTMLTag
+    Left = 184
     Top = 280
   end
 end
