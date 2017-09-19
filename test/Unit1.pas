@@ -24,6 +24,10 @@ type
     FDTable2: TFDTable;
     DataSource2: TDataSource;
     DBNavigator2: TDBNavigator;
+    FDTable3: TFDTable;
+    DBGrid3: TDBGrid;
+    DataSource3: TDataSource;
+    DBNavigator3: TDBNavigator;
   private
     { Private êÈåæ }
   public

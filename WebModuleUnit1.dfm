@@ -73,6 +73,11 @@ object WebModule1: TWebModule1
       Name = 'AlertHandler'
       PathInfo = '/alert'
       OnAction = WebModule1AlertHandlerAction
+    end
+    item
+      Name = 'MasterHandler'
+      PathInfo = '/master'
+      OnAction = WebModule1MasterHandlerAction
     end>
   Height = 383
   Width = 415
@@ -153,14 +158,6 @@ object WebModule1: TWebModule1
       Origin = 'ID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
-    end
-    object rawTBNUMBER: TIntegerField
-      FieldName = 'TBNUMBER'
-      Origin = 'TBNUMBER'
-    end
-    object rawCMNUMBER: TIntegerField
-      FieldName = 'CMNUMBER'
-      Origin = 'CMNUMBER'
     end
     object rawRAW: TStringField
       FieldName = 'RAW'
@@ -358,10 +355,11 @@ object WebModule1: TWebModule1
   end
   object PbbsConnection: TFDConnection
     Params.Strings = (
-      'Database=DATA.FDB'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
@@ -556,6 +554,47 @@ object WebModule1: TWebModule1
       '</body></html>')
     OnHTMLTag = alertHTMLTag
     Left = 240
+    Top = 280
+  end
+  object alerttable: TFDTable
+    IndexFieldNames = 'ID'
+    Connection = PbbsConnection
+    UpdateOptions.UpdateTableName = 'ALERT'
+    TableName = 'ALERT'
+    Left = 344
+    Top = 152
+    object alerttableID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object alerttableNUMBER: TIntegerField
+      FieldName = 'NUMBER'
+      Origin = 'NUMBER'
+      Required = True
+    end
+    object alerttableMESSAGE: TStringField
+      FieldName = 'MESSAGE'
+      Origin = '"MESSAGE"'
+      Size = 1000
+    end
+  end
+  object master: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8><title>mail</title>'
+      '<link rel=stylesheet href=/css?name=main></head>'
+      ''
+      '<body>'
+      '<p>'#22577#21578#19968#35239
+      '<#main>'
+      ''
+      '</body>'
+      '</html>')
+    OnHTMLTag = masterHTMLTag
+    Left = 296
     Top = 280
   end
 end

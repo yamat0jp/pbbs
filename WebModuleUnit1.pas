@@ -34,8 +34,6 @@ type
     dbnameTBNUMBER: TIntegerField;
     dbnameDBNAME: TStringField;
     rawID: TIntegerField;
-    rawTBNUMBER: TIntegerField;
-    rawCMNUMBER: TIntegerField;
     rawRAW: TStringField;
     rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
@@ -46,6 +44,11 @@ type
     title: TPageProducer;
     help: TPageProducer;
     alert: TPageProducer;
+    alerttable: TFDTable;
+    alerttableID: TIntegerField;
+    alerttableNUMBER: TIntegerField;
+    alerttableMESSAGE: TStringField;
+    master: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -92,6 +95,10 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure alertHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1MasterHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure masterHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -132,12 +139,15 @@ end;
 
 procedure TWebModule1.alertHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  i: integer;
 begin
   if TagString = 'comment' then
   begin
+    i := maintable.Lookup('tbnumber;cmnumber',
+      VarArrayOf([Self.Tag, page]), 'id');
     raw.Open;
-    ReplaceText := Copy(raw.Lookup('tbnumber;cmnumber',
-      VarArrayOf([Self.Tag, page]), 'raw'), 1, 50) + ' ...';
+    ReplaceText := Copy(raw.Lookup('id', i, 'raw'), 1, 50) + ' ...';
     raw.Close;
   end
   else if TagString = 'tbnumber' then
@@ -271,6 +281,18 @@ begin
     t := t.NextMatch;
   end;
   Result := s2 + Copy(line, ep, Length(line));
+end;
+
+procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  alerttable.Open;
+  while alerttable.Eof = false do
+  begin
+    ReplaceText:=ReplaceText+'<hr>'+alerttable.FieldByName('message').AsString;
+    alerttable.Next;
+  end;
+  alerttable.Close;
 end;
 
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
@@ -475,7 +497,8 @@ end;
 procedure TWebModule1.WebModule1AlertHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s, t: string;
+  s, t, com: string;
+  i, j: integer;
 begin
   s := Request.QueryFields.Values['db'];
   t := Request.QueryFields.Values['page'];
@@ -487,7 +510,22 @@ begin
     if Request.MethodType = mtGet then
       Response.Content := alert.Content
     else
+    begin
+      j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s, t]), 'id');
+      alerttable.Open;
+      alerttable.Last;
+      if alerttable.Bof = true then
+        i := 1
+      else
+        i := alerttable.FieldByName('id').AsInteger + 1;
+      raw.Open;
+      com := '<p style=font-weight:bold>' + Request.ContentFields.Values['com']
+        + '<p>' + Copy(raw.Lookup('id', j, 'raw'), 1, 100) + ' ...';
+      raw.Close;
+      alerttable.AppendRecord([i, j, com]);
+      alerttable.Close;
       Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + t));
+    end;
   end
   else
     Handled := false;
@@ -586,6 +624,13 @@ begin
   Tag := Request.QueryFields.Values['db'].ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := admin.Content;
+end;
+
+procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  Response.ContentType:='text/html;charset=utf-8';
+  Response.Content:=master.Content;
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -751,7 +796,8 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      full.SQL.Text := 'select count(*) from maintable where cmnumber <= :param';
+      full.SQL.Text :=
+        'select count(*) from maintable where cmnumber <= :param';
       full.ParamByName('param').AsInteger := num.ToInteger;
       full.Open;
       k := full.Fields[0].AsInteger;
