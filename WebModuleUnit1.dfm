@@ -68,6 +68,11 @@ object WebModule1: TWebModule1
       Name = 'HelpHandler'
       PathInfo = '/help'
       OnAction = WebModule1HelpHandlerAction
+    end
+    item
+      Name = 'AlertHandler'
+      PathInfo = '/alert'
+      OnAction = WebModule1AlertHandlerAction
     end>
   Height = 383
   Width = 415
@@ -338,7 +343,10 @@ object WebModule1: TWebModule1
       
         '<section id=name><#name></section> | <section id=date><#datetime' +
         '></section>'
-      '<section id=comment><#comment></section>')
+      '<section id=comment><#comment></section>'
+      
+        '<section id=alert><p style=text-align:end><a href=/alert?db=<#tb' +
+        'number>&page=<#cmnumber>>'#22577#21578'</a>')
     DataSet = FDQuery1
     Left = 264
     Top = 16
@@ -527,6 +535,27 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = helpHTMLTag
     Left = 184
+    Top = 280
+  end
+  object alert: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8><title>'#22577#21578#30003#35531#30011#38754'</title>'
+      '<link rel=stylesheet href=/css?name=main></head>'
+      ''
+      '<body>'
+      '<form action=/alert?db=<#tbnumber>&page=<#cmnumber> method=post>'
+      '<p>'#23452#12375#12369#12428#12400#20309#12363#12362#26360#12365#28155#12360#12367#12384#12373#12356
+      '<p><textarea name=com></textarea>'
+      '<p><#comment>'
+      
+        '<p style=text-align:center><input name=admit type=submit value=o' +
+        'k><input name=cancel type=submit value=cancel>'
+      '</form>'
+      '</body></html>')
+    OnHTMLTag = alertHTMLTag
+    Left = 240
     Top = 280
   end
 end

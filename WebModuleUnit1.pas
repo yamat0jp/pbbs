@@ -45,6 +45,7 @@ type
     htmlfile: TPageProducer;
     title: TPageProducer;
     help: TPageProducer;
+    alert: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -87,6 +88,10 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure helpHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1AlertHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure alertHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -123,6 +128,22 @@ begin
   end
   else if TagString = 'tbnumber' then
     ReplaceText := Self.Tag.ToString;
+end;
+
+procedure TWebModule1.alertHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  if TagString = 'comment' then
+  begin
+    raw.Open;
+    ReplaceText := Copy(raw.Lookup('tbnumber;cmnumber',
+      VarArrayOf([Self.Tag, page]), 'raw'), 1, 50) + ' ...';
+    raw.Close;
+  end
+  else if TagString = 'tbnumber' then
+    ReplaceText := Self.Tag.ToString
+  else if TagString = 'cmnumber' then
+    ReplaceText := page.ToString;
 end;
 
 procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
@@ -451,6 +472,27 @@ begin
   end;
 end;
 
+procedure TWebModule1.WebModule1AlertHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s, t: string;
+begin
+  s := Request.QueryFields.Values['db'];
+  t := Request.QueryFields.Values['page'];
+  if (s <> '') and (t <> '') then
+  begin
+    Tag := s.ToInteger;
+    page := t.ToInteger;
+    Response.ContentType := 'text/html;charset=utf-8';
+    if Request.MethodType = mtGet then
+      Response.Content := alert.Content
+    else
+      Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + t));
+  end
+  else
+    Handled := false;
+end;
+
 procedure TWebModule1.WebModule1CssHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -563,6 +605,7 @@ begin
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
+    FDQuery1.Close;
     t := FDQuery1.SQL.Text;
     FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
       ')and(cmnumber = ' + s + ');');
@@ -708,11 +751,15 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      k := num.ToInteger;
+      full.SQL.Text := 'select count(*) from maintable where cmnumber <= :param';
+      full.ParamByName('param').AsInteger := num.ToInteger;
+      full.Open;
+      k := full.Fields[0].AsInteger;
+      full.Close;
       if i - k < j then
         s := ''
       else
-        s := '&page=' + (1 + (k - 1) div j).ToString;
+        s := '&page=' + (1 + k div j).ToString;
       Response.SendRedirect(AnsiString('/?db=' + t + s + '#' + num));
     end;
   end
