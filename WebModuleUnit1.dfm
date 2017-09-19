@@ -59,6 +59,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1ImageHandlerAction
     end
     item
+      MethodType = mtGet
       Name = 'TitleHandler'
       PathInfo = '/title'
       OnAction = WebModule1TitleHandlerAction
@@ -460,12 +461,15 @@ object WebModule1: TWebModule1
     HTMLDoc.Strings = (
       '<!doctype html>'
       '<html>'
-      '<head><meta charset=utf-8><title>'#12479#12452#12488#12523#19968#35239'</title>'
       
-        '<script src=http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jq' +
-        'uery.min.js></script>'
-      '<script src=/css?name=min></script>'
-      '<script src=/css?name=top></script>'
+        '<head><meta charset=UTF-8><meta http-equiv="content-language" co' +
+        'ntent="ja">'
+      '<title>'#12479#12452#12488#12523#34920#31034'</title>'
+      
+        '<script type=text/javascript src=http://ajax.googleapis.com/ajax' +
+        '/libs/jquery/1.8.1/jquery.min.js></script>'
+      '<script type=text/javascript src=/css?name=min></script>'
+      '<script type=text/javascript src=/css?name=main></script>'
       '<link rel=stylesheet href=/css?name=top_css>'
       '</head>'
       '<body>'

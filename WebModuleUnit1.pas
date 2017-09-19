@@ -456,6 +456,7 @@ begin
     t.Add('livepreview_css');
     t.Add('normalize_css');
     t.Add('min');
+    t.Add('main');
     t.Add('top');
     t.Add('sub');
     t.Add('modernizr');
@@ -663,6 +664,7 @@ end;
 procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content := title.Content;
 end;
 
