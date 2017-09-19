@@ -107,10 +107,10 @@ object Form1: TForm1
   end
   object FDTable2: TFDTable
     Active = True
-    IndexName = 'RDB$PRIMARY3'
+    IndexFieldNames = 'ID'
     Connection = FDConnection1
-    UpdateOptions.UpdateTableName = 'RAWTABLE'
-    TableName = 'RAWTABLE'
+    UpdateOptions.UpdateTableName = 'RAW'
+    TableName = 'RAW'
     Left = 472
     Top = 240
   end
@@ -123,8 +123,8 @@ object Form1: TForm1
     Active = True
     IndexFieldNames = 'ID'
     Connection = FDConnection1
-    UpdateOptions.UpdateTableName = 'ALERT'
-    TableName = 'ALERT'
+    UpdateOptions.UpdateTableName = 'ALERTTABLE'
+    TableName = 'ALERTTABLE'
     Left = 472
     Top = 200
   end

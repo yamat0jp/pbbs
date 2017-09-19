@@ -21,6 +21,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1AdminHandlerAction
     end
     item
+      MethodType = mtPost
       Name = 'RegistHandler'
       PathInfo = '/regist'
       OnAction = WebModule1RegistHandlerAction
@@ -49,11 +50,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1CssHandlerAction
     end
     item
-      Name = 'ScriptHandler'
-      PathInfo = '/js'
-      OnAction = WebModule1CssHandlerAction
-    end
-    item
       Name = 'ImageHandler'
       PathInfo = '/img'
       OnAction = WebModule1ImageHandlerAction
@@ -65,6 +61,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1TitleHandlerAction
     end
     item
+      MethodType = mtGet
       Name = 'HelpHandler'
       PathInfo = '/help'
       OnAction = WebModule1HelpHandlerAction
@@ -75,6 +72,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1AlertHandlerAction
     end
     item
+      MethodType = mtGet
       Name = 'MasterHandler'
       PathInfo = '/master'
       OnAction = WebModule1MasterHandlerAction
@@ -125,15 +123,15 @@ object WebModule1: TWebModule1
       FieldName = 'CMNUMBER'
       Origin = 'CMNUMBER'
     end
-    object maintableTITLE: TStringField
-      FieldName = 'TITLE'
-      Origin = 'TITLE'
-      Size = 80
-    end
     object maintableNAME: TStringField
       FieldName = 'NAME'
       Origin = 'NAME'
       Size = 30
+    end
+    object maintableTITLE: TStringField
+      FieldName = 'TITLE'
+      Origin = 'TITLE'
+      Size = 80
     end
     object maintableCOMMENT: TStringField
       FieldName = 'COMMENT'
@@ -147,10 +145,10 @@ object WebModule1: TWebModule1
     end
   end
   object raw: TFDTable
-    IndexName = 'RDB$PRIMARY3'
+    IndexName = 'RDB$PRIMARY9'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'RAWTABLE'
-    TableName = 'RAWTABLE'
+    UpdateOptions.UpdateTableName = 'RAW'
+    TableName = 'RAW'
     Left = 216
     Top = 152
     object rawID: TIntegerField
@@ -557,10 +555,10 @@ object WebModule1: TWebModule1
     Top = 280
   end
   object alerttable: TFDTable
-    IndexFieldNames = 'ID'
+    IndexName = 'RDB$PRIMARY7'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'ALERT'
-    TableName = 'ALERT'
+    UpdateOptions.UpdateTableName = 'ALERTTABLE'
+    TableName = 'ALERTTABLE'
     Left = 344
     Top = 152
     object alerttableID: TIntegerField
@@ -569,15 +567,14 @@ object WebModule1: TWebModule1
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object alerttableNUMBER: TIntegerField
-      FieldName = 'NUMBER'
-      Origin = 'NUMBER'
-      Required = True
-    end
     object alerttableMESSAGE: TStringField
       FieldName = 'MESSAGE'
       Origin = '"MESSAGE"'
       Size = 1000
+    end
+    object alerttableDATETIME: TStringField
+      FieldName = 'DATETIME'
+      Origin = 'DATETIME'
     end
   end
   object master: TPageProducer

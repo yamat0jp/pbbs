@@ -23,19 +23,9 @@ type
     PbbsConnection: TFDConnection;
     FDQuery1: TFDQuery;
     full: TFDQuery;
-    maintableID: TIntegerField;
-    maintableTBNUMBER: TIntegerField;
-    maintableCMNUMBER: TIntegerField;
-    maintableNAME: TStringField;
-    maintableTITLE: TStringField;
-    maintableCOMMENT: TStringField;
-    maintableDATETIME: TStringField;
     dbnameID: TIntegerField;
     dbnameTBNUMBER: TIntegerField;
     dbnameDBNAME: TStringField;
-    rawID: TIntegerField;
-    rawRAW: TStringField;
-    rawPASSWORD: TStringField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
     footer: TPageProducer;
@@ -45,10 +35,20 @@ type
     help: TPageProducer;
     alert: TPageProducer;
     alerttable: TFDTable;
-    alerttableID: TIntegerField;
-    alerttableNUMBER: TIntegerField;
-    alerttableMESSAGE: TStringField;
     master: TPageProducer;
+    maintableID: TIntegerField;
+    maintableTBNUMBER: TIntegerField;
+    maintableCMNUMBER: TIntegerField;
+    maintableNAME: TStringField;
+    maintableTITLE: TStringField;
+    maintableCOMMENT: TStringField;
+    maintableDATETIME: TStringField;
+    rawID: TIntegerField;
+    rawRAW: TStringField;
+    rawPASSWORD: TStringField;
+    alerttableID: TIntegerField;
+    alerttableMESSAGE: TStringField;
+    alerttableDATETIME: TStringField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -509,7 +509,7 @@ begin
     Response.ContentType := 'text/html;charset=utf-8';
     if Request.MethodType = mtGet then
       Response.Content := alert.Content
-    else
+    else if Request.ContentFields.Values['admit'] = 'ok' then
     begin
       j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s, t]), 'id');
       alerttable.Open;
@@ -522,7 +522,7 @@ begin
       com := '<p style=font-weight:bold>' + Request.ContentFields.Values['com']
         + '<p>' + Copy(raw.Lookup('id', j, 'raw'), 1, 100) + ' ...';
       raw.Close;
-      alerttable.AppendRecord([i, j, com]);
+      alerttable.AppendRecord([i, com, DateTimeToStr(Now)]);
       alerttable.Close;
       Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + t));
     end;
@@ -577,16 +577,17 @@ procedure TWebModule1.WebModule1DeleteHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
-  i: integer;
+  i, j: integer;
 begin
   Tag := Request.QueryFields.Values['db'].ToInteger;
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     s := Request.ContentFields.ValueFromIndex[i];
     maintable.Locate('tbnumber;cmnumber', VarArrayOf([Tag, s]));
+    j := maintable.FieldByName('id').AsInteger;
     maintable.Delete;
     raw.Open;
-    raw.Locate('cmnumber', s);
+    raw.Locate('id', j);
     raw.Delete;
     raw.Close;
   end;
@@ -717,7 +718,7 @@ begin
   FDQuery1.ParamByName('param').AsInteger := Tag;
   FDQuery1.Open;
   if (maintable.Bof = true) and (maintable.Eof = true) then
-    k := 0
+    k := 1
   else
   begin
     maintable.Last;
@@ -748,7 +749,7 @@ begin
       na := '’N‚©‚³‚ñ';
     maintable.AppendRecord([k, Tag, j, sub, na, Text, DateTimeToStr(Now)]);
     raw.Open;
-    raw.AppendRecord([k, Tag, j, s.Text, pass]);
+    raw.AppendRecord([k, s.Text, pass]);
     raw.Close;
   finally
     s.Free;
@@ -815,11 +816,10 @@ begin
     pass := Request.ContentFields.Values['password'];
     if maintable.Locate('tbnumber;cmnumber', VarArrayOf([t, num])) = true then
     begin
+      i := maintable.FieldByName('id').AsInteger;
       raw.Open;
-      if raw.Locate('tbnumber;cmnumber;password', VarArrayOf([t, num, pass])) = true
-      then
+      if raw.Locate('id', i) = true then
       begin
-        i := maintable.FieldByName('id').AsInteger;
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
         maintable.InsertRecord([i, t, num, nil, nil,
@@ -828,8 +828,9 @@ begin
         raw.FieldByName('raw').AsString := '';
         raw.Post;
       end;
+      raw.Close;
     end;
-    Response.SendRedirect(AnsiString('/?db=' + t + '&job=' + num));
+    Response.SendRedirect(AnsiString('/user?db=' + t + '&job=' + num));
   end;
 end;
 
