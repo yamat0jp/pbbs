@@ -289,7 +289,8 @@ begin
   alerttable.Open;
   while alerttable.Eof = false do
   begin
-    ReplaceText:=ReplaceText+'<hr>'+alerttable.FieldByName('message').AsString;
+    ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName
+      ('message').AsString;
     alerttable.Next;
   end;
   alerttable.Close;
@@ -497,7 +498,7 @@ end;
 procedure TWebModule1.WebModule1AlertHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s, t, com: string;
+  s, t, com, time: string;
   i, j: integer;
 begin
   s := Request.QueryFields.Values['db'];
@@ -509,21 +510,28 @@ begin
     Response.ContentType := 'text/html;charset=utf-8';
     if Request.MethodType = mtGet then
       Response.Content := alert.Content
-    else if Request.ContentFields.Values['admit'] = 'ok' then
+    else
     begin
-      j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s, t]), 'id');
-      alerttable.Open;
-      alerttable.Last;
-      if alerttable.Bof = true then
-        i := 1
-      else
-        i := alerttable.FieldByName('id').AsInteger + 1;
-      raw.Open;
-      com := '<p style=font-weight:bold>' + Request.ContentFields.Values['com']
-        + '<p>' + Copy(raw.Lookup('id', j, 'raw'), 1, 100) + ' ...';
-      raw.Close;
-      alerttable.AppendRecord([i, com, DateTimeToStr(Now)]);
-      alerttable.Close;
+      if Request.ContentFields.Values['admit'] = 'ok' then
+      begin
+        j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s, t]), 'id');
+        alerttable.Open;
+        alerttable.Last;
+        if alerttable.Bof = true then
+          i := 1
+        else
+          i := alerttable.FieldByName('id').AsInteger + 1;
+        time := DateTimeToStr(Now);
+        raw.Open;
+        raw.Locate('id', i);
+        com := '<p style=font-weight:bold>' + Request.ContentFields.Values
+          ['com'] + '<p><a href=/user?db=' + s + '&job=' + t +
+          ' style=text-decoration:none>[' + s + '-' + t + ']</a> ' +
+          Copy(raw.FieldByName('raw').AsString, 1, 100) + ' ...<p>' + time;
+        raw.Close;
+        alerttable.AppendRecord([i, com, time]);
+        alerttable.Close;
+      end;
       Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + t));
     end;
   end
@@ -630,8 +638,8 @@ end;
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Response.ContentType:='text/html;charset=utf-8';
-  Response.Content:=master.Content;
+  Response.ContentType := 'text/html;charset=utf-8';
+  Response.Content := master.Content;
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -670,18 +678,17 @@ begin
     page := s.ToInteger;
     i := ini.Values['count'].ToInteger;
     if page = 0 then
-      Response.SendRedirect('/?db=' + AnsiString(DB))
+    begin
+      Response.SendRedirect('/?db=' + AnsiString(DB));
+      Exit;
+    end
     else
     begin
       j := page - 1;
       full.ParamByName('param').AsInteger := Tag;
       full.Open;
       if i * j < full.Fields[0].AsInteger then
-      begin
-        FDQuery1.First;
-        FDQuery1.MoveBy(i * j);
-        Tag := DB.ToInteger;
-      end
+        FDQuery1.MoveBy(i * j)
       else
       begin
         Response.SendRedirect('/?db=' + AnsiString(DB));
