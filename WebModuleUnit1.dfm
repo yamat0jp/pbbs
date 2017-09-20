@@ -279,11 +279,13 @@ object WebModule1: TWebModule1
       '    <#form>'
       '    <p>'
       '      <hr size="1" width="100%">'
-      '      <form action="/user?db=<#tbnumber>" method="post">'
+      
+        '      <form action="/user?db=<#tbnumber>" method="post" id=searc' +
+        'h>'
       '      <p>'#35352#20107'No.<input name="number">'
       '      <p>Pass<input type="password" name="password">'
       '      <p><input type="submit" value="'#21066#38500'">'
-      '    </form>'
+      '      </form>'
       '    <#footer>'
       
         '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#12506#12540#12472#19979 +
@@ -468,11 +470,13 @@ object WebModule1: TWebModule1
         'ea>'
       '</td></tr>'
       '<tr><td>'
-      '<p>'#12497#12473#12527#12540#12489'<input name="password" type="password"></form>'
+      '<p>'#12497#12473#12527#12540#12489'<input name="password" type="password">'
       '</td></tr>'
       '<tr><td>'
       '<p>'#21512#35328#33865#12434#24179#20206#21517#12391#20837#21147#12375#12390#12367#12384#12373#12356': genki<input type=text name=aikotoba>'
-      '</td></tr></table><button>open</button>'
+      '</td></tr></table>'
+      '</form>'
+      '<button>open</button>'
       '</header>')
     OnHTMLTag = htmlfileHTMLTag
     Left = 64
