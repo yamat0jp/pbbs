@@ -733,6 +733,12 @@ var
   i, j, k: integer;
   s: TStringList;
 begin
+  if Request.ContentFields.Values['aikotoba'] <> '‚°‚ñ‚«' then
+  begin
+    Response.ContentType:='text/plain;charset=utf-8';
+    Response.Content:='‡Œ¾—t‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢!';
+    Exit;
+  end;
   Tag := Request.QueryFields.Values['db'].ToInteger;
   com := Request.ContentFields.Values['comment'];
   na := Request.ContentFields.Values['name'];

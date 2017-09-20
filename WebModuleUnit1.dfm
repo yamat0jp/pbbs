@@ -281,9 +281,8 @@ object WebModule1: TWebModule1
       '      <hr size="1" width="100%">'
       '      <form action="/user?db=<#tbnumber>" method="post">'
       '      <p>'#35352#20107'No.<input name="number">'
-      
-        '      <p>Pass<input type="password" name="password">&nbsp;<input' +
-        ' type="submit" value="'#21066#38500'">'
+      '      <p>Pass<input type="password" name="password">'
+      '      <p><input type="submit" value="'#21066#38500'">'
       '    </form>'
       '    <#footer>'
       
@@ -453,14 +452,28 @@ object WebModule1: TWebModule1
   end
   object htmlfile: TPageProducer
     HTMLDoc.Strings = (
+      '<header>'
       '<form action=/regist?db=<#tbnumber> method="post">'
-      '<p>'#12362#21517#21069'<input name="name" value="<#name>">'
-      '<p>'#12479#12452#12488#12523'<input name="title">'
-      '<input type="submit" value="'#36865#20449'"><p><p>'
+      '<table><tr><td>'
+      '        <p>'#12362#21517#21069'<input name="name" value="<#name>">'
+      '        <p>'#12479#12452#12488#12523'<input name="title">'
+      '        <input type="submit" value="'#36865#20449'">'
+      '</td></tr>'
+      '<tr><td>'
       
-        '<p><textarea name="comment" style="HEIGHT: 156px; WIDTH: 633px" ' +
-        'rows="1" cols="39"></textarea>'
-      '<p><p>'#12497#12473#12527#12540#12489'<input name="password" type="password"></form>')
+        '        <p><textarea name="comment" style="HEIGHT: 156px; WIDTH:' +
+        ' 633px" rows="1" cols="39"'
+      
+        '                required placeholder="'#12467#12513#12531#12488#12394#12393#12434#20837#21147#12375#12390#12367#12384#12373#12356'."></textar' +
+        'ea>'
+      '</td></tr>'
+      '<tr><td>'
+      '<p>'#12497#12473#12527#12540#12489'<input name="password" type="password"></form>'
+      '</td></tr>'
+      '<tr><td>'
+      '<p>'#21512#35328#33865#12434#24179#20206#21517#12391#20837#21147#12375#12390#12367#12384#12373#12356': genki<input type=text name=aikotoba>'
+      '</td></tr></table><button>open</button>'
+      '</header>')
     OnHTMLTag = htmlfileHTMLTag
     Left = 64
     Top = 280
