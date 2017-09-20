@@ -28,6 +28,10 @@ type
     DBGrid3: TDBGrid;
     DataSource3: TDataSource;
     DBNavigator3: TDBNavigator;
+    DBNavigator4: TDBNavigator;
+    DBGrid4: TDBGrid;
+    DataSource4: TDataSource;
+    FDTable4: TFDTable;
   private
     { Private êÈåæ }
   public

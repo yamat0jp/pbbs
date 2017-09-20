@@ -356,7 +356,6 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
@@ -592,5 +591,29 @@ object WebModule1: TWebModule1
     OnHTMLTag = masterHTMLTag
     Left = 296
     Top = 280
+  end
+  object temp: TFDTable
+    IndexFieldNames = 'SCORE'
+    Connection = PbbsConnection
+    UpdateOptions.UpdateTableName = 'TITLE'
+    TableName = 'TITLE'
+    Left = 352
+    Top = 240
+    object tempDBID: TIntegerField
+      FieldName = 'DBID'
+      Origin = 'DBID'
+    end
+    object tempFIRST: TIntegerField
+      FieldName = 'FIRST'
+      Origin = '"FIRST"'
+    end
+    object tempLAST: TIntegerField
+      FieldName = 'LAST'
+      Origin = '"LAST"'
+    end
+    object tempSCORE: TDateField
+      FieldName = 'SCORE'
+      Origin = 'SCORE'
+    end
   end
 end

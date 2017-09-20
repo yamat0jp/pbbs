@@ -49,6 +49,11 @@ type
     alerttableID: TIntegerField;
     alerttableMESSAGE: TStringField;
     alerttableDATETIME: TStringField;
+    temp: TFDTable;
+    tempDBID: TIntegerField;
+    tempFIRST: TIntegerField;
+    tempLAST: TIntegerField;
+    tempSCORE: TDateField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -363,7 +368,8 @@ begin
         begin
           s := maintable.FieldByName('cmnumber').AsString;
           t := maintable.FieldByName('tbnumber').AsString;
-          com.Text := raw.Lookup('id',maintable.FieldByName('id').AsInteger, 'raw');
+          com.Text := raw.Lookup('id', maintable.FieldByName('id')
+            .AsInteger, 'raw');
           Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p id=title style=color:green;display:inline>' +
@@ -428,30 +434,34 @@ var
   i, j: integer;
   s: string;
 begin
-  dbname.First;
-  while dbname.Eof = false do
+  temp.First;
+  while temp.Eof = false do
   begin
-    j := dbname.FieldByName('tbnumber').AsInteger;
-    FDQuery1.ParamByName('param').AsInteger := j;
-    FDQuery1.Open;
-    FDQuery1.First;
+    j := temp.FieldByName('dbid').AsInteger;
     full.ParamByName('param').AsInteger := j;
     full.Open;
     i := full.Fields[0].AsInteger;
     full.Close;
     if i = ini.Values['count'].ToInteger then
       s := ' style=color:red'
+    else if i = 0 then
+    begin
+      temp.Next;
+      continue;
+    end
     else
       s := '';
     ReplaceText := ReplaceText + '<a href=/?db=' + j.ToString + s + '>' +
-      dbname.FieldByName('dbname').AsString + '</a>↓<div>タイトル:' +
-      FDQuery1.FieldByName('title').AsString;
-    FDQuery1.Last;
-    ReplaceText := ReplaceText + '記事数:' + j.ToString + '更新時刻:' +
-      FDQuery1.FieldByName('datetime').AsString + '</div>';
-    FDQuery1.Close;
-    dbname.Next;
+      dbname.Lookup('id', j, 'dbname') + '</a>↓<div>タイトル:' +
+      maintable.Lookup('id', temp.FieldByName('first').AsInteger, 'title');
+    ReplaceText := ReplaceText + '記事数:' + j.ToString + '更新日:' +
+      temp.FieldByName('score').AsString + '</div>';
+    temp.Next;
   end;
+  temp.Edit;
+  temp.ClearFields;
+  temp.Post;
+  temp.Close;
 end;
 
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
@@ -788,7 +798,30 @@ end;
 
 procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  i, j, k: integer;
+  s: TDateTime;
+  t: string;
 begin
+  temp.Open;
+  temp.Edit;
+  temp.ClearFields;
+  temp.Post;
+  dbname.First;
+  while dbname.Eof = false do
+  begin
+    i := dbname.FieldByName('id').AsInteger;
+    FDQuery1.ParamByName('param').AsInteger :=dbname.FieldByName('tbnumber').AsInteger;
+    FDQuery1.Open;
+    j := FDQuery1.FieldByName('id').AsInteger;
+    FDQuery1.Last;
+    k := FDQuery1.FieldByName('id').AsInteger;
+    s := StrToDateTime(maintable.FieldByName('datetime').AsString);
+    t := FormatDateTime('yyyy/mm/dd', s);
+    temp.AppendRecord([i, j, k, StrToDate(t)]);
+    FDQuery1.Close;
+    dbname.Next;
+  end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := title.Content;
 end;

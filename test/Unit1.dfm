@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 327
+  ClientHeight = 448
   ClientWidth = 635
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -69,12 +69,33 @@ object Form1: TForm1
     TitleFont.Style = []
   end
   object DBNavigator3: TDBNavigator
-    Left = 208
+    Left = 8
     Top = 297
     Width = 240
     Height = 25
     DataSource = DataSource3
     TabOrder = 5
+  end
+  object DBNavigator4: TDBNavigator
+    Left = 320
+    Top = 297
+    Width = 240
+    Height = 25
+    DataSource = DataSource4
+    TabOrder = 6
+  end
+  object DBGrid4: TDBGrid
+    Left = 152
+    Top = 328
+    Width = 297
+    Height = 97
+    DataSource = DataSource4
+    TabOrder = 7
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
@@ -132,5 +153,19 @@ object Form1: TForm1
     DataSet = FDTable3
     Left = 536
     Top = 200
+  end
+  object DataSource4: TDataSource
+    DataSet = FDTable4
+    Left = 560
+    Top = 352
+  end
+  object FDTable4: TFDTable
+    Active = True
+    IndexFieldNames = 'SCORE'
+    Connection = FDConnection1
+    UpdateOptions.UpdateTableName = 'TITLE'
+    TableName = 'TITLE'
+    Left = 504
+    Top = 352
   end
 end
