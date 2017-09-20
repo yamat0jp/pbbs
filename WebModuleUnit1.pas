@@ -50,10 +50,12 @@ type
     alerttableMESSAGE: TStringField;
     alerttableDATETIME: TStringField;
     temp: TFDTable;
+    tempID: TIntegerField;
     tempDBID: TIntegerField;
     tempFIRST: TIntegerField;
     tempLAST: TIntegerField;
     tempSCORE: TDateField;
+    clean: TFDQuery;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -437,7 +439,8 @@ begin
   temp.First;
   while temp.Eof = false do
   begin
-    j := temp.FieldByName('dbid').AsInteger;
+    dbname.Locate('id', temp.FieldByName('dbid').AsInteger);
+    j := dbname.FieldByName('tbnumber').AsInteger;
     full.ParamByName('param').AsInteger := j;
     full.Open;
     i := full.Fields[0].AsInteger;
@@ -452,16 +455,14 @@ begin
     else
       s := '';
     ReplaceText := ReplaceText + '<a href=/?db=' + j.ToString + s + '>' +
-      dbname.Lookup('id', j, 'dbname') + '</a>↓<div>タイトル:' +
+      dbname.FieldByName('dbname').AsString + '</a>↓<div>タイトル:' +
       maintable.Lookup('id', temp.FieldByName('first').AsInteger, 'title');
-    ReplaceText := ReplaceText + '記事数:' + j.ToString + '更新日:' +
-      temp.FieldByName('score').AsString + '</div>';
+    ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
+      DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
     temp.Next;
   end;
-  temp.Edit;
-  temp.ClearFields;
-  temp.Post;
   temp.Close;
+  clean.ExecSQL;
 end;
 
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
@@ -799,26 +800,36 @@ end;
 procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  i, j, k: integer;
+  i, j, k, id: integer;
   s: TDateTime;
   t: string;
 begin
+  clean.ExecSQL;
   temp.Open;
-  temp.Edit;
-  temp.ClearFields;
-  temp.Post;
+  id := 1;
   dbname.First;
   while dbname.Eof = false do
   begin
     i := dbname.FieldByName('id').AsInteger;
-    FDQuery1.ParamByName('param').AsInteger :=dbname.FieldByName('tbnumber').AsInteger;
+    j := dbname.FieldByName('tbnumber').AsInteger;
+    full.ParamByName('param').AsInteger := j;
+    full.Open;
+    k := full.Fields[0].AsInteger;
+    full.Close;
+    if k = 0 then
+    begin
+      dbname.Next;
+      continue;
+    end;
+    FDQuery1.ParamByName('param').AsInteger := j;
     FDQuery1.Open;
     j := FDQuery1.FieldByName('id').AsInteger;
     FDQuery1.Last;
     k := FDQuery1.FieldByName('id').AsInteger;
-    s := StrToDateTime(maintable.FieldByName('datetime').AsString);
+    s := StrToDateTime(FDQuery1.FieldByName('datetime').AsString);
     t := FormatDateTime('yyyy/mm/dd', s);
-    temp.AppendRecord([i, j, k, StrToDate(t)]);
+    temp.AppendRecord([id, i, j, k, StrToDate(t)]);
+    inc(id);
     FDQuery1.Close;
     dbname.Next;
   end;

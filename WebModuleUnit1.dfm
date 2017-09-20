@@ -356,6 +356,7 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
@@ -599,6 +600,12 @@ object WebModule1: TWebModule1
     TableName = 'TITLE'
     Left = 352
     Top = 240
+    object tempID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
     object tempDBID: TIntegerField
       FieldName = 'DBID'
       Origin = 'DBID'
@@ -615,5 +622,12 @@ object WebModule1: TWebModule1
       FieldName = 'SCORE'
       Origin = 'SCORE'
     end
+  end
+  object clean: TFDQuery
+    Connection = PbbsConnection
+    SQL.Strings = (
+      'delete from title;')
+    Left = 352
+    Top = 296
   end
 end
