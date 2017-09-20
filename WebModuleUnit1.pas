@@ -110,7 +110,8 @@ type
     { private 宣言 }
     ini: TStringList;
     Tag, page: integer;
-    str: string;
+    str, kotoba: string;
+    function CheckWords(comment: TStringList): Boolean;
   public
     { public 宣言 }
     function LinkCreator(const line: string; index: integer): string;
@@ -163,6 +164,40 @@ begin
     ReplaceText := page.ToString;
 end;
 
+function TWebModule1.CheckWords(comment: TStringList): Boolean;
+var
+  t: TStringList;
+  function sub: Boolean;
+  var
+    i: integer;
+    j: integer;
+  begin
+    result := true;
+    for i := 0 to comment.Count - 1 do
+      for j := 0 to t.Count - 1 do
+        if Pos(t[j], comment[i]) > 0 then
+        begin
+          result := false;
+          Exit;
+        end;
+  end;
+
+begin
+  t := TStringList.Create;
+  try
+    t.DelimitedText := ini.Values['tags'];
+    if sub = true then
+    begin
+      t.DelimitedText := ini.Values['words'];
+      result := sub;
+    end
+    else
+      result := false;
+  finally
+    t.Free;
+  end;
+end;
+
 procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
@@ -211,7 +246,9 @@ begin
   if TagString = 'tbnumber' then
     ReplaceText := Self.Tag.ToString
   else if TagString = 'name' then
-    ReplaceText := str;
+    ReplaceText := str
+  else if TagString = 'aikotoba' then
+    ReplaceText := kotoba;
 end;
 
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
@@ -287,7 +324,7 @@ begin
     ep := t.index + t.Length;
     t := t.NextMatch;
   end;
-  Result := s2 + Copy(line, ep, Length(line));
+  result := s2 + Copy(line, ep, Length(line));
 end;
 
 procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
@@ -721,6 +758,7 @@ begin
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
+  kotoba := TNetEncoding.URL.Decode(Request.CookieFields.Values['aikotoba']);
   str := TNetEncoding.URL.Decode(Request.CookieFields.Values['name']);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
@@ -732,11 +770,12 @@ var
   na, sub, com, pass, Text: string;
   i, j, k: integer;
   s: TStringList;
+  x: Boolean;
 begin
   if Request.ContentFields.Values['aikotoba'] <> 'げんき' then
   begin
-    Response.ContentType:='text/plain;charset=utf-8';
-    Response.Content:='合言葉を入力してください!';
+    Response.ContentType := 'text/plain;charset=utf-8';
+    Response.Content := '合言葉を入力してください!';
     Exit;
   end;
   Tag := Request.QueryFields.Values['db'].ToInteger;
@@ -765,35 +804,44 @@ begin
   s := TStringList.Create;
   try
     s.Text := com;
-    Text := '';
-    for i := 0 to s.Count - 1 do
+    com := '';
+    if CheckWords(s) = true then
     begin
-      com := s[i];
-      if (Length(com) > 0) and (com[1] = ' ') then
-        com := '&nbsp;' + Copy(com, 2, Length(com));
-      Text := Text + LinkCreator(LinkCreator('<p>' + com, 1), 2);
-    end;
-    if sub = '' then
-      sub := 'タイトルなし.';
-    if na = '' then
-      na := '誰かさん';
-    maintable.AppendRecord([k, Tag, j, na, sub, Text, DateTimeToStr(Now)]);
-    raw.Open;
-    raw.AppendRecord([k, s.Text, pass]);
-    raw.Close;
+      Text := '';
+      for i := 0 to s.Count - 1 do
+      begin
+        com := s[i];
+        if (Length(com) > 0) and (com[1] = ' ') then
+          com := '&nbsp;' + Copy(com, 2, Length(com));
+        Text := Text + LinkCreator(LinkCreator('<p>' + com, 1), 2);
+      end;
+      if sub = '' then
+        sub := 'タイトルなし.';
+      if na = '' then
+        na := '誰かさん';
+      maintable.AppendRecord([k, Tag, j, na, sub, Text, DateTimeToStr(Now)]);
+      raw.Open;
+      raw.AppendRecord([k, s.Text, pass]);
+      raw.Close;
+      x := true;
+    end
+    else
+      x := false;
+    s.Clear;
+    s.Add('name='+na);
+    s.Add('aikotoba=げんき');
+    Response.SetCookieField(s,Request.Host,'/',Now+7,false);
   finally
     s.Free;
   end;
-  with Response.Cookies.Add do
+  if x = true then
+    Response.SendRedirect('/?db=' + AnsiString(Tag.ToString) + '#bottom')
+  else
   begin
-    Name := 'name';
-    Domain := Request.Host;
-    Path := '/';
-    Expires := Now() + 7;
-    Value := AnsiString(na);
-    Secure := false;
+    Response.ContentType := 'text/plain;charset=utf-8';
+    Response.Content := '禁止語句を含まないでください.:' + ini.Values['tags'] + ';' +
+      ini.Values['words'];
   end;
-  Response.SendRedirect('/?db=' + AnsiString(Tag.ToString) + '#bottom');
 end;
 
 procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
