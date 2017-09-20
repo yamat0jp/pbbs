@@ -29,7 +29,6 @@
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
 #*.dll
-DATA.FDB
 *.bpl
 *.bpi
 *.dcp
@@ -116,5 +115,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-*.FDB
-DATA.FDB
