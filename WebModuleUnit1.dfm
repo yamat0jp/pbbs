@@ -75,6 +75,12 @@ object WebModule1: TWebModule1
       Name = 'MasterHandler'
       PathInfo = '/master'
       OnAction = WebModule1MasterHandlerAction
+    end
+    item
+      MethodType = mtGet
+      Name = 'LogoutHandler'
+      PathInfo = '/logout'
+      OnAction = WebModule1LogoutHandlerAction
     end>
   Height = 383
   Width = 415
@@ -653,8 +659,25 @@ object WebModule1: TWebModule1
       '<!doctype html>'
       '<html>'
       '<head><meta charset=utf-8>'
-      '<title></title></head>'
+      '<title>'#31649#29702#32773#29992#12506#12540#12472'</title></head>'
+      '<style>p{margin:5px}</style>'
       '<body>'
+      
+        '    <form method="post" action=/admin?db=<#tbnumber> style=text-' +
+        'align:center>'
+      '    <input type=hidden name=setting value=true>'
+      '    <p>'#21066#38500#12375#12383#12356#35352#20107#12398#12481#12455#12483#12463#12508#12483#12463#12473#12395#12481#12455#12483#12463#12434#20837#12428#12289#21066#38500#12508#12479#12531#12434#25276#12375#12390#19979#12373#12356
+      '    <p><br>'
+      '    <label><p>'#12497#12473#12527#12540#12489#12398#22793#26356
+      '      <input type="password" name="pass" value="<#password>">'
+      '    </label>'
+      '    <p>'
+      
+        '    <input type="checkbox" value="on" name="maintenance" <#check' +
+        '>>'#12513#12531#12486#12490#12531#12473#34920#31034
+      '    <p><input type="submit" value="'#22793#26356'">'
+      '    <p><a href="/logout">'#12525#12464#12450#12454#12488'</a>'
+      '    </form>'
       
         '<form action=/delete?db=<#tbnumber><#page> style=text-align:cent' +
         'er method=post>'

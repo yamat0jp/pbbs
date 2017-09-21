@@ -110,6 +110,8 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1LogoutHandlerAction(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -156,6 +158,13 @@ begin
     ReplaceText := Self.Tag.ToString
   else if (page <> 0) and (TagString = 'page') then
     ReplaceText := '&page=' + page.ToString
+  else if TagString = 'password' then
+    ReplaceText := ini.Values['password']
+  else if TagString = 'check' then
+  begin
+    if ini.Values['maintenance'] = 'true' then
+      ReplaceText := 'checked';
+  end
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list admin=true>');
 end;
@@ -524,7 +533,20 @@ var
   m5: TIdHashMessageDigest5;
   x: Boolean;
   i, j, k: integer;
+  rc: TResourceStream;
 begin
+  if (Request.MethodType = mtPost)and(Request.ContentFields.Values['setting'] = 'true') then
+  begin
+    ini.Values['password'] := Request.ContentFields.Values['password'];
+    ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
+    rc := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
+    try
+      ini.SaveToStream(rc);
+    finally
+      rc.Free;
+    end;
+    Exit;
+  end;
   Tag := Request.QueryFields.Values['db'].ToInteger;
   t1 := Request.CookieFields.Values['password'];
   m5 := TIdHashMessageDigest5.Create;
@@ -564,7 +586,7 @@ begin
       full.Open;
       k := full.Fields[0].AsInteger;
       full.Close;
-      if (i * j < k)and(page > 0) then
+      if (i * j < k) and (page > 0) then
         FDQuery1.MoveBy(i * j)
       else
       begin
@@ -735,6 +757,20 @@ begin
   Tag := Request.QueryFields.Values['db'].ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := login.Content;
+end;
+
+procedure TWebModule1.WebModule1LogoutHandlerAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  with Response.Cookies.Add do
+  begin
+    Domain := Request.Host;
+    Expires := Now - 1;
+    Name := 'password';
+    Path := '/admin';
+    Secure := false;
+  end;
+  Response.SendRedirect('/?db='+tag.ToString);
 end;
 
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;

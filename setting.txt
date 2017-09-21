@@ -2,6 +2,7 @@ count=10
 titlecount=7
 title=pybbs
 password=admin
+maintenance=false
 tags=<script,<img,<link
 words=ˆ¢•Û,”nŽ­,Ž€‚Ë
 title2=<a href=/>pybbs</a>
