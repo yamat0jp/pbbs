@@ -154,6 +154,8 @@ begin
   end
   else if TagString = 'tbnumber' then
     ReplaceText := Self.Tag.ToString
+  else if (page <> 0) and (TagString = 'page') then
+    ReplaceText := '&page=' + page.ToString
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list admin=true>');
 end;
@@ -564,7 +566,7 @@ begin
         Path := '/admin';
         Secure := false;
         Name := 'password';
-        Value := AnsiString(m5.HashStringAsHex(t2));
+        Value := AnsiString(t2);
       end;
       x := true;
     end;
@@ -712,7 +714,8 @@ begin
   end;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
-    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString + '&page=' + s))
+    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString +
+      '&page=' + s))
   else
     Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString));
 end;

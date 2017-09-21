@@ -656,8 +656,8 @@ object WebModule1: TWebModule1
       '<title></title></head>'
       '<body>'
       
-        '<form action=/delete?db=<#tbnumber> style=text-align:center meth' +
-        'od=post>'
+        '<form action=/delete?db=<#tbnumber><#page> style=text-align:cent' +
+        'er method=post>'
       '<table style=margin:auto cellspacing=0>'
       
         '<tr style=background-color:#bbbbbb><td>'#21066#38500'</td><td>'#35352#20107'no.</td><td>' +
