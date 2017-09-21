@@ -392,9 +392,9 @@ object WebModule1: TWebModule1
   end
   object admain: TDataSetPageProducer
     HTMLDoc.Strings = (
-      '<tr><td><input type=checkbox name=delete value=<#cmnumber>></td>'
-      ' <td><#cmnumber></td> <td><#datetime></td>'
-      ' <td><#name></td><td><#title></td></tr>')
+      '<tr><td><input type=checkbox name=item value=<#cmnumber>></td>'
+      ' <td><#cmnumber></td> '
+      ' <td><#name></td><td><#title></td><td><#datetime></td></tr>')
     DataSet = FDQuery1
     Left = 112
     Top = 224
@@ -654,11 +654,21 @@ object WebModule1: TWebModule1
       '<html>'
       '<head><meta charset=utf-8>'
       '<title></title></head>'
+      '<body>'
       
-        '<body><table><tr><td>'#21066#38500'</td><td>'#25237#31295#32773'</td><td>'#12479#12452#12488#12523'</td><td></td><t' +
-        'd>'#26085#26178'</td></tr>'
+        '<form action=/delete?db=<#tbnumber> style=text-align:center meth' +
+        'od=post>'
+      '<table style=margin:auto cellspacing=0>'
+      
+        '<tr style=background-color:#bbbbbb><td>'#21066#38500'</td><td>'#35352#20107'no.</td><td>' +
+        #25237#31295#32773'</td><td>'#12479#12452#12488#12523'</td><td>'#26085#26178'</td></tr>'
+      ''
       '<#main>'
       '</table>'
+      
+        '<input type="submit" value="'#21066#38500#12377#12427'">  <input type="reset" value="'#12522 +
+        #12475#12483#12488'">'
+      '</form>'
       ''
       '<#footer>'
       '</body></html>')

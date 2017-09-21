@@ -132,8 +132,6 @@ implementation
 
 procedure TWebModule1.loginHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  i: integer;
 begin
   if TagString = 'tbnumber' then
     ReplaceText := Self.Tag.ToString;
@@ -141,11 +139,21 @@ end;
 
 procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  i: integer;
 begin
   if TagString = 'main' then
   begin
-    ReplaceText := ReplaceText + admain.Content;
+    for i := 1 to ini.Values['count'].ToInteger do
+    begin
+      if FDQuery1.Eof = true then
+        break;
+      ReplaceText := ReplaceText + admain.Content;
+      FDQuery1.Next;
+    end;
   end
+  else if TagString = 'tbnumber' then
+    ReplaceText := Self.Tag.ToString
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list admin=true>');
 end;
@@ -513,7 +521,7 @@ var
   s, t1, t2: string;
   m5: TIdHashMessageDigest5;
   x: Boolean;
-  i, j: integer;
+  i, j, k: integer;
 begin
   s := Request.QueryFields.Values['dbname'];
   if s <> '' then
@@ -539,10 +547,9 @@ begin
   begin
     Tag := Request.QueryFields.Values['db'].ToInteger;
     t1 := Request.CookieFields.Values['password'];
-    t2 := ini.Values['password'];
     m5 := TIdHashMessageDigest5.Create;
     try
-      t2 := m5.HashStringAsHex(t2);
+      t2 := m5.HashStringAsHex(ini.Values['password']);
     finally
       m5.Free;
     end;
@@ -556,7 +563,8 @@ begin
         Expires := Now + 7;
         Path := '/admin';
         Secure := false;
-        Value := t2;
+        Name := 'password';
+        Value := AnsiString(m5.HashStringAsHex(t2));
       end;
       x := true;
     end;
@@ -566,6 +574,31 @@ begin
     begin
       FDQuery1.ParamByName('param').AsInteger := Tag;
       FDQuery1.Open;
+      j := ini.Values['count'].ToInteger;
+      s := Request.QueryFields.Values['page'];
+      if s <> '' then
+      begin
+        page := s.ToInteger;
+        i := page - 1;
+        full.ParamByName('param').AsInteger := Tag;
+        full.Open;
+        k := full.Fields[0].AsInteger;
+        full.Close;
+        if i * j < k then
+          FDQuery1.MoveBy(i * j)
+        else
+        begin
+          FDQuery1.Close;
+          Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
+          Exit;
+        end;
+      end
+      else
+      begin
+        page := 0;
+        FDQuery1.Last;
+        FDQuery1.MoveBy(-j + 1);
+      end;
       Response.ContentType := 'text/html;charset=utf-8';
       Response.Content := admin.Content;
       FDQuery1.Close;
@@ -677,7 +710,11 @@ begin
     raw.Delete;
     raw.Close;
   end;
-  Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
+  s := Request.QueryFields.Values['page'];
+  if s <> '' then
+    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString + '&page=' + s))
+  else
+    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString));
 end;
 
 procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
