@@ -216,14 +216,14 @@ end;
 procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  s, t: string;
+  s, t, x: string;
   i, j: integer;
 begin
   if TagParams.Values['admin'] = 'true' then
-    s := '/admin?db='
+    x := '/admin?db=' + Self.Tag.ToString
   else
-    s := '/?db=';
-  s := s + Self.Tag.ToString + '&page=';
+    x := '/?db=' + Self.Tag.ToString;
+  s := x + '&page=';
   ReplaceText := '<div style=text-align:center><b>[</b>';
   if page = 0 then
   begin
@@ -242,8 +242,8 @@ begin
       else
         t := t + ' <a href=' + s + j.ToString + '>' + j.ToString + '</a> ';
     i := page + 1;
-    t := t + '<a href=' + s + i.ToString + '>>></a> <b>]</b>  <a href=' + s +
-      '0>recent</a></div>';
+    t := t + '<a href=' + s + i.ToString + '>>></a> <b>]</b>  <a href=' + x +
+      '>recent</a></div>';
   end;
   ReplaceText := ReplaceText + t;
 end;
@@ -525,86 +525,63 @@ var
   x: Boolean;
   i, j, k: integer;
 begin
-  s := Request.QueryFields.Values['dbname'];
-  if s <> '' then
+  Tag := Request.QueryFields.Values['db'].ToInteger;
+  t1 := Request.CookieFields.Values['password'];
+  m5 := TIdHashMessageDigest5.Create;
+  try
+    t2 := m5.HashStringAsHex(ini.Values['password']);
+  finally
+    m5.Free;
+  end;
+  x := t1 = t2;
+  if (x = false) and (ini.Values['password'] = Request.ContentFields.Values
+    ['password']) then
   begin
-    if dbname.Locate('dbname', s) = false then
+    with Response.Cookies.Add do
     begin
-      if (dbname.Bof = true) and (dbname.Eof = true) then
-      begin
-        i := 1;
-        j := 1;
-      end
-      else
-      begin
-        dbname.Last;
-        i := dbname.FieldByName('tbnumber').AsInteger + 1;
-        j := dbname.FieldByName('id').AsInteger + 1;
-      end;
-      dbname.AppendRecord([j, i, s]);
-      Response.SendRedirect('/');
+      Domain := Request.Host;
+      Expires := Now + 7;
+      Path := '/admin';
+      Secure := false;
+      Name := 'password';
+      Value := AnsiString(t2);
     end;
-  end
+    x := true;
+  end;
+  if x = false then
+    Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
   else
   begin
-    Tag := Request.QueryFields.Values['db'].ToInteger;
-    t1 := Request.CookieFields.Values['password'];
-    m5 := TIdHashMessageDigest5.Create;
-    try
-      t2 := m5.HashStringAsHex(ini.Values['password']);
-    finally
-      m5.Free;
-    end;
-    x := t1 = t2;
-    if (x = false) and (ini.Values['password'] = Request.ContentFields.Values
-      ['password']) then
+    FDQuery1.ParamByName('param').AsInteger := Tag;
+    FDQuery1.Open;
+    j := ini.Values['count'].ToInteger;
+    s := Request.QueryFields.Values['page'];
+    if s <> '' then
     begin
-      with Response.Cookies.Add do
-      begin
-        Domain := Request.Host;
-        Expires := Now + 7;
-        Path := '/admin';
-        Secure := false;
-        Name := 'password';
-        Value := AnsiString(t2);
-      end;
-      x := true;
-    end;
-    if x = false then
-      Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
-    else
-    begin
-      FDQuery1.ParamByName('param').AsInteger := Tag;
-      FDQuery1.Open;
-      j := ini.Values['count'].ToInteger;
-      s := Request.QueryFields.Values['page'];
-      if s <> '' then
-      begin
-        page := s.ToInteger;
-        i := page - 1;
-        full.ParamByName('param').AsInteger := Tag;
-        full.Open;
-        k := full.Fields[0].AsInteger;
-        full.Close;
-        if i * j < k then
-          FDQuery1.MoveBy(i * j)
-        else
-        begin
-          FDQuery1.Close;
-          Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
-          Exit;
-        end;
-      end
+      page := s.ToInteger;
+      i := page - 1;
+      full.ParamByName('param').AsInteger := Tag;
+      full.Open;
+      k := full.Fields[0].AsInteger;
+      full.Close;
+      if (i * j < k)and(page > 0) then
+        FDQuery1.MoveBy(i * j)
       else
       begin
-        page := 0;
-        FDQuery1.Last;
-        FDQuery1.MoveBy(-j + 1);
+        FDQuery1.Close;
+        Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
+        Exit;
       end;
-      Response.ContentType := 'text/html;charset=utf-8';
-      Response.Content := admin.Content;
-      FDQuery1.Close;
+    end
+    else
+    begin
+      page := 0;
+      FDQuery1.Last;
+      FDQuery1.MoveBy(-j + 1);
     end;
+    Response.ContentType := 'text/html;charset=utf-8';
+    Response.Content := admin.Content;
+    FDQuery1.Close;
   end;
 end;
 
