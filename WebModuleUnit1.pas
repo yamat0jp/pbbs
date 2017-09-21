@@ -703,6 +703,8 @@ begin
   Tag := Request.QueryFields.Values['db'].ToInteger;
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
+    if Request.ContentFields.Names[i] <> 'item' then
+      continue;
     s := Request.ContentFields.ValueFromIndex[i];
     maintable.Locate('tbnumber;cmnumber', VarArrayOf([Tag, s]));
     j := maintable.FieldByName('id').AsInteger;
@@ -722,15 +724,26 @@ end;
 
 procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  i: integer;
+  s: TStringList;
 begin
   if Request.MethodType = mtPost then
   begin
     str := 'ëóêMÇµÇ‹ÇµÇΩ.';
-    alerttable.Open;
-    alerttable.Last;
-    alerttable.AppendRecord([alerttable.FieldByName('id').AsInteger + 1,
-      Request.ContentFields.Values['help'], DateTimeToStr(Now)]);
-    alerttable.Close;
+    s := TStringList.Create;
+    try
+      s.Text := Request.ContentFields.Values['help'];
+      for i := 0 to s.Count - 1 do
+        s[i] := '<p>' + s[i];
+      alerttable.Open;
+      alerttable.Last;
+      i := alerttable.FieldByName('id').AsInteger + 1;
+      alerttable.AppendRecord([i, s.Text, DateTimeToStr(Now)]);
+      alerttable.Close;
+    finally
+      s.Free;
+    end;
   end
   else
     str := '';
