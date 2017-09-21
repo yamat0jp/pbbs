@@ -535,7 +535,8 @@ var
   i, j, k: integer;
   rc: TResourceStream;
 begin
-  if (Request.MethodType = mtPost)and(Request.ContentFields.Values['setting'] = 'true') then
+  if (Request.MethodType = mtPost) and
+    (Request.ContentFields.Values['setting'] = 'true') then
   begin
     ini.Values['password'] := Request.ContentFields.Values['password'];
     ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
@@ -770,7 +771,7 @@ begin
     Path := '/admin';
     Secure := false;
   end;
-  Response.SendRedirect('/?db='+tag.ToString);
+  Response.SendRedirect('/?db=' + AnsiString(Request.QueryFields.Values['db']));
 end;
 
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;

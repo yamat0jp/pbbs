@@ -676,7 +676,7 @@ object WebModule1: TWebModule1
         '    <input type="checkbox" value="on" name="maintenance" <#check' +
         '>>'#12513#12531#12486#12490#12531#12473#34920#31034
       '    <p><input type="submit" value="'#22793#26356'">'
-      '    <p><a href="/logout">'#12525#12464#12450#12454#12488'</a>'
+      '    <p><a href="/logout?db=<#tbnumber>">'#12525#12464#12450#12454#12488'</a>'
       '    </form>'
       
         '<form action=/delete?db=<#tbnumber><#page> style=text-align:cent' +
