@@ -8,7 +8,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, Web.HTTPProd, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types, RegularExpressions,
-  FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants, System.NetEncoding;
+  FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants, System.NetEncoding,
+  IdHashMessageDigest;
 
 type
   TWebModule1 = class(TWebModule)
@@ -17,7 +18,7 @@ type
     raw: TFDTable;
     PageProducer1: TPageProducer;
     indexpage: TPageProducer;
-    admin: TPageProducer;
+    login: TPageProducer;
     main: TDataSetPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     PbbsConnection: TFDConnection;
@@ -56,6 +57,7 @@ type
     tempLAST: TIntegerField;
     tempSCORE: TDateField;
     clean: TFDQuery;
+    admin: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -72,7 +74,7 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1LoginHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+    procedure loginHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1DeleteHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
@@ -106,6 +108,8 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure masterHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
       TagParams: TStrings; var ReplaceText: string);
+    procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
     ini: TStringList;
@@ -126,23 +130,24 @@ implementation
 
 {$R *.dfm}
 
-procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.loginHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   i: integer;
 begin
+  if TagString = 'tbnumber' then
+    ReplaceText := Self.Tag.ToString;
+end;
+
+procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
   if TagString = 'main' then
   begin
-    for i := 1 to ini.Values['count'].ToInteger do
-    begin
-      if FDQuery1.Eof = true then
-        break;
-      ReplaceText := ReplaceText + admain.Content;
-      FDQuery1.Next;
-    end;
+    ReplaceText := ReplaceText + admain.Content;
   end
-  else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString;
+  else if TagString = 'footer' then
+    ReplaceText := footer.ContentFromString('<#list admin=true>');
 end;
 
 procedure TWebModule1.alertHTMLTag(Sender: TObject; Tag: TTag;
@@ -283,7 +288,7 @@ begin
   else if TagString = 'tbnumber' then
     ReplaceText := Self.Tag.ToString
   else if TagString = 'footer' then
-    ReplaceText := footer.ContentFromString('<#list admin=false>');
+    ReplaceText := footer.ContentFromString('<#list>');
 end;
 
 procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
@@ -505,7 +510,9 @@ end;
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s: string;
+  s, t1, t2: string;
+  m5: TIdHashMessageDigest5;
+  x: Boolean;
   i, j: integer;
 begin
   s := Request.QueryFields.Values['dbname'];
@@ -528,17 +535,41 @@ begin
       Response.SendRedirect('/');
     end;
   end
-  else if false or (ini.Values['password'] = Request.ContentFields.Values
-    ['password']) then
-    Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
   else
   begin
     Tag := Request.QueryFields.Values['db'].ToInteger;
-    FDQuery1.ParamByName('param').AsInteger := Tag;
-    FDQuery1.Open;
-    Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := admin.Content;
-    FDQuery1.Close;
+    t1 := Request.CookieFields.Values['password'];
+    t2 := ini.Values['password'];
+    m5 := TIdHashMessageDigest5.Create;
+    try
+      t2 := m5.HashStringAsHex(t2);
+    finally
+      m5.Free;
+    end;
+    x := t1 = t2;
+    if (x = false) and (ini.Values['password'] = Request.ContentFields.Values
+      ['password']) then
+    begin
+      with Response.Cookies.Add do
+      begin
+        Domain := Request.Host;
+        Expires := Now + 7;
+        Path := '/admin';
+        Secure := false;
+        Value := t2;
+      end;
+      x := true;
+    end;
+    if x = false then
+      Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
+    else
+    begin
+      FDQuery1.ParamByName('param').AsInteger := Tag;
+      FDQuery1.Open;
+      Response.ContentType := 'text/html;charset=utf-8';
+      Response.Content := admin.Content;
+      FDQuery1.Close;
+    end;
   end;
 end;
 
@@ -686,7 +717,7 @@ procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
 begin
   Tag := Request.QueryFields.Values['db'].ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := admin.Content;
+  Response.Content := login.Content;
 end;
 
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
@@ -828,9 +859,9 @@ begin
     else
       x := false;
     s.Clear;
-    s.Add('name='+na);
+    s.Add('name=' + na);
     s.Add('aikotoba=Ç∞ÇÒÇ´');
-    Response.SetCookieField(s,Request.Host,'/',Now+7,false);
+    Response.SetCookieField(s, Request.Host, '/', Now + 7, false);
   finally
     s.Free;
   end;

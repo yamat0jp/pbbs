@@ -305,7 +305,7 @@ object WebModule1: TWebModule1
     Left = 264
     Top = 64
   end
-  object admin: TPageProducer
+  object login: TPageProducer
     HTMLDoc.Strings = (
       '<!doctype html>'
       ''
@@ -324,7 +324,7 @@ object WebModule1: TWebModule1
       '    </form>'
       '  </body>'
       '</html>')
-    OnHTMLTag = adminHTMLTag
+    OnHTMLTag = loginHTMLTag
     Left = 64
     Top = 224
   end
@@ -647,5 +647,23 @@ object WebModule1: TWebModule1
       'delete from title;')
     Left = 352
     Top = 296
+  end
+  object admin: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8>'
+      '<title></title></head>'
+      
+        '<body><table><tr><td>'#21066#38500'</td><td>'#25237#31295#32773'</td><td>'#12479#12452#12488#12523'</td><td></td><t' +
+        'd>'#26085#26178'</td></tr>'
+      '<#main>'
+      '</table>'
+      ''
+      '<#footer>'
+      '</body></html>')
+    OnHTMLTag = adminHTMLTag
+    Left = 104
+    Top = 112
   end
 end
