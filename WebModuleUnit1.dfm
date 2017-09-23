@@ -139,6 +139,7 @@ object WebModule1: TWebModule1
       Size = 80
     end
     object maintableCOMMENT: TStringField
+      DisplayWidth = 32765
       FieldName = 'COMMENT'
       Origin = '"COMMENT"'
       Size = 1000
@@ -163,6 +164,7 @@ object WebModule1: TWebModule1
       Required = True
     end
     object rawRAW: TStringField
+      DisplayWidth = 32765
       FieldName = 'RAW'
       Origin = 'RAW'
       Size = 1000
@@ -364,9 +366,7 @@ object WebModule1: TWebModule1
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
       'ExtendedMetadata=True'
-      'PageSize=16384'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29

@@ -886,14 +886,8 @@ begin
   FDQuery1.Close;
   FDQuery1.ParamByName('param').AsInteger := Tag;
   FDQuery1.Open;
-  if (maintable.Bof = true) and (maintable.Eof = true) then
-    k := 1
-  else
-  begin
-    maintable.Last;
-    k := maintable.FieldByName('id').AsInteger + 1;
-  end;
-  if (FDQuery1.Bof = true) and (FDQuery1.Eof = true) then
+  k := maintable.RecordCount + 1;
+  if FDQuery1.RecordCount = 0 then
     j := 1
   else
   begin
