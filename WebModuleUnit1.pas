@@ -118,8 +118,7 @@ type
   private
     { private 宣言 }
     ini: TStringList;
-    Tag, page: integer;
-    str, kotoba: string;
+    str: string;
     function CheckWords(comment: TStringList): Boolean;
   public
     { public 宣言 }
@@ -139,13 +138,14 @@ procedure TWebModule1.loginHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString;
+    ReplaceText := Request.QueryFields.Values['db'];
 end;
 
 procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   i: integer;
+  s: string;
 begin
   if TagString = 'main' then
   begin
@@ -158,9 +158,13 @@ begin
     end;
   end
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString
-  else if (page <> 0) and (TagString = 'page') then
-    ReplaceText := '&page=' + page.ToString
+    ReplaceText := Request.QueryFields.Values['db']
+  else if TagString = 'page' then
+  begin
+    s := Request.QueryFields.Values['page'];
+    if (s <> '') or (s <> '0') then
+      ReplaceText := '&page=' + s;
+  end
   else if TagString = 'password' then
     ReplaceText := ini.Values['password']
   else if TagString = 'check' then
@@ -180,15 +184,16 @@ begin
   if TagString = 'comment' then
   begin
     i := maintable.Lookup('tbnumber;cmnumber',
-      VarArrayOf([Self.Tag, page]), 'id');
+      VarArrayOf([Request.QueryFields.Values['db'],
+      Request.QueryFields.Values['page']]), 'id');
     raw.Open;
     ReplaceText := Copy(raw.Lookup('id', i, 'raw'), 1, 50) + ' ...';
     raw.Close;
   end
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString
+    ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'cmnumber' then
-    ReplaceText := page.ToString;
+    ReplaceText := Request.QueryFields.Values['page'];
 end;
 
 function TWebModule1.CheckWords(comment: TStringList): Boolean;
@@ -229,14 +234,19 @@ procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   s, t, x: string;
-  i, j: integer;
+  i, j, page: integer;
 begin
   if TagParams.Values['admin'] = 'true' then
-    x := '/admin?db=' + Self.Tag.ToString
+    x := '/admin?db=' + Request.QueryFields.Values['db']
   else
-    x := '/?db=' + Self.Tag.ToString;
+    x := '/?db=' + Request.QueryFields.Values['db'];
   s := x + '&page=';
   ReplaceText := '<div style=text-align:center><b>[</b>';
+  t := Request.QueryFields.Values['page'];
+  if t <> '' then
+    page := t.ToInteger
+  else
+    page := 0;
   if page = 0 then
   begin
     t := '<<';
@@ -247,14 +257,14 @@ begin
   else
   begin
     i := page - 1;
-    t := '<a href=' + s + i.ToString + '><<</a>';
+    t := '<a href=' + s + i.ToString + '><< </a>';
     for j := 1 to 10 do
       if page = j then
-        t := t + page.ToString
+        t := t + Request.QueryFields.Values['page']
       else
         t := t + ' <a href=' + s + j.ToString + '>' + j.ToString + '</a> ';
     i := page + 1;
-    t := t + '<a href=' + s + i.ToString + '>>></a> <b>]</b>  <a href=' + x +
+    t := t + '<a href=' + s + i.ToString + '> >></a> <b>]</b>  <a href=' + x +
       '>recent</a></div>';
   end;
   ReplaceText := ReplaceText + t;
@@ -271,11 +281,12 @@ procedure TWebModule1.htmlfileHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString
+    ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'name' then
     ReplaceText := str
   else if TagString = 'aikotoba' then
-    ReplaceText := kotoba;
+    ReplaceText := TNetEncoding.URL.Decode(Request.CookieFields.Values
+      ['aikotoba']);
 end;
 
 procedure TWebModule1.indexpageHTMLTag(Sender: TObject; Tag: TTag;
@@ -285,7 +296,8 @@ var
 begin
   if TagString = 'form' then
   begin
-    full.ParamByName('param').AsInteger := Self.Tag;
+    full.ParamByName('param').AsInteger := Request.QueryFields.Values['db']
+      .ToInteger;
     full.Open;
     if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
       ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）'
@@ -308,7 +320,7 @@ begin
   else if TagString = 'title2' then
     ReplaceText := ini.Values['title2']
   else if TagString = 'tbnumber' then
-    ReplaceText := Self.Tag.ToString
+    ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list>');
 end;
@@ -321,7 +333,7 @@ end;
 
 function TWebModule1.LinkCreator(const line: string; index: integer): string;
 var
-  s1, s2: string;
+  s1, s2, p: string;
   ep: integer;
   t: TMatch;
 begin
@@ -335,11 +347,11 @@ begin
   begin
     if index = 1 then
     begin
+      p := Request.QueryFields.Values['db'];
       s1 := Copy(t.Value, 3, t.Length);
       s2 := s2 + Copy(line, ep, t.index - ep) +
-        '<a class=minpreview data-preview-url=/?db=' + Tag.ToString + '&key=' +
-        s1 + ' href=/user?db=' + Tag.ToString + '&job=' + s1 + '>>>' +
-        s1 + '</a>';
+        '<a class=minpreview data-preview-url=/?db=' + p + '&key=' + s1 +
+        ' href=/user?db=' + p + '&job=' + s1 + '>>>' + s1 + '</a>';
     end
     else
     begin
@@ -415,11 +427,11 @@ procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   s, t, Text, word: string;
-  i: integer;
+  i, j: integer;
   x: Boolean;
-  com: TStringList;
+  com, temp: TStringList;
 begin
-  if TagString = 'main' then
+  if (TagString = 'main') and (Request.MethodType = mtPost) then
   begin
     word := Request.ContentFields.Values['word1'];
     if Request.ContentFields.Values['filter'] = 'name' then
@@ -456,7 +468,9 @@ begin
       maintable.First;
       raw.Open;
       com := TStringList.Create;
+      temp := TStringList.Create;
       try
+        temp.DelimitedText := word;
         while maintable.Eof = false do
         begin
           s := maintable.FieldByName('cmnumber').AsString;
@@ -473,13 +487,17 @@ begin
           for i := 0 to com.Count - 1 do
           begin
             s := com[i];
-            if Pos(word, s) > 0 then
-            begin
-              Text := Text + '<p style=background:yellow>' + s + '</p>';
-              if x = false then
-                x := true;
-            end
-            else
+            for j := 0 to temp.Count - 1 do
+              if Pos(temp[j], s) > 0 then
+              begin
+                Text := Text + '<p style=background:yellow>' + s + '</p>';
+                if x = false then
+                begin
+                  x := true;
+                  break;
+                end;
+              end;
+            if x = false then
               Text := Text + '<p>' + s + '</p>';
           end;
           if x = true then
@@ -488,6 +506,7 @@ begin
         end;
       finally
         com.Free;
+        temp.Free;
         raw.Close;
       end;
     end;
@@ -535,7 +554,7 @@ var
   s, t1, t2: string;
   m5: TIdHashMessageDigest5;
   x: Boolean;
-  i, j, k: integer;
+  i, j, k, page: integer;
 begin
   if (Request.MethodType = mtPost) and
     (Request.ContentFields.Values['setting'] = 'true') then
@@ -544,7 +563,6 @@ begin
     ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
     ini.SaveToFile('setting.ini');
   end;
-  Tag := Request.QueryFields.Values['db'].ToInteger;
   t1 := Request.CookieFields.Values['password'];
   m5 := TIdHashMessageDigest5.Create;
   try
@@ -568,10 +586,12 @@ begin
     x := true;
   end;
   if x = false then
-    Response.SendRedirect('/login?db=' + AnsiString(Tag.ToString))
+    Response.SendRedirect('/login?db=' +
+      AnsiString(Request.QueryFields.Values['db']))
   else
   begin
-    FDQuery1.ParamByName('param').AsInteger := Tag;
+    k := Request.QueryFields.Values['db'].ToInteger;
+    FDQuery1.ParamByName('param').AsInteger := k;
     FDQuery1.Open;
     j := ini.Values['count'].ToInteger;
     s := Request.QueryFields.Values['page'];
@@ -579,7 +599,7 @@ begin
     begin
       page := s.ToInteger;
       i := page - 1;
-      full.ParamByName('param').AsInteger := Tag;
+      full.ParamByName('param').AsInteger := k;
       full.Open;
       k := full.Fields[0].AsInteger;
       full.Close;
@@ -588,7 +608,8 @@ begin
       else
       begin
         FDQuery1.Close;
-        Response.SendRedirect('/admin?db=' + AnsiString(Tag.ToString));
+        Response.SendRedirect('/admin?db=' +
+          AnsiString(Request.QueryFields.Values['db']));
         Exit;
       end;
     end
@@ -608,13 +629,12 @@ procedure TWebModule1.WebModule1AlertHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, t, com, time: string;
-  i, j: integer;
+  i, j, page: integer;
 begin
   s := Request.QueryFields.Values['db'];
   t := Request.QueryFields.Values['page'];
   if (s <> '') and (t <> '') then
   begin
-    Tag := s.ToInteger;
     page := t.ToInteger;
     Response.ContentType := 'text/html;charset=utf-8';
     if Request.MethodType = mtGet then
@@ -693,10 +713,9 @@ end;
 procedure TWebModule1.WebModule1DeleteHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s: string;
+  s, t: string;
   i, j: integer;
 begin
-  Tag := Request.QueryFields.Values['db'].ToInteger;
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     if Request.ContentFields.Names[i] <> 'item' then
@@ -711,11 +730,11 @@ begin
     raw.Close;
   end;
   s := Request.QueryFields.Values['page'];
+  t := Request.QueryFields.Values['db'];
   if s <> '' then
-    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString +
-      '&page=' + s))
+    Response.SendRedirect(AnsiString('/admin?db=' + t + '&page=' + s))
   else
-    Response.SendRedirect(AnsiString('/admin?db=' + Tag.ToString));
+    Response.SendRedirect('/admin?db=' + AnsiString(t));
 end;
 
 procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
@@ -764,7 +783,6 @@ end;
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Tag := Request.QueryFields.Values['db'].ToInteger;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := login.Content;
 end;
@@ -794,12 +812,12 @@ procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, t, DB: string;
-  i, j: integer;
+  i, j, k, page: integer;
 begin
   if ini.Values['maintenance'] = 'on' then
   begin
-    Response.ContentType:='text/html;charset=utf-8';
-    Response.Content:=maintenance.Content;
+    Response.ContentType := 'text/html;charset=utf-8';
+    Response.Content := maintenance.Content;
     Exit;
   end;
   DB := Request.QueryFields.Values['db'];
@@ -809,7 +827,6 @@ begin
     Response.Content := PageProducer1.Content;
     Exit;
   end;
-  Tag := DB.ToInteger;
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
@@ -823,8 +840,9 @@ begin
     FDQuery1.SQL.Text := t;
     Exit;
   end;
+  k := Request.QueryFields.Values['db'].ToInteger;
   FDQuery1.Close;
-  FDQuery1.ParamByName('param').AsInteger := Tag;
+  FDQuery1.ParamByName('param').AsInteger := k;
   FDQuery1.Open;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
@@ -839,7 +857,7 @@ begin
     else
     begin
       j := page - 1;
-      full.ParamByName('param').AsInteger := Tag;
+      full.ParamByName('param').AsInteger := k;
       full.Open;
       if i * j < full.Fields[0].AsInteger then
         FDQuery1.MoveBy(i * j)
@@ -858,7 +876,6 @@ begin
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
-  kotoba := TNetEncoding.URL.Decode(Request.CookieFields.Values['aikotoba']);
   str := TNetEncoding.URL.Decode(Request.CookieFields.Values['name']);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
@@ -868,7 +885,7 @@ procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   na, sub, com, pass, Text: string;
-  i, j, k: integer;
+  i, j, k, p: integer;
   s: TStringList;
   x: Boolean;
 begin
@@ -878,13 +895,14 @@ begin
     Response.Content := '合言葉を入力してください!';
     Exit;
   end;
-  Tag := Request.QueryFields.Values['db'].ToInteger;
+  p := Request.QueryFields.Values['db'].ToInteger;
   com := Request.ContentFields.Values['comment'];
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
   FDQuery1.Close;
-  FDQuery1.ParamByName('param').AsInteger := Tag;
+  FDQuery1.ParamByName('param').AsInteger := Request.QueryFields.Values['db']
+    .ToInteger;
   FDQuery1.Open;
   k := maintable.RecordCount + 1;
   if FDQuery1.RecordCount = 0 then
@@ -913,7 +931,7 @@ begin
         sub := 'タイトルなし.';
       if na = '' then
         na := '誰かさん';
-      maintable.AppendRecord([k, Tag, j, na, sub, Text, DateTimeToStr(Now)]);
+      maintable.AppendRecord([k, p, j, na, sub, Text, DateTimeToStr(Now)]);
       raw.Open;
       raw.AppendRecord([k, s.Text, pass]);
       raw.Close;
@@ -929,11 +947,12 @@ begin
     s.Free;
   end;
   if x = true then
-    Response.SendRedirect('/?db=' + AnsiString(Tag.ToString) + '#bottom')
+    Response.SendRedirect('/?db=' + AnsiString(Request.QueryFields.Values['db'])
+      + '#bottom')
   else
   begin
     Response.ContentType := 'text/plain;charset=utf-8';
-    Response.Content := '禁止語句を含まないでください.:' + ini.Values['tags'] + ';' +
+    Response.Content := '禁止語句を含めないでください.:' + ini.Values['tags'] + ';' +
       ini.Values['words'];
   end;
 end;
