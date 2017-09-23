@@ -903,8 +903,13 @@ begin
   FDQuery1.Close;
   FDQuery1.ParamByName('param').AsInteger := p;
   FDQuery1.Open;
-  maintable.Last;
-  k := maintable.FieldByName('id').AsInteger + 1;
+  if maintable.RecordCount = 0 then
+    k := 1
+  else
+  begin
+    maintable.Last;
+    k := maintable.FieldByName('id').AsInteger + 1;
+  end;
   if FDQuery1.RecordCount = 0 then
     j := 1
   else
