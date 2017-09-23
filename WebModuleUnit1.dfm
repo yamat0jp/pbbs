@@ -422,7 +422,11 @@ object WebModule1: TWebModule1
       '    <p style=text-align:center><strong>'#25237#31295#26908#32034'</strong>'
       '    <p>'
       '    <p>'
-      '      <p style:text-align:center>AND'#26908#32034#12290#21322#35282#12459#12531#12510'(,)'#12391#21306#20999#12387#12390#12367#12384#12373#12356#12290
+      '      <p style:text-align:center>'#26908#32034#12290#21322#35282#12459#12531#12510'(,)'#12391#21306#20999#12387#12390#12367#12384#12373#12356#12290
+      '      <p><select name=type>'
+      '        <option value=OR>OR</option>'
+      '        <option value=AND>AND</option>'
+      '        </select>'
       '      <p>'#26908#32034#12527#12540#12489
       ''
       '      <p><input name="word1">'

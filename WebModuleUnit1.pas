@@ -427,9 +427,10 @@ procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   s, t, Text, word: string;
-  i, j: integer;
-  x: Boolean;
+  i, j, k: integer;
+  x, y, w, p, q: Boolean;
   com, temp: TStringList;
+  bool: array of Boolean;
 begin
   if (TagString = 'main') and (Request.MethodType = mtPost) then
   begin
@@ -471,6 +472,8 @@ begin
       temp := TStringList.Create;
       try
         temp.DelimitedText := word;
+        x := Request.ContentFields.Values['type'] = 'OR';
+        SetLength(bool, temp.Count);
         while maintable.Eof = false do
         begin
           s := maintable.FieldByName('cmnumber').AsString;
@@ -483,24 +486,38 @@ begin
             maintable.FieldByName('name').AsString;
           com.Text := raw.Lookup('id', maintable.FieldByName('id')
             .AsInteger, 'raw');
-          x := false;
+          for j := 0 to High(bool) do
+            bool[j] := false;
+          q := false;
           for i := 0 to com.Count - 1 do
           begin
             s := com[i];
+            p := false;
             for j := 0 to temp.Count - 1 do
               if Pos(temp[j], s) > 0 then
-              begin
-                Text := Text + '<p style=background:yellow>' + s + '</p>';
-                if x = false then
+                if p = false then
                 begin
-                  x := true;
-                  break;
+                  if x = true then
+                    Text := Text + '<p style=background:yellow>' + s
+                  else
+                  begin
+                    Text := Text + '<p style=background:aqua>' + s;
+                    bool[j] := true;
+                  end;
+                  p := true;
+                  q := true;
                 end;
-              end;
-            if x = false then
-              Text := Text + '<p>' + s + '</p>';
+            if p = false then
+              Text := Text + '<p>' + s;
           end;
-          if x = true then
+          y := true;
+          for w in bool do
+            if w = false then
+            begin
+              y := false;
+              break;
+            end;
+          if ((x = true) and (q = true)) or ((x = false) and (y = true)) then
             ReplaceText := ReplaceText + '<hr>' + Text;
           maintable.Next;
         end;
@@ -508,6 +525,7 @@ begin
         com.Free;
         temp.Free;
         raw.Close;
+        Finalize(bool);
       end;
     end;
   end;
