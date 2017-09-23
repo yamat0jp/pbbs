@@ -85,7 +85,7 @@ object Form1: TForm1
     TabOrder = 6
   end
   object DBGrid4: TDBGrid
-    Left = 152
+    Left = 312
     Top = 328
     Width = 297
     Height = 97
@@ -97,9 +97,24 @@ object Form1: TForm1
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
+  object DBGrid5: TDBGrid
+    Left = 8
+    Top = 328
+    Width = 289
+    Height = 97
+    DataSource = DataSource5
+    TabOrder = 8
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+  end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
+      
+        'Database=C:\Users\yamat\Documents\GitHub\pbbs\Win64\Debug\DATA.F' +
+        'DB'
       'User_Name=sysdba'
       'Password=masterkey'
       'DriverID=FB')
@@ -114,7 +129,7 @@ object Form1: TForm1
   end
   object FDTable1: TFDTable
     Active = True
-    IndexName = 'RDB$PRIMARY2'
+    IndexFieldNames = 'ID'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'MAINTABLE'
     TableName = 'MAINTABLE'
@@ -167,5 +182,19 @@ object Form1: TForm1
     TableName = 'TITLE'
     Left = 504
     Top = 352
+  end
+  object FDTable5: TFDTable
+    Active = True
+    IndexFieldNames = 'ID'
+    Connection = FDConnection1
+    UpdateOptions.UpdateTableName = 'DBNAME'
+    TableName = 'DBNAME'
+    Left = 136
+    Top = 344
+  end
+  object DataSource5: TDataSource
+    DataSet = FDTable5
+    Left = 200
+    Top = 344
   end
 end

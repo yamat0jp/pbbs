@@ -9,7 +9,8 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.DApt.Intf, FireDAC.DApt, Web.HTTPProd, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types, RegularExpressions,
   FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants, System.NetEncoding,
-  IdHashMessageDigest;
+  IdHashMessageDigest, FireDAC.Phys.IBBase, FireDAC.Comp.ScriptCommands,
+  FireDAC.Stan.Util, FireDAC.Comp.Script;
 
 type
   TWebModule1 = class(TWebModule)
@@ -58,6 +59,7 @@ type
     tempSCORE: TDateField;
     clean: TFDQuery;
     admin: TPageProducer;
+    FDScript1: TFDScript;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -1054,6 +1056,16 @@ begin
   finally
     s.Free;
   end;
+  if dbname.Exists = false then
+  begin
+    dbname.CreateTable(false);
+    maintable.CreateTable(false);
+    raw.CreateTable(false);
+    alerttable.CreateTable(false);
+    temp.CreateTable(false);
+    FDScript1.ExecuteAll;
+  end;
+  PbbsConnection.Open;
   dbname.Open;
   maintable.Open;
 end;

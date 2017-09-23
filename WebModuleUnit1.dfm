@@ -85,7 +85,7 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    IndexName = 'RDB$PRIMARY1'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'DBNAME'
     TableName = 'DBNAME'
@@ -108,7 +108,7 @@ object WebModule1: TWebModule1
     end
   end
   object maintable: TFDTable
-    IndexName = 'RDB$PRIMARY2'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'MAINTABLE'
     TableName = 'MAINTABLE'
@@ -141,7 +141,7 @@ object WebModule1: TWebModule1
     object maintableCOMMENT: TStringField
       FieldName = 'COMMENT'
       Origin = '"COMMENT"'
-      Size = 32765
+      Size = 1000
     end
     object maintableDATETIME: TStringField
       FieldName = 'DATETIME'
@@ -150,7 +150,7 @@ object WebModule1: TWebModule1
     end
   end
   object raw: TFDTable
-    IndexName = 'RDB$PRIMARY9'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'RAW'
     TableName = 'RAW'
@@ -165,7 +165,7 @@ object WebModule1: TWebModule1
     object rawRAW: TStringField
       FieldName = 'RAW'
       Origin = 'RAW'
-      Size = 32765
+      Size = 1000
     end
     object rawPASSWORD: TStringField
       FieldName = 'PASSWORD'
@@ -359,9 +359,12 @@ object WebModule1: TWebModule1
   end
   object PbbsConnection: TFDConnection
     Params.Strings = (
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
+      'Database=data.fdb'
       'User_Name=sysdba'
       'Password=masterkey'
+      'OpenMode=OpenOrCreate'
+      'ExtendedMetadata=True'
+      'PageSize=16384'
       'DriverID=FB')
     Connected = True
     LoginPrompt = False
@@ -578,7 +581,7 @@ object WebModule1: TWebModule1
     Top = 280
   end
   object alerttable: TFDTable
-    IndexName = 'RDB$PRIMARY7'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'ALERTTABLE'
     TableName = 'ALERTTABLE'
@@ -698,5 +701,27 @@ object WebModule1: TWebModule1
     OnHTMLTag = adminHTMLTag
     Left = 104
     Top = 112
+  end
+  object FDScript1: TFDScript
+    SQLScripts = <
+      item
+        SQL.Strings = (
+          'alter table dbname add primary key (id);'
+          'alter table maintable add primary key (id);'
+          'alter table raw add primary key (id);'
+          'alter table alerttable add primary key (id);'
+          'alter table title add primary key (id);')
+      end>
+    Connection = PbbsConnection
+    Params = <>
+    Macros = <>
+    FetchOptions.AssignedValues = [evItems, evAutoClose, evAutoFetchAll]
+    FetchOptions.AutoClose = False
+    FetchOptions.Items = [fiBlobs, fiDetails]
+    ResourceOptions.AssignedValues = [rvMacroCreate, rvMacroExpand, rvDirectExecute, rvPersistent]
+    ResourceOptions.MacroCreate = False
+    ResourceOptions.DirectExecute = True
+    Left = 32
+    Top = 104
   end
 end

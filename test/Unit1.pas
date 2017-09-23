@@ -32,6 +32,9 @@ type
     DBGrid4: TDBGrid;
     DataSource4: TDataSource;
     FDTable4: TFDTable;
+    DBGrid5: TDBGrid;
+    FDTable5: TFDTable;
+    DataSource5: TDataSource;
   private
     { Private êÈåæ }
   public
