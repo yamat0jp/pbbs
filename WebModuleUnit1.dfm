@@ -281,7 +281,7 @@ object WebModule1: TWebModule1
       '  </head>'
       ''
       '  <body>'
-      '    <#title2>'
+      '    <a href=/><#title2></a>'
       '    <p><a id=top></a>'
       '    <p>'
       '    <#form>'
@@ -723,5 +723,18 @@ object WebModule1: TWebModule1
     ResourceOptions.DirectExecute = True
     Left = 32
     Top = 104
+  end
+  object maintenance: TPageProducer
+    HTMLDoc.Strings = (
+      '<!doctype html>'
+      '<html>'
+      '<head><meta charset=utf-8><title></title>'
+      '</head>'
+      '<body>'
+      '<p style=font-size:2em;text-align:center>'#21482#20170#12289#12513#12531#12486#12490#12531#12473#20013#12391#12377' '#65342#65342#65307
+      '</body>'
+      '</html>')
+    Left = 24
+    Top = 312
   end
 end

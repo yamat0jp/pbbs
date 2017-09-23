@@ -60,6 +60,7 @@ type
     clean: TFDQuery;
     admin: TPageProducer;
     FDScript1: TFDScript;
+    maintenance: TPageProducer;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -164,7 +165,7 @@ begin
     ReplaceText := ini.Values['password']
   else if TagString = 'check' then
   begin
-    if ini.Values['maintenance'] = 'true' then
+    if ini.Values['maintenance'] = 'on' then
       ReplaceText := 'checked';
   end
   else if TagString = 'footer' then
@@ -287,7 +288,7 @@ begin
     full.ParamByName('param').AsInteger := Self.Tag;
     full.Open;
     if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
-      ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）</p>'
+      ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）'
     else
       ReplaceText := htmlfile.Content;
     full.Close;
@@ -535,20 +536,13 @@ var
   m5: TIdHashMessageDigest5;
   x: Boolean;
   i, j, k: integer;
-  rc: TResourceStream;
 begin
   if (Request.MethodType = mtPost) and
     (Request.ContentFields.Values['setting'] = 'true') then
   begin
-    ini.Values['password'] := Request.ContentFields.Values['password'];
+    ini.Values['password'] := Request.ContentFields.Values['pass'];
     ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
-    rc := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
-    try
-      ini.SaveToStream(rc);
-    finally
-      rc.Free;
-    end;
-    Exit;
+    ini.SaveToFile('setting.ini');
   end;
   Tag := Request.QueryFields.Values['db'].ToInteger;
   t1 := Request.CookieFields.Values['password'];
@@ -802,6 +796,12 @@ var
   s, t, DB: string;
   i, j: integer;
 begin
+  if ini.Values['maintenance'] = 'on' then
+  begin
+    Response.ContentType:='text/html;charset=utf-8';
+    Response.Content:=maintenance.Content;
+    Exit;
+  end;
   DB := Request.QueryFields.Values['db'];
   if DB = '' then
   begin
@@ -1044,12 +1044,18 @@ var
   s: TResourceStream;
 begin
   ini := TStringList.Create;
-  s := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
-  try
-    ini.LoadFromStream(s);
-  finally
-    s.Free;
-  end;
+  if FileExists('setting.ini') = false then
+  begin
+    s := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
+    try
+      ini.LoadFromStream(s);
+      ini.SaveToFile('setting.ini');
+    finally
+      s.Free;
+    end;
+  end
+  else
+    ini.LoadFromFile('setting.ini');
   if dbname.Exists = false then
   begin
     dbname.CreateTable(false);
