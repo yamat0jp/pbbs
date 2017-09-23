@@ -901,10 +901,10 @@ begin
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
   FDQuery1.Close;
-  FDQuery1.ParamByName('param').AsInteger := Request.QueryFields.Values['db']
-    .ToInteger;
+  FDQuery1.ParamByName('param').AsInteger := p;
   FDQuery1.Open;
-  k := maintable.RecordCount + 1;
+  maintable.Last;
+  k := maintable.FieldByName('id').AsInteger + 1;
   if FDQuery1.RecordCount = 0 then
     j := 1
   else
