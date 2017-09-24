@@ -734,12 +734,13 @@ var
   s, t: string;
   i, j: integer;
 begin
+  t := Request.QueryFields.Values['db'];
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     if Request.ContentFields.Names[i] <> 'item' then
       continue;
     s := Request.ContentFields.ValueFromIndex[i];
-    maintable.Locate('tbnumber;cmnumber', VarArrayOf([Tag, s]));
+    maintable.Locate('tbnumber;cmnumber', VarArrayOf([t.ToInteger, s.ToInteger]));
     j := maintable.FieldByName('id').AsInteger;
     maintable.Delete;
     raw.Open;
@@ -748,7 +749,6 @@ begin
     raw.Close;
   end;
   s := Request.QueryFields.Values['page'];
-  t := Request.QueryFields.Values['db'];
   if s <> '' then
     Response.SendRedirect(AnsiString('/admin?db=' + t + '&page=' + s))
   else
