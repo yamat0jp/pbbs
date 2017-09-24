@@ -281,7 +281,7 @@ object WebModule1: TWebModule1
       '  </head>'
       ''
       '  <body>'
-      '    <a href=/><#title2></a>'
+      '    <a href=/ style=text-decoration:none><#title2></a>'
       '    <p><a id=top></a>'
       '    <p>'
       '    <#form>'

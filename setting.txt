@@ -5,4 +5,4 @@ password=admin
 maintenance=false
 tags=<script,<img,<link
 words=ˆ¢•Û,”nŽ­,Ž€‚Ë
-title2=pybbs
+title2=<h1 style=text-align:center;color:green>pybbs</h1>
