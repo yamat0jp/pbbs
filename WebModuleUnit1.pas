@@ -184,8 +184,8 @@ begin
   if TagString = 'comment' then
   begin
     i := maintable.Lookup('tbnumber;cmnumber',
-      VarArrayOf([Request.QueryFields.Values['db'],
-      Request.QueryFields.Values['page']]), 'id');
+      VarArrayOf([Request.QueryFields.Values['db'].ToInteger,
+      Request.QueryFields.Values['page'].ToInteger]), 'id');
     raw.Open;
     ReplaceText := Copy(raw.Lookup('id', i, 'raw'), 1, 50) + ' ...';
     raw.Close;
@@ -427,7 +427,7 @@ procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   s, t, Text, word: string;
-  i, j, k: integer;
+  i, j: integer;
   x, y, w, p, q: Boolean;
   com, temp: TStringList;
   bool: array of Boolean;
@@ -661,7 +661,7 @@ begin
     begin
       if Request.ContentFields.Values['admit'] = 'ok' then
       begin
-        j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s, t]), 'id');
+        j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s.ToInteger, t.ToInteger]), 'id');
         alerttable.Open;
         alerttable.Last;
         if alerttable.Bof = true then
@@ -1061,7 +1061,7 @@ begin
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if maintable.Locate('tbnumber;cmnumber', VarArrayOf([t, num])) = true then
+    if maintable.Locate('tbnumber;cmnumber', VarArrayOf([t.ToInteger, num.ToInteger])) = true then
     begin
       i := maintable.FieldByName('id').AsInteger;
       raw.Open;
