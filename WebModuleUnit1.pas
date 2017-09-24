@@ -495,18 +495,18 @@ begin
             p := false;
             for j := 0 to temp.Count - 1 do
               if Pos(temp[j], s) > 0 then
+              begin
                 if p = false then
                 begin
                   if x = true then
                     Text := Text + '<p style=background:yellow>' + s
                   else
-                  begin
                     Text := Text + '<p style=background:aqua>' + s;
-                    bool[j] := true;
-                  end;
                   p := true;
                   q := true;
                 end;
+                bool[j] := true;
+              end;
             if p = false then
               Text := Text + '<p>' + s;
           end;
