@@ -306,8 +306,14 @@ var
 begin
   if TagString = 'form' then
   begin
-    full.ParamByName('param').AsInteger := Request.QueryFields.Values['db']
-      .ToInteger;
+    i := Request.QueryFields.Values['db'].ToInteger;
+    if (ini.Values['info'] = dbname.Lookup('tbnumber', i, 'dbname')) and
+      (LoginCheck = false) then
+    begin
+      ReplaceText := '<h1 style=text-align:center>管理人から皆様にお知らせがあります</h1>';
+      Exit;
+    end;
+    full.ParamByName('param').AsInteger := i;
     full.Open;
     if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
       ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）'
@@ -1125,7 +1131,7 @@ begin
     begin
       i := maintable.FieldByName('id').AsInteger;
       raw.Open;
-      if raw.Locate('id', i) = true then
+      if raw.Locate('id;password', VarArrayOf([i,pass])) = true then
       begin
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
