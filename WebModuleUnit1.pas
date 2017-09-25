@@ -324,6 +324,7 @@ begin
       ReplaceText := ReplaceText + '<hr>' + main.Content;
       FDQuery1.Next;
     end;
+    FDQuery1.IndexFieldNames := '';
   end
   else if TagString = 'title' then
     ReplaceText := ini.Values['title']
@@ -425,6 +426,11 @@ begin
       inc(k);
       t1 := dbname.FieldByName('tbnumber').AsString;
       t2 := dbname.FieldByName('dbname').AsString;
+      if t2 = ini.Values['info'] then
+      begin
+        dbname.Next;
+        continue;
+      end;
       full.ParamByName('param').AsInteger := t1.ToInteger;
       full.Open;
       if full.Fields[0].AsInteger < i then
@@ -445,7 +451,14 @@ begin
   else if TagString = 'style' then
     ReplaceText := '<link rel=stylesheet href=' + TagParams.Values['href'] + '>'
   else if TagString = 'name' then
-    ReplaceText := 'info';
+  begin
+    s := ini.Values['info'];
+    if dbname.Locate('dbname', s) = true then
+      ReplaceText := '<a href=/?db=' + dbname.FieldByName('tbnumber').AsString +
+        '>' + s + '</a>'
+    else
+      ReplaceText := 'info';
+  end;
 end;
 
 procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
@@ -891,15 +904,22 @@ begin
     t := FDQuery1.SQL.Text;
     FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
       ')and(cmnumber = ' + s + ');');
-    Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := key.Content;
+    if FDQuery1.RecordCount > 0 then
+    begin
+      Response.ContentType := 'text/html;charset=utf-8';
+      Response.Content := key.Content;
+    end;
     FDQuery1.Close;
     FDQuery1.SQL.Text := t;
     Exit;
   end;
-  k := Request.QueryFields.Values['db'].ToInteger;
+  k := DB.ToInteger;
   FDQuery1.Close;
   FDQuery1.ParamByName('param').AsInteger := k;
+  if dbname.Lookup('tbnumber', k, 'dbname') = ini.Values['info'] then
+    FDQuery1.IndexFieldNames := 'cmnumber:D'
+  else
+    FDQuery1.IndexFieldNames := '';
   FDQuery1.Open;
   s := Request.QueryFields.Values['page'];
   if s <> '' then

@@ -369,6 +369,7 @@ object WebModule1: TWebModule1
       'OpenMode=OpenOrCreate'
       'ExtendedMetadata=True'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29
