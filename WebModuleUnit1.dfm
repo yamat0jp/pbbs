@@ -27,7 +27,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1RegistHandlerAction
     end
     item
-      MethodType = mtGet
       Name = 'LoginHandler'
       PathInfo = '/login'
       OnAction = WebModule1LoginHandlerAction
@@ -326,8 +325,11 @@ object WebModule1: TWebModule1
       '    <p>'
       '    <p align="center">'#31649#29702#32773#29992#12525#12464#12452#12531#30011#38754
       '    <p>'
-      '    <form action="/admin?db=<#tbnumber>" method="post">'
-      '    <p align="center"><input type="password" name="password">'
+      '    <form action="/login" method="post">'
+      
+        '    <p align="center"><input type=text name=dbname value=<#dbnam' +
+        'e>>'
+      '        <input type="password" name="password">'
       '      <input type="submit" value="'#12525#12464#12452#12531'">'
       '    </form>'
       '  </body>'

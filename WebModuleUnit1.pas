@@ -123,6 +123,7 @@ type
   public
     { public êÈåæ }
     function LinkCreator(const line: string; index: integer): string;
+    function LoginCheck: Boolean;
   end;
 
 var
@@ -136,9 +137,18 @@ implementation
 
 procedure TWebModule1.loginHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  s: string;
 begin
-  if TagString = 'tbnumber' then
-    ReplaceText := Request.QueryFields.Values['db'];
+  if TagString = 'dbname' then
+  begin
+    s := Request.QueryFields.Values['db'];
+    if (s = '') or (dbname.Locate('id', s.ToInteger) = false) then
+      s := 'master'
+    else
+      s := dbname.FieldByName('dbname').AsString;
+    ReplaceText := s;
+  end;
 end;
 
 procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
@@ -366,6 +376,21 @@ begin
   result := s2 + Copy(line, ep, Length(line));
 end;
 
+function TWebModule1.LoginCheck: Boolean;
+var
+  t1, t2: string;
+  m5: TIdHashMessageDigest5;
+begin
+  t1 := Request.CookieFields.Values['password'];
+  m5 := TIdHashMessageDigest5.Create;
+  try
+    t2 := m5.HashStringAsHex(ini.Values['password']);
+  finally
+    m5.Free;
+  end;
+  result := t1 = t2;
+end;
+
 procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
@@ -569,9 +594,7 @@ end;
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s, t1, t2: string;
-  m5: TIdHashMessageDigest5;
-  x: Boolean;
+  s: string;
   i, j, k, page: integer;
 begin
   if (Request.MethodType = mtPost) and
@@ -581,29 +604,7 @@ begin
     ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
     ini.SaveToFile('setting.ini');
   end;
-  t1 := Request.CookieFields.Values['password'];
-  m5 := TIdHashMessageDigest5.Create;
-  try
-    t2 := m5.HashStringAsHex(ini.Values['password']);
-  finally
-    m5.Free;
-  end;
-  x := t1 = t2;
-  if (x = false) and (ini.Values['password'] = Request.ContentFields.Values
-    ['password']) then
-  begin
-    with Response.Cookies.Add do
-    begin
-      Domain := Request.Host;
-      Expires := Now + 7;
-      Path := '/admin';
-      Secure := false;
-      Name := 'password';
-      Value := AnsiString(t2);
-    end;
-    x := true;
-  end;
-  if x = false then
+  if LoginCheck = false then
     Response.SendRedirect('/login?db=' +
       AnsiString(Request.QueryFields.Values['db']))
   else
@@ -661,7 +662,8 @@ begin
     begin
       if Request.ContentFields.Values['admit'] = 'ok' then
       begin
-        j := maintable.Lookup('tbnumber;cmnumber', VarArrayOf([s.ToInteger, t.ToInteger]), 'id');
+        j := maintable.Lookup('tbnumber;cmnumber',
+          VarArrayOf([s.ToInteger, t.ToInteger]), 'id');
         alerttable.Open;
         alerttable.Last;
         if alerttable.Bof = true then
@@ -740,7 +742,8 @@ begin
     if Request.ContentFields.Names[i] <> 'item' then
       continue;
     s := Request.ContentFields.ValueFromIndex[i];
-    maintable.Locate('tbnumber;cmnumber', VarArrayOf([t.ToInteger, s.ToInteger]));
+    maintable.Locate('tbnumber;cmnumber',
+      VarArrayOf([t.ToInteger, s.ToInteger]));
     j := maintable.FieldByName('id').AsInteger;
     maintable.Delete;
     raw.Open;
@@ -800,7 +803,38 @@ end;
 
 procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s: string;
+  m5: TIdHashMessageDigest5;
 begin
+  if Request.MethodType = mtPost then
+  begin
+    if ini.Values['password'] = Request.ContentFields.Values['password'] then
+    begin
+      m5 := TIdHashMessageDigest5.Create;
+      try
+        s := m5.HashStringAsHex(ini.Values['password']);
+      finally
+        m5.Free;
+      end;
+      with Response.Cookies.Add do
+      begin
+        Domain := Request.Host;
+        Expires := Now + 7;
+        Path := '/';
+        Secure := false;
+        Name := 'password';
+        Value := AnsiString(s);
+      end;
+      if dbname.Locate('dbname', Request.ContentFields.Values['dbname']) = true
+      then
+        Response.SendRedirect('/admin?db=' + dbname.FieldByName('tbnumber')
+          .AsAnsiString)
+      else
+        Response.SendRedirect('/master');
+      Exit;
+    end;
+  end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := login.Content;
 end;
@@ -813,7 +847,7 @@ begin
     Domain := Request.Host;
     Expires := Now - 1;
     Name := 'password';
-    Path := '/admin';
+    Path := '/';
     Secure := false;
   end;
   Response.SendRedirect('/?db=' + AnsiString(Request.QueryFields.Values['db']));
@@ -822,8 +856,13 @@ end;
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := master.Content;
+  if LoginCheck = true then
+  begin
+    Response.ContentType := 'text/html;charset=utf-8';
+    Response.Content := master.Content;
+  end
+  else
+    Response.SendRedirect('/login');
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -1061,7 +1100,8 @@ begin
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if maintable.Locate('tbnumber;cmnumber', VarArrayOf([t.ToInteger, num.ToInteger])) = true then
+    if maintable.Locate('tbnumber;cmnumber',
+      VarArrayOf([t.ToInteger, num.ToInteger])) = true then
     begin
       i := maintable.FieldByName('id').AsInteger;
       raw.Open;
