@@ -853,6 +853,12 @@ begin
         Response.SendRedirect('/master');
       Exit;
     end;
+    if dbname.Locate('dbname', Request.ContentFields.Values['dbname']) = true
+    then
+    begin
+      s := dbname.FieldByName('tbnumber').AsString;
+      Request.QueryFields.Add('db=' + s);
+    end;
   end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := login.Content;
@@ -1131,7 +1137,7 @@ begin
     begin
       i := maintable.FieldByName('id').AsInteger;
       raw.Open;
-      if raw.Locate('id;password', VarArrayOf([i,pass])) = true then
+      if raw.Locate('id;password', VarArrayOf([i, pass])) = true then
       begin
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
