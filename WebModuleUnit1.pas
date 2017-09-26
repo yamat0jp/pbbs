@@ -140,14 +140,16 @@ procedure TWebModule1.loginHTMLTag(Sender: TObject; Tag: TTag;
 var
   s: string;
 begin
-  if TagString = 'dbname' then
+  if TagString = 'option' then
   begin
-    s := Request.QueryFields.Values['db'];
-    if (s = '') or (dbname.Locate('id', s.ToInteger) = false) then
-      s := 'master'
-    else
+    dbname.First;
+    while dbname.Eof = false do
+    begin
       s := dbname.FieldByName('dbname').AsString;
-    ReplaceText := s;
+      ReplaceText := ReplaceText + '<option value=' + s + '>' + s + '</option>';
+      dbname.Next;
+    end;
+    ReplaceText := ReplaceText + '<option value=master>master</option>';
   end;
 end;
 
@@ -852,12 +854,6 @@ begin
       else
         Response.SendRedirect('/master');
       Exit;
-    end;
-    if dbname.Locate('dbname', Request.ContentFields.Values['dbname']) = true
-    then
-    begin
-      s := dbname.FieldByName('tbnumber').AsString;
-      Request.QueryFields.Add('db=' + s);
     end;
   end;
   Response.ContentType := 'text/html;charset=utf-8';

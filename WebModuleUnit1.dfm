@@ -326,9 +326,7 @@ object WebModule1: TWebModule1
       '    <p align="center">'#31649#29702#32773#29992#12525#12464#12452#12531#30011#38754
       '    <p>'
       '    <form action="/login" method="post">'
-      
-        '    <p align="center"><input type=text name=dbname value=<#dbnam' +
-        'e>>'
+      '    <p align="center"><select name=dbname><#option></select>'
       '        <input type="password" name="password">'
       '      <input type="submit" value="'#12525#12464#12452#12531'">'
       '    </form>'
@@ -741,6 +739,10 @@ object WebModule1: TWebModule1
       '</head>'
       '<body>'
       '<p style=font-size:2em;text-align:center>'#21482#20170#12289#12513#12531#12486#12490#12531#12473#20013#12391#12377' '#65342#65342#65307
+      '<p>'
+      '<p>,'
+      '<p>'
+      '<p style=text-align:center><a href=/login>'#12525#12464#12452#12531'</a>'
       '</body>'
       '</html>')
     Left = 24
