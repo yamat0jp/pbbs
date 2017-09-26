@@ -644,6 +644,7 @@ begin
       full.Open;
       k := full.Fields[0].AsInteger;
       full.Close;
+      FDQuery1.First;
       if (i * j < k) and (page > 0) then
         FDQuery1.MoveBy(i * j)
       else
