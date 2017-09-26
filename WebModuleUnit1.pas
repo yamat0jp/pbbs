@@ -633,6 +633,7 @@ begin
     Response.SendRedirect('/login')
   else
   begin
+    FDQuery1.Close;
     k := Request.QueryFields.Values['db'].ToInteger;
     FDQuery1.ParamByName('param').AsInteger := k;
     FDQuery1.Open;
@@ -646,14 +647,16 @@ begin
       full.Open;
       k := full.Fields[0].AsInteger;
       full.Close;
-      FDQuery1.First;
       if (i * j < k) and (page > 0) then
+      begin
+        FDQuery1.First;
         FDQuery1.MoveBy(i * j)
+      end
       else
       begin
         Request.QueryFields.Delete(Request.QueryFields.IndexOfName('page'));
         FDQuery1.Last;
-        FDQuery1.MoveBy(-j+1);
+        FDQuery1.MoveBy(-j + 1);
       end;
     end
     else
