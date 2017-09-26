@@ -341,7 +341,9 @@ begin
   else if TagString = 'tbnumber' then
     ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'footer' then
-    ReplaceText := footer.ContentFromString('<#list>');
+    ReplaceText := footer.ContentFromString('<#list>')
+  else if TagString = 'dbname' then
+    ReplaceText := dbname.Lookup('tbnumber',Request.QueryFields.Values['db'].ToInteger,'dbname');
 end;
 
 procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
@@ -645,16 +647,10 @@ begin
       if (i * j < k) and (page > 0) then
         FDQuery1.MoveBy(i * j)
       else
-      begin
-        FDQuery1.Close;
-        Response.SendRedirect('/admin?db=' +
-          AnsiString(Request.QueryFields.Values['db']));
-        Exit;
-      end;
+        Request.QueryFields.Delete(Request.QueryFields.IndexOfName('page'));
     end
     else
     begin
-      page := 0;
       FDQuery1.Last;
       FDQuery1.MoveBy(-j + 1);
     end;

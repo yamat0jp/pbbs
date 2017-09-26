@@ -293,6 +293,7 @@ object WebModule1: TWebModule1
       '      <p>Pass<input type="password" name="password">'
       '      <p><input type="submit" value="'#21066#38500'">'
       '      </form>'
+      '    <p style=text-align:center><#dbname>'
       '    <#footer>'
       
         '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#12506#12540#12472#19979 +
