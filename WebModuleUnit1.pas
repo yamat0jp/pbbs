@@ -626,8 +626,7 @@ begin
     ini.SaveToFile('setting.ini');
   end;
   if LoginCheck = false then
-    Response.SendRedirect('/login?db=' +
-      AnsiString(Request.QueryFields.Values['db']))
+    Response.SendRedirect('/login')
   else
   begin
     k := Request.QueryFields.Values['db'].ToInteger;
