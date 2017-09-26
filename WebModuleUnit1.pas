@@ -269,14 +269,15 @@ begin
   else
   begin
     i := page - 1;
-    t := '<a href=' + s + i.ToString + '><< </a>';
+    t := '<a href=' + s + i.ToString + ' style=text-decoration:none><< </a>';
     for j := 1 to 10 do
       if page = j then
         t := t + Request.QueryFields.Values['page']
       else
         t := t + ' <a href=' + s + j.ToString + '>' + j.ToString + '</a> ';
     i := page + 1;
-    t := t + '<a href=' + s + i.ToString + '> >></a> <b>]</b>  <a href=' + x +
+    t := t + '<a href=' + s + i.ToString +
+      ' style=text-decoration:none> >></a> <b>]</b>  <a href=' + x +
       '>recent</a></div>';
   end;
   ReplaceText := ReplaceText + t;
@@ -343,7 +344,8 @@ begin
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list>')
   else if TagString = 'dbname' then
-    ReplaceText := dbname.Lookup('tbnumber',Request.QueryFields.Values['db'].ToInteger,'dbname');
+    ReplaceText := dbname.Lookup('tbnumber', Request.QueryFields.Values['db']
+      .ToInteger, 'dbname');
 end;
 
 procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
@@ -648,7 +650,11 @@ begin
       if (i * j < k) and (page > 0) then
         FDQuery1.MoveBy(i * j)
       else
+      begin
         Request.QueryFields.Delete(Request.QueryFields.IndexOfName('page'));
+        FDQuery1.Last;
+        FDQuery1.MoveBy(-j+1);
+      end;
     end
     else
     begin
