@@ -626,7 +626,10 @@ begin
     (Request.ContentFields.Values['setting'] = 'true') then
   begin
     ini.Values['password'] := Request.ContentFields.Values['pass'];
-    ini.Values['maintenance'] := Request.ContentFields.Values['maintenance'];
+    if Request.ContentFields.Values['maintenance'] = 'on' then
+      ini.Values['maintenance'] := 'on'
+    else
+      ini.Values['maintenance'] := 'off';
     ini.SaveToFile('setting.ini');
   end;
   if LoginCheck = false then
