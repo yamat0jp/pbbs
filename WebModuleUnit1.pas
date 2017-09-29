@@ -410,7 +410,7 @@ begin
   while alerttable.Eof = false do
   begin
     ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName('message')
-      .AsString + alerttable.FieldByName('datetime').AsString;
+      .AsString + '<p>' + alerttable.FieldByName('datetime').AsString;
     alerttable.Next;
   end;
   alerttable.Close;
