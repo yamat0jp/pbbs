@@ -10,19 +10,19 @@ section#title {
     color:#D01166;
 }
 
-section#name {
+section#name h1 {
     font:bold;
     font-size:1em;
     color:#007000;
     margin:0;
 }
 
-section#date {
+section#date h1 {
     font-size:1em;
     margin:0;
 }
 
-section {
+section h1 {
     display:inline;
 }
 
@@ -47,9 +47,17 @@ header p {
     display:inline
 }
 
+@media only screen and (min-width:599px){
 header textarea {
     width:100%;
     height:150px;
+	}
+}
+@media only screen and (max-width:599px){
+header textarea {
+	width:70%;
+	height:90px
+	}
 }
 
 button {
