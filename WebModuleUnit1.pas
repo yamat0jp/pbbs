@@ -118,7 +118,6 @@ type
   private
     { private êÈåæ }
     ini: TStringList;
-    str: string;
     function CheckWords(comment: TStringList): Boolean;
   public
     { public êÈåæ }
@@ -286,8 +285,8 @@ end;
 procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  if TagString = 'message' then
-    ReplaceText := str;
+  if (TagString = 'message')and(Request.MethodType = mtPost) then
+    ReplaceText := 'ëóêMÇµÇ‹ÇµÇΩ.';
 end;
 
 procedure TWebModule1.htmlfileHTMLTag(Sender: TObject; Tag: TTag;
@@ -296,7 +295,7 @@ begin
   if TagString = 'tbnumber' then
     ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'name' then
-    ReplaceText := str
+    ReplaceText := TNetEncoding.URL.Decode(Request.CookieFields.Values['name'])
   else if TagString = 'aikotoba' then
     ReplaceText := TNetEncoding.URL.Decode(Request.CookieFields.Values
       ['aikotoba']);
@@ -411,7 +410,7 @@ begin
   while alerttable.Eof = false do
   begin
     ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName('message')
-      .AsString + alerttable.FieldByName('datetime').AsString;
+      .AsString + '<p>' + alerttable.FieldByName('datetime').AsString;
     alerttable.Next;
   end;
   alerttable.Close;
@@ -795,7 +794,6 @@ var
 begin
   if Request.MethodType = mtPost then
   begin
-    str := 'ëóêMÇµÇ‹ÇµÇΩ.';
     s := TStringList.Create;
     try
       s.Text := Request.ContentFields.Values['help'];
@@ -809,9 +807,7 @@ begin
     finally
       s.Free;
     end;
-  end
-  else
-    str := '';
+  end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := help.Content;
 end;
@@ -969,7 +965,6 @@ begin
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
-  str := TNetEncoding.URL.Decode(Request.CookieFields.Values['name']);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
 end;
