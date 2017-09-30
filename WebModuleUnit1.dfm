@@ -479,9 +479,7 @@ object WebModule1: TWebModule1
       '        <input type="submit" value="'#36865#20449'">'
       '</td></tr>'
       '<tr><td>'
-      
-        '        <p><textarea name="comment" style="HEIGHT: 156px; WIDTH:' +
-        ' 633px" rows="1" cols="39"'
+      '        <p><textarea name="comment" cols="30"'
       
         '                required placeholder="'#12467#12513#12531#12488#12394#12393#12434#20837#21147#12375#12390#12367#12384#12373#12356'."></textar' +
         'ea>'

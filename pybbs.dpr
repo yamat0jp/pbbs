@@ -2,7 +2,7 @@ program pybbs;
 
 {$APPTYPE CONSOLE}
 
-{$R 'Project1Resource.res' 'Project1Resource.rc'}
+
 
 uses
   Web.WebBroker,

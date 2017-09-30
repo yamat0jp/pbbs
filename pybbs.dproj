@@ -89,9 +89,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <RcCompile Include="Project1Resource.rc">
-            <Form>Project1Resource.res</Form>
-        </RcCompile>
         <DCCReference Include="WebModuleUnit1.pas">
             <Form>WebModule1</Form>
             <FormType>dfm</FormType>
