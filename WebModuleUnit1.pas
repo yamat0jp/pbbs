@@ -433,7 +433,7 @@ begin
     begin
       if k mod j = 1 then
         s := s + '<div class=slide><img src=/img?name=slide' + ((k div j) + 1)
-          .ToString + ' height=465 alt="" style=float:right>';
+          .ToString + ' style=float:right;height:465px>';
       inc(k);
       t1 := dbname.FieldByName('tbnumber').AsString;
       t2 := dbname.FieldByName('dbname').AsString;
@@ -676,13 +676,12 @@ procedure TWebModule1.WebModule1AlertHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, t, com, time: string;
-  i, j, page: integer;
+  i, j: integer;
 begin
   s := Request.QueryFields.Values['db'];
   t := Request.QueryFields.Values['page'];
-  if (s <> '') and (t <> '') then
+  if (s <> '')and(t <> '') then
   begin
-    page := t.ToInteger;
     Response.ContentType := 'text/html;charset=utf-8';
     if Request.MethodType = mtGet then
       Response.Content := alert.Content
@@ -690,8 +689,6 @@ begin
     begin
       if Request.ContentFields.Values['admit'] = 'ok' then
       begin
-        j := maintable.Lookup('tbnumber;cmnumber',
-          VarArrayOf([s.ToInteger, t.ToInteger]), 'id');
         alerttable.Open;
         alerttable.Last;
         if alerttable.Bof = true then
@@ -709,7 +706,7 @@ begin
         alerttable.AppendRecord([i, com, time]);
         alerttable.Close;
       end;
-      Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + t));
+      Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + j.ToString));
     end;
   end
   else
@@ -961,7 +958,6 @@ begin
   end
   else
   begin
-    page := 0;
     FDQuery1.Last;
     FDQuery1.MoveBy(-ini.Values['count'].ToInteger + 1);
   end;
@@ -1131,8 +1127,8 @@ begin
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if maintable.Locate('tbnumber;cmnumber',
-      VarArrayOf([t.ToInteger, num.ToInteger])) = true then
+    if (pass <> '')and(maintable.Locate('tbnumber;cmnumber',
+      VarArrayOf([t.ToInteger, num.ToInteger])) = true) then
     begin
       i := maintable.FieldByName('id').AsInteger;
       raw.Open;
