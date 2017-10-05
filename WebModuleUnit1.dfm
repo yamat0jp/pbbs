@@ -472,7 +472,9 @@ object WebModule1: TWebModule1
       '<header>'
       '<form action=/regist?db=<#tbnumber> method="post">'
       '<table><tr><td>'
-      '        <p>'#12362#21517#21069'<input name="name" class=name value="<#name>">'
+      
+        '        <p>'#12362#21517#21069'<input name="name" class=name value="<#name>" plac' +
+        'eholder="'#35504#12363#12373#12435'">'
       
         '        <p>'#12479#12452#12488#12523'<input name="title" class=title placeholder="'#12479#12452#12488#12523 +
         #12394#12375'.">'

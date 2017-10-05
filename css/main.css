@@ -10,19 +10,19 @@ section#title {
     color:#D01166;
 }
 
-section#name h1 {
+section#name {
     font:bold;
     font-size:1em;
     color:#007000;
     margin:0;
 }
 
-section#date h1 {
+section#date {
     font-size:1em;
     margin:0;
 }
 
-section h1 {
+section {
     display:inline;
 }
 
