@@ -1073,7 +1073,10 @@ begin
     k := full.Fields[0].AsInteger;
     full.Close;
     if k = 0 then
-      break;
+    begin
+      dbname.Next;
+      continue;
+    end;
     FDQuery1.Close;
     FDQuery1.ParamByName('param').AsInteger := j;
     FDQuery1.Open;
