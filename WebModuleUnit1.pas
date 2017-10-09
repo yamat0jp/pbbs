@@ -198,7 +198,8 @@ var
 begin
   if TagString = 'comment' then
   begin
-    i := maintable.Lookup('tbnumber;cmnumber',
+    dbname.Open;
+    i := dbname.Lookup('tbnumber;cmnumber',
       VarArrayOf([Request.QueryFields.Values['db'].ToInteger,
       Request.QueryFields.Values['page'].ToInteger]), 'id');
     raw.Open;
@@ -604,8 +605,13 @@ var
   s, t: string;
 begin
   t := FDQuery1.SQL.Text;
-  FDQuery1.Open
-    ('select nametable.tbnumber,tbname,title from dbname,nametable,maintable where (nametable.tbnumber = dbname.tbnumber)and(dbname.id = maintable.id);');
+  with FDQuery1.SQL do
+  begin
+    Add('select nametable.tbnumber,tbname,title from');
+    Add(' dbname,nametable,maintable where (nametable.tbnumber = dbname.tbnumber)');
+    Add('and(dbname.id = maintable.id);');
+  end;
+  FDQuery1.Open;
   FDQuery1.First;
   while FDQuery1.Eof = false do
   begin
@@ -1108,28 +1114,30 @@ begin
   temp.Open;
   id := 1;
   p := FDQuery1.SQL.Text;
-  FDQuery1.Open
-    ('select datetime from dbname,maintable where dbname.id = maintable.id;');
+  FDQuery1.SQL.Clear;
+  FDQuery1.SQL.Add('select dbname.id,datetime from dbname,maintable');
+  FDQuery1.SQL.Add(' where (dbname.id = maintable.id)and(tbnumber = :param);');
   dbname.Open;
+  dbname.First;
   while dbname.Eof = false do
   begin
-    t := dbname.FieldByName('tbnumber').AsString;
-    p := full.SQL.Text;
-    full.Open('select * from dbname where tbnumber = ' + t);
-    if full.RecordCount = 0 then
+    i := dbname.FieldByName('tbnumber').AsInteger;
+    FDQuery1.ParamByName('param').AsInteger := i;
+    FDQuery1.Prepare;
+    FDQuery1.Open;
+    FDQuery1.First;
+    if FDQuery1.RecordCount = 0 then
     begin
       dbname.Next;
       continue;
     end;
-    j := full.FieldByName('id').AsInteger;
+    j := FDQuery1.FieldByName('id').AsInteger;
     FDQuery1.Last;
-    k := full.FieldByName('id').AsInteger;
+    k := FDQuery1.FieldByName('id').AsInteger;
     s := StrToDateTime(FDQuery1.FieldByName('datetime').AsString);
     t := FormatDateTime('yyyy/mm/dd', s);
     temp.AppendRecord([id, i, j, k, StrToDate(t)]);
     inc(id);
-    full.Close;
-    full.SQL.Text := p;
     dbname.Next;
   end;
   dbname.Close;
