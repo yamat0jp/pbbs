@@ -25,9 +25,7 @@ type
     PbbsConnection: TFDConnection;
     FDQuery1: TFDQuery;
     full: TFDQuery;
-    dbnameID: TIntegerField;
     dbnameTBNUMBER: TIntegerField;
-    dbnameDBNAME: TStringField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
     footer: TPageProducer;
@@ -39,8 +37,6 @@ type
     alerttable: TFDTable;
     master: TPageProducer;
     maintableID: TIntegerField;
-    maintableTBNUMBER: TIntegerField;
-    maintableCMNUMBER: TIntegerField;
     maintableNAME: TStringField;
     maintableTITLE: TStringField;
     maintableCOMMENT: TStringField;
@@ -61,6 +57,12 @@ type
     admin: TPageProducer;
     FDScript1: TFDScript;
     maintenance: TPageProducer;
+    dbnamecmnumber: TIntegerField;
+    dbnameid: TIntegerField;
+    nametable: TFDTable;
+    nametabletbnumber: TIntegerField;
+    dbnamedbid: TIntegerField;
+    nametabletbname: TStringField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -141,14 +143,16 @@ var
 begin
   if TagString = 'option' then
   begin
-    dbname.First;
-    while dbname.Eof = false do
+    nametable.Open;
+    nametable.First;
+    while nametable.Eof = false do
     begin
-      s := dbname.FieldByName('dbname').AsString;
+      s := nametable.FieldByName('tbname').AsString;
       ReplaceText := ReplaceText + '<option value=' + s + '>' + s + '</option>';
-      dbname.Next;
+      nametable.Next;
     end;
     ReplaceText := ReplaceText + '<option value=master>master</option>';
+    nametable.Close;
   end;
 end;
 
@@ -285,7 +289,7 @@ end;
 procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  if (TagString = 'message')and(Request.MethodType = mtPost) then
+  if (TagString = 'message') and (Request.MethodType = mtPost) then
     ReplaceText := '送信しました.';
 end;
 
@@ -309,13 +313,17 @@ begin
   if TagString = 'form' then
   begin
     i := Request.QueryFields.Values['db'].ToInteger;
-    if (ini.Values['info'] = dbname.Lookup('tbnumber', i, 'dbname')) and
+    nametable.Open;
+    if (ini.Values['info'] = nametable.Lookup('tbnumber', i, 'tbname')) and
       (LoginCheck = false) then
     begin
       ReplaceText := '<h1 style=text-align:center>管理人から皆様にお知らせがあります</h1>';
+      nametable.Close;
       Exit;
     end;
+    nametable.Close;
     full.ParamByName('param').AsInteger := i;
+    full.Prepare;
     full.Open;
     if full.Fields[0].AsInteger >= ini.Values['count'].ToInteger * 10 then
       ReplaceText := '<p style=font-size:2.5em>申し訳ありません これ以上の投稿はできません（容量制限）'
@@ -343,8 +351,12 @@ begin
   else if TagString = 'footer' then
     ReplaceText := footer.ContentFromString('<#list>')
   else if TagString = 'dbname' then
-    ReplaceText := dbname.Lookup('tbnumber', Request.QueryFields.Values['db']
-      .ToInteger, 'dbname');
+  begin
+    nametable.Open;
+    ReplaceText := nametable.Lookup('tbnumber', Request.QueryFields.Values['db']
+      .ToInteger, 'tbname');
+    nametable.Close;
+  end;
 end;
 
 procedure TWebModule1.keyHTMLTag(Sender: TObject; Tag: TTag;
@@ -428,21 +440,23 @@ begin
     j := ini.Values['titlecount'].ToInteger;
     k := 1;
     s := '';
-    dbname.First;
-    while dbname.Eof = false do
+    nametable.Open;
+    nametable.First;
+    while nametable.Eof = false do
     begin
       if k mod j = 1 then
         s := s + '<div class=slide><img src=/img?name=slide' + ((k div j) + 1)
           .ToString + ' style=float:right;height:465px>';
       inc(k);
-      t1 := dbname.FieldByName('tbnumber').AsString;
-      t2 := dbname.FieldByName('dbname').AsString;
+      t1 := nametable.FieldByName('tbnumber').AsString;
+      t2 := nametable.FieldByName('tbname').AsString;
       if t2 = ini.Values['info'] then
       begin
-        dbname.Next;
+        nametable.Next;
         continue;
       end;
       full.ParamByName('param').AsInteger := t1.ToInteger;
+      full.Prepare;
       full.Open;
       if full.Fields[0].AsInteger < i then
         s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
@@ -451,11 +465,12 @@ begin
       full.Close;
       if k mod j = 1 then
         s := s + '</div>';
-      dbname.Next;
+      nametable.Next;
     end;
     if k mod j <> 1 then
       s := s + '</div>';
     ReplaceText := s;
+    nametable.Close;
   end
   else if TagString = 'script' then
     ReplaceText := '<script src=' + TagParams.Values['src'] + '></script>'
@@ -464,11 +479,13 @@ begin
   else if TagString = 'name' then
   begin
     s := ini.Values['info'];
-    if dbname.Locate('dbname', s) = true then
-      ReplaceText := '<a href=/?db=' + dbname.FieldByName('tbnumber').AsString +
-        '>' + s + '</a>'
+    nametable.Open;
+    if nametable.Locate('tbname', s) = true then
+      ReplaceText := '<a href=/?db=' + nametable.FieldByName('tbnumber')
+        .AsString + '>' + s + '</a>'
     else
       ReplaceText := 'info';
+    nametable.Close;
   end;
 end;
 
@@ -584,14 +601,17 @@ procedure TWebModule1.titleHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   i, j: integer;
-  s: string;
+  s, t: string;
 begin
-  temp.First;
-  while temp.Eof = false do
+  t := FDQuery1.SQL.Text;
+  FDQuery1.Open
+    ('select nametable.tbnumber,tbname,title from dbname,nametable,maintable where (nametable.tbnumber = dbname.tbnumber)and(dbname.id = maintable.id);');
+  FDQuery1.First;
+  while FDQuery1.Eof = false do
   begin
-    dbname.Locate('id', temp.FieldByName('dbid').AsInteger);
-    j := dbname.FieldByName('tbnumber').AsInteger;
+    j := FDQuery1.FieldByName('tbnumber').AsInteger;
     full.ParamByName('param').AsInteger := j;
+    full.Prepare;
     full.Open;
     i := full.Fields[0].AsInteger;
     full.Close;
@@ -605,12 +625,14 @@ begin
     else
       s := '';
     ReplaceText := ReplaceText + '<a href=/?db=' + j.ToString + s + '>' +
-      dbname.FieldByName('dbname').AsString + '</a>↓<div>タイトル:' +
-      maintable.Lookup('id', temp.FieldByName('first').AsInteger, 'title');
+      FDQuery1.FieldByName('tbname').AsString + '</a>↓<div>タイトル:' +
+      FDQuery1.FieldByName('title').AsString;
     ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
       DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
-    temp.Next;
+    FDQuery1.Next;
   end;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text := t;
   temp.Close;
   clean.ExecSQL;
 end;
@@ -638,6 +660,7 @@ begin
     FDQuery1.Close;
     k := Request.QueryFields.Values['db'].ToInteger;
     FDQuery1.ParamByName('param').AsInteger := k;
+    FDQuery1.Prepare;
     FDQuery1.Open;
     j := ini.Values['count'].ToInteger;
     s := Request.QueryFields.Values['page'];
@@ -646,6 +669,7 @@ begin
       page := s.ToInteger;
       i := page - 1;
       full.ParamByName('param').AsInteger := k;
+      full.Prepare;
       full.Open;
       k := full.Fields[0].AsInteger;
       full.Close;
@@ -680,7 +704,7 @@ var
 begin
   s := Request.QueryFields.Values['db'];
   t := Request.QueryFields.Values['page'];
-  if (s <> '')and(t <> '') then
+  if (s <> '') and (t <> '') then
   begin
     Response.ContentType := 'text/html;charset=utf-8';
     if Request.MethodType = mtGet then
@@ -767,9 +791,10 @@ begin
     if Request.ContentFields.Names[i] <> 'item' then
       continue;
     s := Request.ContentFields.ValueFromIndex[i];
-    maintable.Locate('tbnumber;cmnumber',
-      VarArrayOf([t.ToInteger, s.ToInteger]));
-    j := maintable.FieldByName('id').AsInteger;
+    dbname.Open;
+    maintable.Open;
+    j := dbname.Lookup('tbnumber;cmnumber', VarArrayOf([t, s]), 'id');
+    maintable.Locate('id', j);
     maintable.Delete;
     raw.Open;
     raw.Locate('id', j);
@@ -848,12 +873,14 @@ begin
         Name := 'password';
         Value := AnsiString(s);
       end;
-      if dbname.Locate('dbname', Request.ContentFields.Values['dbname']) = true
+      nametable.Open;
+      if nametable.Locate('tbname', Request.ContentFields.Values['dbname']) = true
       then
-        Response.SendRedirect('/admin?db=' + dbname.FieldByName('tbnumber')
+        Response.SendRedirect('/admin?db=' + nametable.FieldByName('tbnumber')
           .AsAnsiString)
       else
         Response.SendRedirect('/master');
+      nametable.Close;
       Exit;
     end;
   end;
@@ -890,7 +917,7 @@ end;
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  s, t, DB: string;
+  s, DB, t: string;
   i, j, k, page: integer;
 begin
   if ini.Values['maintenance'] = 'on' then
@@ -909,10 +936,9 @@ begin
   s := Request.QueryFields.Values['key'];
   if s <> '' then
   begin
-    FDQuery1.Close;
     t := FDQuery1.SQL.Text;
-    FDQuery1.Open('select * from maintable where (tbnumber = ' + DB +
-      ')and(cmnumber = ' + s + ');');
+    FDQuery1.Open('select * from dbname,maintable where (tbnumber = ' + DB +
+      ')and(cmnumber = ' + s + ')and(dbname.id = maintable.id);');
     if FDQuery1.RecordCount > 0 then
     begin
       Response.ContentType := 'text/html;charset=utf-8';
@@ -922,14 +948,20 @@ begin
     FDQuery1.SQL.Text := t;
     Exit;
   end;
-  k := DB.ToInteger;
-  FDQuery1.Close;
-  FDQuery1.ParamByName('param').AsInteger := k;
-  if dbname.Lookup('tbnumber', k, 'dbname') = ini.Values['info'] then
+  t := FDQuery1.SQL.Text;
+  FDQuery1.SQL.Clear;
+  FDQuery1.SQL.Add('select * from dbname,nametable,maintable');
+  FDQuery1.SQL.Add(' where (nametable.tbnumber = :param)');
+  FDQuery1.SQL.Add('and(dbname.tbnumber = nametable.tbnumber)');
+  FDQuery1.SQL.Add('and(dbname.id = maintable.id);');
+  FDQuery1.ParamByName('param').AsInteger := DB.ToInteger;
+  FDQuery1.Prepare;
+  FDQuery1.Open;
+  if FDQuery1.FieldByName('tbname').AsString = ini.Values['info'] then
     FDQuery1.IndexFieldNames := 'cmnumber:D'
   else
     FDQuery1.IndexFieldNames := '';
-  FDQuery1.Open;
+  FDQuery1.First;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
   begin
@@ -943,7 +975,8 @@ begin
     else
     begin
       j := page - 1;
-      full.ParamByName('param').AsInteger := k;
+      full.ParamByName('param').AsInteger := j;
+      full.Prepare;
       full.Open;
       if i * j < full.Fields[0].AsInteger then
         FDQuery1.MoveBy(i * j)
@@ -963,6 +996,8 @@ begin
   end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := indexpage.Content;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text := t;
 end;
 
 procedure TWebModule1.WebModule1RegistHandlerAction(Sender: TObject;
@@ -984,16 +1019,9 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
-  FDQuery1.Close;
   FDQuery1.ParamByName('param').AsInteger := p;
+  FDQuery1.Prepare;
   FDQuery1.Open;
-  if maintable.RecordCount = 0 then
-    k := 1
-  else
-  begin
-    maintable.Last;
-    k := maintable.FieldByName('id').AsInteger + 1;
-  end;
   if FDQuery1.RecordCount = 0 then
     j := 1
   else
@@ -1001,7 +1029,6 @@ begin
     FDQuery1.Last;
     j := FDQuery1.FieldByName('cmnumber').AsInteger + 1;
   end;
-  FDQuery1.Close;
   s := TStringList.Create;
   try
     s.Text := com;
@@ -1014,13 +1041,29 @@ begin
         com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + LinkCreator('<p>'+LinkCreator(com, 1), 2);
+        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1), 2);
       end;
       if sub = '' then
         sub := 'タイトルなし.';
       if na = '' then
         na := '誰かさん';
-      maintable.AppendRecord([k, p, j, na, sub, Text, DateTimeToStr(Now)]);
+      dbname.Open;
+      if dbname.RecordCount = 0 then
+      begin
+        i := 1;
+        k := 1
+      end
+      else
+      begin
+        dbname.Last;
+        i := dbname.FieldByName('dbid').AsInteger + 1;
+        k := dbname.FieldByName('id').AsInteger + 1;
+      end;
+      dbname.AppendRecord([i, p, j, k]);
+      dbname.Close;
+      maintable.Open;
+      maintable.AppendRecord([k, na, sub, Text, DateTimeToStr(Now)]);
+      maintable.Close;
       raw.Open;
       raw.AppendRecord([k, s.Text, pass]);
       raw.Close;
@@ -1044,6 +1087,7 @@ begin
     Response.Content := '禁止語句を含めないでください.:' + ini.Values['tags'] + ';' +
       ini.Values['words'];
   end;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
@@ -1058,38 +1102,39 @@ procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
 var
   i, j, k, id: integer;
   s: TDateTime;
-  t: string;
+  t, p: string;
 begin
   clean.ExecSQL;
   temp.Open;
   id := 1;
-  dbname.First;
+  p := FDQuery1.SQL.Text;
+  FDQuery1.Open
+    ('select datetime from dbname,maintable where dbname.id = maintable.id;');
+  dbname.Open;
   while dbname.Eof = false do
   begin
-    i := dbname.FieldByName('id').AsInteger;
-    j := dbname.FieldByName('tbnumber').AsInteger;
-    full.ParamByName('param').AsInteger := j;
-    full.Open;
-    k := full.Fields[0].AsInteger;
-    full.Close;
-    if k = 0 then
+    t := dbname.FieldByName('tbnumber').AsString;
+    p := full.SQL.Text;
+    full.Open('select * from dbname where tbnumber = ' + t);
+    if full.RecordCount = 0 then
     begin
       dbname.Next;
       continue;
     end;
-    FDQuery1.Close;
-    FDQuery1.ParamByName('param').AsInteger := j;
-    FDQuery1.Open;
-    j := FDQuery1.FieldByName('id').AsInteger;
+    j := full.FieldByName('id').AsInteger;
     FDQuery1.Last;
-    k := FDQuery1.FieldByName('id').AsInteger;
+    k := full.FieldByName('id').AsInteger;
     s := StrToDateTime(FDQuery1.FieldByName('datetime').AsString);
     t := FormatDateTime('yyyy/mm/dd', s);
     temp.AppendRecord([id, i, j, k, StrToDate(t)]);
     inc(id);
-    FDQuery1.Close;
+    full.Close;
+    full.SQL.Text := p;
     dbname.Next;
   end;
+  dbname.Close;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text := p;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := title.Content;
 end;
@@ -1097,26 +1142,27 @@ end;
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num, pass, s, t, time: string;
+  num, pass, s, t, time, d: string;
   i, j, k: integer;
+  p: Variant;
 begin
   t := Request.QueryFields.Values['db'];
   if Request.MethodType = mtGet then
   begin
     num := Request.QueryFields.Values['job'];
     full.ParamByName('param').AsInteger := t.ToInteger;
+    full.Prepare;
     full.Open;
     i := full.Fields[0].AsInteger;
     full.Close;
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      full.SQL.Text :=
-        'select count(*) from maintable where cmnumber <= :param';
-      full.ParamByName('param').AsInteger := num.ToInteger;
-      full.Open;
+      d := full.SQL.Text;
+      full.Open('select count(*) from dbname where cmnumber <= ' + num);
       k := full.Fields[0].AsInteger;
       full.Close;
+      full.SQL.Text := d;
       if i - k < j then
         s := ''
       else
@@ -1128,23 +1174,27 @@ begin
   begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
-    if (pass <> '')and(maintable.Locate('tbnumber;cmnumber',
-      VarArrayOf([t.ToInteger, num.ToInteger])) = true) then
+    dbname.Open;
+    p := dbname.Lookup('tbnumber;cmnumber',
+      VarArrayOf([t.ToInteger, num.ToInteger]), 'id');
+    dbname.Close;
+    maintable.Open;
+    if (pass <> '') and (maintable.Locate('id', p) = true) then
     begin
-      i := maintable.FieldByName('id').AsInteger;
       raw.Open;
-      if raw.Locate('id;password', VarArrayOf([i, pass])) = true then
+      if raw.Locate('id;password', VarArrayOf([p, pass])) = true then
       begin
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
-        maintable.InsertRecord([i, t, num, nil, nil,
-          '<p><i><b>投稿者により削除されました</b></i>', time]);
+        maintable.InsertRecord
+          ([p, nil, nil, '<p><i><b>投稿者により削除されました</b></i>', time]);
         raw.Edit;
         raw.FieldByName('raw').AsString := '';
         raw.Post;
       end;
       raw.Close;
     end;
+    maintable.Close;
     Response.SendRedirect(AnsiString('/user?db=' + t + '&job=' + num));
   end;
 end;
@@ -1169,6 +1219,7 @@ begin
   if dbname.Exists = false then
   begin
     dbname.CreateTable(false);
+    nametable.CreateTable(false);
     maintable.CreateTable(false);
     raw.CreateTable(false);
     alerttable.CreateTable(false);
@@ -1176,15 +1227,11 @@ begin
     FDScript1.ExecuteAll;
   end;
   PbbsConnection.Open;
-  dbname.Open;
-  maintable.Open;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
   ini.Free;
-  dbname.Close;
-  maintable.Close;
 end;
 
 end.

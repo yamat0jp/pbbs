@@ -84,26 +84,24 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    IndexFieldNames = 'ID'
+    IndexFieldNames = 'dbid;TBNUMBER;cmnumber'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'DBNAME'
     TableName = 'DBNAME'
     Left = 64
     Top = 152
-    object dbnameID: TIntegerField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
-      Required = True
+    object dbnamedbid: TIntegerField
+      FieldName = 'dbid'
     end
     object dbnameTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
       Origin = 'TBNUMBER'
     end
-    object dbnameDBNAME: TStringField
-      FieldName = 'DBNAME'
-      Origin = 'DBNAME'
-      Size = 30
+    object dbnamecmnumber: TIntegerField
+      FieldName = 'cmnumber'
+    end
+    object dbnameid: TIntegerField
+      FieldName = 'id'
     end
   end
   object maintable: TFDTable
@@ -118,14 +116,6 @@ object WebModule1: TWebModule1
       Origin = 'ID'
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
-    end
-    object maintableTBNUMBER: TIntegerField
-      FieldName = 'TBNUMBER'
-      Origin = 'TBNUMBER'
-    end
-    object maintableCMNUMBER: TIntegerField
-      FieldName = 'CMNUMBER'
-      Origin = 'CMNUMBER'
     end
     object maintableNAME: TStringField
       FieldName = 'NAME'
@@ -376,29 +366,29 @@ object WebModule1: TWebModule1
   object FDQuery1: TFDQuery
     Connection = PbbsConnection
     SQL.Strings = (
-      'select * from maintable where tbnumber = :param;')
+      'select * from dbname,maintable'
+      ' where (tbnumber = :param)'
+      ' and (dbname.id = maintable.id);')
     Left = 320
     Top = 72
     ParamData = <
       item
         Name = 'PARAM'
-        DataType = ftString
         ParamType = ptInput
-        Value = '1'
       end>
   end
   object full: TFDQuery
     Connection = PbbsConnection
     SQL.Strings = (
-      'select count(*) from maintable where tbnumber = :param;')
+      'select count(*) from dbname where tbnumber = :param;')
     Left = 280
     Top = 152
     ParamData = <
       item
         Name = 'PARAM'
-        DataType = ftString
+        DataType = ftInteger
         ParamType = ptInput
-        Value = '1'
+        Value = 1
       end>
   end
   object admain: TDataSetPageProducer
@@ -714,7 +704,7 @@ object WebModule1: TWebModule1
     SQLScripts = <
       item
         SQL.Strings = (
-          'alter table dbname add primary key (id);'
+          'alter table dbname add primary key (tbnumber);'
           'alter table maintable add primary key (id);'
           'alter table raw add primary key (id);'
           'alter table alerttable add primary key (id);'
@@ -748,5 +738,18 @@ object WebModule1: TWebModule1
       '</html>')
     Left = 24
     Top = 312
+  end
+  object nametable: TFDTable
+    Connection = PbbsConnection
+    UpdateOptions.UpdateTableName = 'nametable'
+    TableName = 'nametable'
+    Left = 16
+    Top = 192
+    object nametabletbnumber: TIntegerField
+      FieldName = 'tbnumber'
+    end
+    object nametabletbname: TStringField
+      FieldName = 'tbname'
+    end
   end
 end

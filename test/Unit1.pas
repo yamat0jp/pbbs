@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.FBDef, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids,
   Vcl.DBGrids, FireDAC.VCLUI.Wait, FireDAC.Comp.UI, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.DBCtrls;
+  Vcl.DBCtrls, Vcl.Mask;
 
 type
   TForm1 = class(TForm)
@@ -35,6 +35,9 @@ type
     DBGrid5: TDBGrid;
     FDTable5: TFDTable;
     DataSource5: TDataSource;
+    FDTable6: TFDTable;
+    DataSource6: TDataSource;
+    DBGrid6: TDBGrid;
   private
     { Private êÈåæ }
   public

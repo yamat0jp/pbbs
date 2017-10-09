@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 477
+  ClientHeight = 585
   ClientWidth = 635
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -99,11 +99,24 @@ object Form1: TForm1
   end
   object DBGrid5: TDBGrid
     Left = 8
-    Top = 368
+    Top = 344
     Width = 289
     Height = 97
     DataSource = DataSource5
     TabOrder = 8
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+  end
+  object DBGrid6: TDBGrid
+    Left = 144
+    Top = 447
+    Width = 320
+    Height = 120
+    DataSource = DataSource6
+    TabOrder = 9
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
@@ -129,9 +142,9 @@ object Form1: TForm1
   end
   object FDTable1: TFDTable
     Active = True
-    IndexFieldNames = 'TBNUMBER;CMNUMBER'
+    IndexFieldNames = 'ID'
     MasterSource = DataSource5
-    MasterFields = 'TBNUMBER'
+    MasterFields = 'ID'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'MAINTABLE'
     TableName = 'MAINTABLE'
@@ -200,5 +213,19 @@ object Form1: TForm1
     DataSet = FDTable5
     Left = 200
     Top = 344
+  end
+  object FDTable6: TFDTable
+    Active = True
+    IndexFieldNames = 'TBNUMBER'
+    Connection = FDConnection1
+    UpdateOptions.UpdateTableName = 'NAMETABLE'
+    TableName = 'NAMETABLE'
+    Left = 504
+    Top = 448
+  end
+  object DataSource6: TDataSource
+    DataSet = FDTable6
+    Left = 440
+    Top = 448
   end
 end
