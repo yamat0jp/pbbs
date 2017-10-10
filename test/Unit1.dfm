@@ -142,7 +142,6 @@ object Form1: TForm1
   end
   object FDTable1: TFDTable
     Active = True
-    IndexFieldNames = 'ID'
     MasterSource = DataSource5
     MasterFields = 'ID'
     Connection = FDConnection1
@@ -202,7 +201,9 @@ object Form1: TForm1
   end
   object FDTable5: TFDTable
     Active = True
-    IndexFieldNames = 'ID'
+    IndexFieldNames = 'TBNUMBER'
+    MasterSource = DataSource6
+    MasterFields = 'TBNUMBER'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'DBNAME'
     TableName = 'DBNAME'

@@ -366,9 +366,7 @@ object WebModule1: TWebModule1
   object FDQuery1: TFDQuery
     Connection = PbbsConnection
     SQL.Strings = (
-      'select * from dbname,maintable'
-      ' where (tbnumber = :param)'
-      ' and (dbname.id = maintable.id);')
+      'select * from dbname where tbnumber = :param;')
     Left = 320
     Top = 72
     ParamData = <
