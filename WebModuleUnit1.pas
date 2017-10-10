@@ -608,11 +608,6 @@ begin
   while temp.Eof = false do
   begin
     k := temp.FieldByName('dbid').AsInteger;
-    with full.SQL do
-    begin
-      Clear;
-      Add('select count(*) from dbname where tbnumber = :param;');
-    end;
     full.ParamByName('param').AsInteger := k;
     full.Open;
     i := full.Fields[0].AsInteger;
@@ -1140,7 +1135,7 @@ end;
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num, pass, s, t, time: string;
+  num, pass, s, t, time, d: string;
   i, j, k: integer;
   p: Variant;
 begin
@@ -1155,9 +1150,11 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
+      d:=full.SQL.Text;
       full.Open('select count(*) from dbname where cmnumber <= ' + num);
       k := full.Fields[0].AsInteger;
       full.Close;
+      full.SQL.Text:=d;
       if i - k < j then
         s := ''
       else

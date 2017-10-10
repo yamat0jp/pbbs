@@ -384,9 +384,7 @@ object WebModule1: TWebModule1
     ParamData = <
       item
         Name = 'PARAM'
-        DataType = ftInteger
         ParamType = ptInput
-        Value = 1
       end>
   end
   object admain: TDataSetPageProducer
