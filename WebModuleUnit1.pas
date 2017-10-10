@@ -1112,6 +1112,7 @@ begin
     if FDQuery1.RecordCount = 0 then
     begin
       nametable.Next;
+      FDQuery1.Close;
       continue;
     end;
     j := FDQuery1.FieldByName('id').AsInteger;
