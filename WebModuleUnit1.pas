@@ -601,22 +601,22 @@ end;
 procedure TWebModule1.titleHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  i, j: integer;
+  i, k: integer;
   s, t: string;
 begin
   t := FDQuery1.SQL.Text;
   with FDQuery1.SQL do
   begin
-    Add('select nametable.tbnumber,tbname,title from');
-    Add(' dbname,nametable,maintable where (nametable.tbnumber = dbname.tbnumber)');
-    Add('and(dbname.id = maintable.id);');
+    Clear;
+    Add('select tbname,title from');
+    Add(' dbname,nametable,maintable where (dbname.tbnumber = :param)');
+    Add('and(dbname.id = maintable.id)and(nametable.tbnumber = dbname.tbnumber);');
   end;
-  FDQuery1.Open;
-  FDQuery1.First;
-  while FDQuery1.Eof = false do
+  temp.First;
+  while temp.Eof = false do
   begin
-    j := FDQuery1.FieldByName('tbnumber').AsInteger;
-    full.ParamByName('param').AsInteger := j;
+    k := temp.FieldByName('dbid').AsInteger;
+    full.ParamByName('param').AsInteger := k;
     full.Prepare;
     full.Open;
     i := full.Fields[0].AsInteger;
@@ -630,12 +630,15 @@ begin
     end
     else
       s := '';
-    ReplaceText := ReplaceText + '<a href=/?db=' + j.ToString + s + '>' +
+    FDQuery1.ParamByName('param').AsInteger := k;
+    FDQuery1.Prepare;
+    FDQuery1.Open;
+    ReplaceText := ReplaceText + '<a href=/?db=' + k.ToString + s + '>' +
       FDQuery1.FieldByName('tbname').AsString + '</a>↓<div>タイトル:' +
       FDQuery1.FieldByName('title').AsString;
     ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
       DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
-    FDQuery1.Next;
+    temp.Next;
   end;
   FDQuery1.Close;
   FDQuery1.SQL.Text := t;
@@ -924,7 +927,7 @@ procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, DB, t: string;
-  i, j, k, page: integer;
+  i, j, page: integer;
 begin
   if ini.Values['maintenance'] = 'on' then
   begin
@@ -1116,19 +1119,19 @@ begin
   p := FDQuery1.SQL.Text;
   FDQuery1.SQL.Clear;
   FDQuery1.SQL.Add('select dbname.id,datetime from dbname,maintable');
-  FDQuery1.SQL.Add(' where (dbname.id = maintable.id)and(tbnumber = :param);');
-  dbname.Open;
-  dbname.First;
-  while dbname.Eof = false do
+  FDQuery1.SQL.Add(' where (tbnumber = :param)and(dbname.id = maintable.id);');
+  nametable.Open;
+  nametable.First;
+  while nametable.Eof = false do
   begin
-    i := dbname.FieldByName('tbnumber').AsInteger;
+    i := nametable.FieldByName('tbnumber').AsInteger;
     FDQuery1.ParamByName('param').AsInteger := i;
     FDQuery1.Prepare;
     FDQuery1.Open;
     FDQuery1.First;
     if FDQuery1.RecordCount = 0 then
     begin
-      dbname.Next;
+      nametable.Next;
       continue;
     end;
     j := FDQuery1.FieldByName('id').AsInteger;
@@ -1138,9 +1141,9 @@ begin
     t := FormatDateTime('yyyy/mm/dd', s);
     temp.AppendRecord([id, i, j, k, StrToDate(t)]);
     inc(id);
-    dbname.Next;
+    nametable.Next;
   end;
-  dbname.Close;
+  nametable.Close;
   FDQuery1.Close;
   FDQuery1.SQL.Text := p;
   Response.ContentType := 'text/html;charset=utf-8';

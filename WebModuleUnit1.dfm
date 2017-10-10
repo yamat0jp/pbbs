@@ -619,7 +619,7 @@ object WebModule1: TWebModule1
     Top = 280
   end
   object temp: TFDTable
-    IndexFieldNames = 'SCORE'
+    IndexFieldNames = 'SCORE;DBID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'TITLE'
     TableName = 'TITLE'
