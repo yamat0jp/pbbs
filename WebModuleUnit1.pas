@@ -604,18 +604,19 @@ var
   i, k: integer;
   s, t: string;
 begin
-  t := FDQuery1.SQL.Text;
-  with FDQuery1.SQL do
-  begin
-    Clear;
-    Add('select tbname,title from');
-    Add(' dbname,nametable,maintable where (dbname.tbnumber = :param)');
-    Add('and(dbname.id = maintable.id)and(nametable.tbnumber = dbname.tbnumber);');
-  end;
   temp.First;
+  nametable.Open;
+  maintable.Open;
+  t := full.SQL.Text;
   while temp.Eof = false do
   begin
     k := temp.FieldByName('dbid').AsInteger;
+    with full.SQL do
+    begin
+      Clear;
+      Add('select count(*) from dbname,maintable where (tbnumber = :param)');
+      Add('and(dbname.id = maintable.id);');
+    end;
     full.ParamByName('param').AsInteger := k;
     full.Prepare;
     full.Open;
@@ -630,19 +631,17 @@ begin
     end
     else
       s := '';
-    FDQuery1.ParamByName('param').AsInteger := k;
-    FDQuery1.Prepare;
-    FDQuery1.Open;
     ReplaceText := ReplaceText + '<a href=/?db=' + k.ToString + s + '>' +
-      FDQuery1.FieldByName('tbname').AsString + '</a>↓<div>タイトル:' +
-      FDQuery1.FieldByName('title').AsString;
+      nametable.Lookup('tbnumber', k, 'tbname') + '</a>↓<div>タイトル:' +
+      maintable.Lookup('id', temp.FieldByName('first').AsInteger, 'title');
     ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
       DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
     temp.Next;
   end;
-  FDQuery1.Close;
-  FDQuery1.SQL.Text := t;
   temp.Close;
+  nametable.Close;
+  maintable.Close;
+  full.SQL.Text := t;
   clean.ExecSQL;
 end;
 
