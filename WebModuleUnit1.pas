@@ -796,21 +796,25 @@ var
   i, j: integer;
 begin
   t := Request.QueryFields.Values['db'];
+  dbname.Open;
+  maintable.Open;
+  raw.Open;
   for i := 0 to Request.ContentFields.Count - 1 do
   begin
     if Request.ContentFields.Names[i] <> 'item' then
       continue;
     s := Request.ContentFields.ValueFromIndex[i];
-    dbname.Open;
-    maintable.Open;
-    j := dbname.Lookup('tbnumber;cmnumber', VarArrayOf([t, s]), 'id');
+    dbname.Locate('tbnumber;cmnumber', VarArrayOf([t, s]));
+    j := dbname.FieldByName('id').AsInteger;
     maintable.Locate('id', j);
+    dbname.Delete;
     maintable.Delete;
-    raw.Open;
     raw.Locate('id', j);
     raw.Delete;
-    raw.Close;
   end;
+  dbname.Close;
+  maintable.Close;
+  raw.Close;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
     Response.SendRedirect(AnsiString('/admin?db=' + t + '&page=' + s))
@@ -1225,11 +1229,11 @@ begin
   if dbname.Exists = false then
   begin
     dbname.CreateTable(false);
-    nametable.CreateTable(false);
-    maintable.CreateTable(false);
-    raw.CreateTable(false);
-    alerttable.CreateTable(false);
-    temp.CreateTable(false);
+    nametable.CreateTable(true);
+    maintable.CreateTable(true);
+    raw.CreateTable(true);
+    alerttable.CreateTable(true);
+    temp.CreateTable(true);
     FDScript1.ExecuteAll;
   end;
   PbbsConnection.Open;

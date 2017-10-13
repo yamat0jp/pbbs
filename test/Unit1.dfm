@@ -111,7 +111,7 @@ object Form1: TForm1
     TitleFont.Style = []
   end
   object DBGrid6: TDBGrid
-    Left = 144
+    Left = 303
     Top = 447
     Width = 320
     Height = 120
@@ -122,6 +122,22 @@ object Form1: TForm1
     TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
+  end
+  object DBNavigator5: TDBNavigator
+    Left = 32
+    Top = 472
+    Width = 240
+    Height = 25
+    DataSource = DataSource5
+    TabOrder = 10
+  end
+  object DBNavigator6: TDBNavigator
+    Left = 32
+    Top = 528
+    Width = 240
+    Height = 25
+    DataSource = DataSource6
+    TabOrder = 11
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
@@ -142,6 +158,7 @@ object Form1: TForm1
   end
   object FDTable1: TFDTable
     Active = True
+    IndexFieldNames = 'ID'
     MasterSource = DataSource5
     MasterFields = 'ID'
     Connection = FDConnection1
@@ -201,7 +218,7 @@ object Form1: TForm1
   end
   object FDTable5: TFDTable
     Active = True
-    IndexFieldNames = 'TBNUMBER'
+    IndexFieldNames = 'TBNUMBER;ID'
     MasterSource = DataSource6
     MasterFields = 'TBNUMBER'
     Connection = FDConnection1

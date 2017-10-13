@@ -700,7 +700,7 @@ object WebModule1: TWebModule1
     SQLScripts = <
       item
         SQL.Strings = (
-          'alter table dbname add primary key (tbnumber);'
+          'alter table dbname add primary key (dbid);'
           'alter table maintable add primary key (id);'
           'alter table raw add primary key (id);'
           'alter table alerttable add primary key (id);'

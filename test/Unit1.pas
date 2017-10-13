@@ -38,6 +38,8 @@ type
     FDTable6: TFDTable;
     DataSource6: TDataSource;
     DBGrid6: TDBGrid;
+    DBNavigator5: TDBNavigator;
+    DBNavigator6: TDBNavigator;
   private
     { Private êÈåæ }
   public
