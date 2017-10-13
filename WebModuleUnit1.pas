@@ -664,7 +664,12 @@ begin
     Response.SendRedirect('/login')
   else
   begin
-    FDQuery1.Close;
+    with FDQuery1.SQL do
+    begin
+      Clear;
+      Add('select * from dbname,maintable');
+      Add(' where (tbnumber = :param)and(dbname.id = maintable.id);');
+    end;
     k := Request.QueryFields.Values['db'].ToInteger;
     FDQuery1.ParamByName('param').AsInteger := k;
     FDQuery1.Open;
