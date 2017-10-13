@@ -984,7 +984,7 @@ begin
     else
     begin
       j := page - 1;
-      full.ParamByName('param').AsInteger := j;
+      full.ParamByName('param').AsInteger := DB.ToInteger;
       full.Open;
       if i * j < full.Fields[0].AsInteger then
         FDQuery1.MoveBy(i * j)
