@@ -504,16 +504,19 @@ begin
     begin
       maintable.Filter := 'NAME = ' + QuotedStr(word);
       maintable.Filtered := true;
+      maintable.Open;
+      dbname.Open;
       raw.Open;
       x := maintable.FindFirst;
       com := TStringList.Create;
       try
         while x = true do
         begin
-          s := maintable.FieldByName('cmnumber').AsString;
-          t := maintable.FieldByName('tbnumber').AsString;
-          com.Text := raw.Lookup('id', maintable.FieldByName('id')
-            .AsInteger, 'raw');
+          i := maintable.FieldByName('id').AsInteger;
+          dbname.Locate('id', i);
+          s := dbname.FieldByName('cmnumber').AsString;
+          t := dbname.FieldByName('tbnumber').AsString;
+          com.Text := raw.Lookup('id', i, 'raw');
           Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p id=title style=color:green;display:inline>' +
@@ -524,6 +527,8 @@ begin
           x := maintable.FindNext;
         end;
       finally
+        dbname.Close;
+        maintable.Close;
         maintable.Filtered := false;
         raw.Close;
         com.Free;
@@ -531,7 +536,9 @@ begin
     end
     else
     begin
-      maintable.First;
+      FDQuery1.Open
+        ('select * from dbname,maintable where dbname.id = maintable.id;');;
+      FDQuery1.First;
       raw.Open;
       com := TStringList.Create;
       temp := TStringList.Create;
@@ -539,17 +546,17 @@ begin
         temp.DelimitedText := word;
         x := Request.ContentFields.Values['type'] = 'OR';
         SetLength(bool, temp.Count);
-        while maintable.Eof = false do
+        while FDQuery1.Eof = false do
         begin
-          s := maintable.FieldByName('cmnumber').AsString;
-          t := maintable.FieldByName('tbnumber').AsString;
+          s := FDQuery1.FieldByName('cmnumber').AsString;
+          t := FDQuery1.FieldByName('tbnumber').AsString;
           Text := '<p style=display:inline><a href=/user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p style=color:green;display:inline>' +
-            maintable.FieldByName('title').AsString;
+            FDQuery1.FieldByName('title').AsString;
           Text := Text + '<p style=color:blue;display:inline>' +
-            maintable.FieldByName('name').AsString;
-          com.Text := raw.Lookup('id', maintable.FieldByName('id')
+            FDQuery1.FieldByName('name').AsString;
+          com.Text := raw.Lookup('id', FDQuery1.FieldByName('id')
             .AsInteger, 'raw');
           for j := 0 to High(bool) do
             bool[j] := false;
@@ -584,9 +591,10 @@ begin
             end;
           if ((x = true) and (q = true)) or ((x = false) and (y = true)) then
             ReplaceText := ReplaceText + '<hr>' + Text;
-          maintable.Next;
+          FDQuery1.Next;
         end;
       finally
+        FDQuery1.Close;
         com.Free;
         temp.Free;
         raw.Close;
@@ -1151,11 +1159,11 @@ begin
     j := ini.Values['count'].ToInteger;
     if num <> '' then
     begin
-      d:=full.SQL.Text;
+      d := full.SQL.Text;
       full.Open('select count(*) from dbname where cmnumber <= ' + num);
       k := full.Fields[0].AsInteger;
       full.Close;
-      full.SQL.Text:=d;
+      full.SQL.Text := d;
       if i - k < j then
         s := ''
       else
