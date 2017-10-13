@@ -211,14 +211,14 @@ object Form1: TForm1
     Active = True
     IndexFieldNames = 'SCORE'
     Connection = FDConnection1
-    UpdateOptions.UpdateTableName = 'TITLE'
-    TableName = 'TITLE'
+    UpdateOptions.UpdateTableName = 'TEMP'
+    TableName = 'TEMP'
     Left = 504
     Top = 352
   end
   object FDTable5: TFDTable
     Active = True
-    IndexFieldNames = 'TBNUMBER;ID'
+    IndexFieldNames = 'TBNUMBER;CMNUMBER'
     MasterSource = DataSource6
     MasterFields = 'TBNUMBER'
     Connection = FDConnection1

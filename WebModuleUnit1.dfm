@@ -84,24 +84,27 @@ object WebModule1: TWebModule1
   Height = 383
   Width = 415
   object dbname: TFDTable
-    IndexFieldNames = 'dbid;TBNUMBER;cmnumber'
+    IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'DBNAME'
     TableName = 'DBNAME'
     Left = 64
     Top = 152
-    object dbnamedbid: TIntegerField
-      FieldName = 'dbid'
-    end
     object dbnameTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
       Origin = 'TBNUMBER'
+      Required = True
     end
-    object dbnamecmnumber: TIntegerField
-      FieldName = 'cmnumber'
+    object dbnameCMNUMBER: TIntegerField
+      FieldName = 'CMNUMBER'
+      Origin = 'CMNUMBER'
+      Required = True
     end
-    object dbnameid: TIntegerField
-      FieldName = 'id'
+    object dbnameID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
     end
   end
   object maintable: TFDTable
@@ -134,7 +137,7 @@ object WebModule1: TWebModule1
       Size = 1000
     end
     object maintableDATETIME: TStringField
-      FieldName = 'DATETIME'
+      FieldName = 'datetime'
       Origin = 'DATETIME'
       Size = 30
     end
@@ -279,8 +282,11 @@ object WebModule1: TWebModule1
       
         '      <form action="/user?db=<#tbnumber>" method="post" id=searc' +
         'h>'
-      '      <p>'#35352#20107'No.<input name="number">'
-      '      <p>Pass<input type="password" name="password">'
+      '      <p>'#35352#20107'No.'
+      '      <p><input name="number">'
+      '      <p>Pass'
+      '      <p><input type="password" name="password">'
+      '      <p><br>'
       '      <p><input type="submit" value="'#21066#38500'">'
       '      </form>'
       '    <p style=text-align:center><#dbname>'
@@ -353,10 +359,10 @@ object WebModule1: TWebModule1
   object PbbsConnection: TFDConnection
     Params.Strings = (
       'Database=data.fdb'
+      'ExtendedMetadata=True'
       'User_Name=sysdba'
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
-      'ExtendedMetadata=True'
       'DriverID=FB')
     Connected = True
     LoginPrompt = False
@@ -366,14 +372,9 @@ object WebModule1: TWebModule1
   object FDQuery1: TFDQuery
     Connection = PbbsConnection
     SQL.Strings = (
-      'select * from dbname where tbnumber = :param;')
+      '')
     Left = 320
     Top = 72
-    ParamData = <
-      item
-        Name = 'PARAM'
-        ParamType = ptInput
-      end>
   end
   object full: TFDQuery
     Connection = PbbsConnection
@@ -593,7 +594,7 @@ object WebModule1: TWebModule1
       Size = 1000
     end
     object alerttableDATETIME: TStringField
-      FieldName = 'DATETIME'
+      FieldName = 'datetime'
       Origin = 'DATETIME'
     end
   end
@@ -700,11 +701,29 @@ object WebModule1: TWebModule1
     SQLScripts = <
       item
         SQL.Strings = (
-          'alter table dbname add primary key (dbid);'
-          'alter table maintable add primary key (id);'
-          'alter table raw add primary key (id);'
-          'alter table alerttable add primary key (id);'
-          'alter table title add primary key (id);')
+          
+            'create table dbname ( tbnumber integer not null, cmnumber intege' +
+            'r not null,'
+          ' id integer not null, primary key ( id ) );'
+          
+            'create table nametable ( tbnumber integer not null, tbname varch' +
+            'ar(30),'
+          ' primary key ( tbnumber ) );'
+          'create table maintable ( id integer not null, name varchar(30),'
+          
+            ' title varchar(30), comment varchar(32765), datetime varchar(30)' +
+            ','
+          ' primary key (id) );'
+          'create table raw ( id integer not null, raw varchar(32765),'
+          ' password varchar(8), primary key ( id ) );'
+          
+            'create table alerttable ( id integer not null, message varchar(1' +
+            '000),'
+          ' datetime date, primary key ( id ) );'
+          
+            'create table temp ( id integer not null, dbid integer, first int' +
+            'eger, last integer,'
+          ' score integer, primary key ( id ) );')
       end>
     Connection = PbbsConnection
     Params = <>

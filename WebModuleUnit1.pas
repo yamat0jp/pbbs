@@ -25,7 +25,6 @@ type
     PbbsConnection: TFDConnection;
     FDQuery1: TFDQuery;
     full: TFDQuery;
-    dbnameTBNUMBER: TIntegerField;
     admain: TDataSetPageProducer;
     search: TPageProducer;
     footer: TPageProducer;
@@ -57,12 +56,12 @@ type
     admin: TPageProducer;
     FDScript1: TFDScript;
     maintenance: TPageProducer;
-    dbnamecmnumber: TIntegerField;
-    dbnameid: TIntegerField;
     nametable: TFDTable;
     nametabletbnumber: TIntegerField;
-    dbnamedbid: TIntegerField;
     nametabletbname: TStringField;
+    dbnameTBNUMBER: TIntegerField;
+    dbnameCMNUMBER: TIntegerField;
+    dbnameID: TIntegerField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -804,13 +803,13 @@ begin
     if Request.ContentFields.Names[i] <> 'item' then
       continue;
     s := Request.ContentFields.ValueFromIndex[i];
-    dbname.Locate('tbnumber;cmnumber', VarArrayOf([t, s]));
+    dbname.Locate('tbnumber;cmnumber', VarArrayOf([t.ToInteger, s.ToInteger]));
     j := dbname.FieldByName('id').AsInteger;
     maintable.Locate('id', j);
-    dbname.Delete;
-    maintable.Delete;
     raw.Locate('id', j);
     raw.Delete;
+    maintable.Delete;
+    dbname.Delete;
   end;
   dbname.Close;
   maintable.Close;
@@ -1027,15 +1026,19 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
+  with FDQuery1.SQL do
+  begin
+    Clear;
+    Add('select cmnumber from dbname where tbnumber = :param;');
+  end;
   FDQuery1.ParamByName('param').AsInteger := p;
   FDQuery1.Open;
+  FDQuery1.Last;
   if FDQuery1.RecordCount = 0 then
     j := 1
   else
-  begin
-    FDQuery1.Last;
-    j := FDQuery1.FieldByName('cmnumber').AsInteger + 1;
-  end;
+    j := FDQuery1.Fields[0].AsInteger + 1;
+  FDQuery1.Close;
   s := TStringList.Create;
   try
     s.Text := com;
@@ -1055,18 +1058,12 @@ begin
       if na = '' then
         na := 'íNÇ©Ç≥ÇÒ';
       dbname.Open;
+      dbname.Last;
       if dbname.RecordCount = 0 then
-      begin
-        i := 1;
         k := 1
-      end
       else
-      begin
-        dbname.Last;
-        i := dbname.FieldByName('dbid').AsInteger + 1;
         k := dbname.FieldByName('id').AsInteger + 1;
-      end;
-      dbname.AppendRecord([i, p, j, k]);
+      dbname.AppendRecord([p, j, k]);
       dbname.Close;
       maintable.Open;
       maintable.AppendRecord([k, na, sub, Text, DateTimeToStr(Now)]);
@@ -1094,7 +1091,6 @@ begin
     Response.Content := 'ã÷é~åÍãÂÇä‹ÇﬂÇ»Ç¢Ç≈Ç≠ÇæÇ≥Ç¢.:' + ini.Values['tags'] + ';' +
       ini.Values['words'];
   end;
-  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1SearchHandlerAction(Sender: TObject;
@@ -1155,7 +1151,6 @@ procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;
 var
   num, pass, s, t, time, d: string;
   i, j, k: integer;
-  p: Variant;
 begin
   t := Request.QueryFields.Values['db'];
   if Request.MethodType = mtGet then
@@ -1185,19 +1180,19 @@ begin
     num := Request.ContentFields.Values['number'];
     pass := Request.ContentFields.Values['password'];
     dbname.Open;
-    p := dbname.Lookup('tbnumber;cmnumber',
+    i := dbname.Lookup('tbnumber;cmnumber',
       VarArrayOf([t.ToInteger, num.ToInteger]), 'id');
     dbname.Close;
     maintable.Open;
-    if (pass <> '') and (maintable.Locate('id', p) = true) then
+    if (pass <> '') and (maintable.Locate('id', i) = true) then
     begin
       raw.Open;
-      if raw.Locate('id;password', VarArrayOf([p, pass])) = true then
+      if raw.Locate('id;password', VarArrayOf([i, pass])) = true then
       begin
         time := maintable.FieldByName('datetime').AsString;
         maintable.Delete;
         maintable.InsertRecord
-          ([p, nil, nil, '<p><i><b>ìäçeé“Ç…ÇÊÇËçÌèúÇ≥ÇÍÇ‹ÇµÇΩ</b></i>', time]);
+          ([i, nil, nil, '<p><i><b>ìäçeé“Ç…ÇÊÇËçÌèúÇ≥ÇÍÇ‹ÇµÇΩ</b></i>', time]);
         raw.Edit;
         raw.FieldByName('raw').AsString := '';
         raw.Post;
@@ -1227,16 +1222,7 @@ begin
   else
     ini.LoadFromFile('setting.ini');
   if dbname.Exists = false then
-  begin
-    dbname.CreateTable(false);
-    nametable.CreateTable(true);
-    maintable.CreateTable(true);
-    raw.CreateTable(true);
-    alerttable.CreateTable(true);
-    temp.CreateTable(true);
     FDScript1.ExecuteAll;
-  end;
-  PbbsConnection.Open;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
