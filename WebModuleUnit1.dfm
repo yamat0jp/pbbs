@@ -719,7 +719,7 @@ object WebModule1: TWebModule1
           
             'create table alerttable ( id integer not null, message varchar(1' +
             '000),'
-          ' datetime date, primary key ( id ) );'
+          ' datetime varchar(30), primary key ( id ) );'
           
             'create table temp ( id integer not null, dbid integer, first int' +
             'eger, last integer,'
