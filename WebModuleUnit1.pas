@@ -10,7 +10,9 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Comp.Client, Web.DBWeb, Web.DSProd, System.Types, RegularExpressions,
   FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.Variants, System.NetEncoding,
   IdHashMessageDigest, FireDAC.Phys.IBBase, FireDAC.Comp.ScriptCommands,
-  FireDAC.Stan.Util, FireDAC.Comp.Script;
+  FireDAC.Stan.Util, FireDAC.Comp.Script, System.Json, IPPeerServer,
+  Datasnap.DSCommonServer, Datasnap.DSHTTP, Datasnap.DSHTTPWebBroker,
+  Datasnap.DSServer;
 
 type
   TWebModule1 = class(TWebModule)
@@ -62,6 +64,9 @@ type
     dbnameTBNUMBER: TIntegerField;
     dbnameCMNUMBER: TIntegerField;
     dbnameID: TIntegerField;
+    DSServer1: TDSServer;
+    DSServerClass1: TDSServerClass;
+    DSRESTWebDispatcher1: TDSRESTWebDispatcher;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -542,6 +547,7 @@ begin
       com := TStringList.Create;
       temp := TStringList.Create;
       try
+        temp.Delimiter := 'Å@';
         temp.DelimitedText := word;
         x := Request.ContentFields.Values['type'] = 'OR';
         SetLength(bool, temp.Count);
@@ -640,7 +646,6 @@ begin
   temp.Close;
   nametable.Close;
   maintable.Close;
-  clean.ExecSQL;
 end;
 
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
@@ -1107,7 +1112,8 @@ var
   s: TDateTime;
   t: string;
 begin
-  clean.ExecSQL;
+  if temp.Exists = false then
+    temp.CreateTable(false);
   temp.Open;
   id := 1;
   FDQuery1.SQL.Clear;
@@ -1144,6 +1150,7 @@ begin
   FDQuery1.Close;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := title.Content;
+  clean.ExecSQL;
 end;
 
 procedure TWebModule1.WebModule1UserHandlerAction(Sender: TObject;

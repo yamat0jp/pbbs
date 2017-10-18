@@ -32,7 +32,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1LoginHandlerAction
     end
     item
-      MethodType = mtPost
+      MethodType = mtDelete
       Name = 'DeleteHandler'
       PathInfo = '/delete'
       OnAction = WebModule1DeleteHandlerAction
@@ -306,7 +306,7 @@ object WebModule1: TWebModule1
       '  </body>'
       '</html>')
     OnHTMLTag = indexpageHTMLTag
-    Left = 264
+    Left = 256
     Top = 64
   end
   object login: TPageProducer
@@ -348,7 +348,7 @@ object WebModule1: TWebModule1
         '<section id=alert><p style=text-align:end><a href=/alert?db=<#tb' +
         'number>&page=<#cmnumber>>'#22577#21578'</a>')
     DataSet = FDQuery1
-    Left = 264
+    Left = 256
     Top = 16
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
@@ -411,7 +411,7 @@ object WebModule1: TWebModule1
       '    <p style=text-align:center><strong>'#25237#31295#26908#32034'</strong>'
       '    <p>'
       '    <p>'
-      '      <p style:text-align:center>'#26908#32034#12290#21322#35282#12459#12531#12510'(,)'#12391#21306#20999#12387#12390#12367#12384#12373#12356#12290
+      '      <p style:text-align:center>'#26908#32034#12290#12473#12506#12540#12473#12391#21306#20999#12387#12390#12367#12384#12373#12356#12290
       '      <p><select name=type>'
       '        <option value=OR>OR</option>'
       '        <option value=AND>AND</option>'
@@ -766,5 +766,20 @@ object WebModule1: TWebModule1
     object nametabletbname: TStringField
       FieldName = 'tbname'
     end
+  end
+  object DSServer1: TDSServer
+    AutoStart = False
+    Left = 312
+    Top = 328
+  end
+  object DSServerClass1: TDSServerClass
+    Server = DSServer1
+    Left = 104
+    Top = 328
+  end
+  object DSRESTWebDispatcher1: TDSRESTWebDispatcher
+    Server = DSServer1
+    Left = 208
+    Top = 328
   end
 end
