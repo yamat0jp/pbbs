@@ -12,7 +12,7 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   IdHashMessageDigest, FireDAC.Phys.IBBase, FireDAC.Comp.ScriptCommands,
   FireDAC.Stan.Util, FireDAC.Comp.Script, System.Json, IPPeerServer,
   Datasnap.DSCommonServer, Datasnap.DSHTTP, Datasnap.DSHTTPWebBroker,
-  Datasnap.DSServer;
+  Datasnap.DSServer, Datasnap.DSTCPServerTransport;
 
 type
   TWebModule1 = class(TWebModule)
@@ -49,7 +49,6 @@ type
     alerttableMESSAGE: TStringField;
     alerttableDATETIME: TStringField;
     temp: TFDTable;
-    tempID: TIntegerField;
     tempDBID: TIntegerField;
     tempFIRST: TIntegerField;
     tempLAST: TIntegerField;
@@ -66,6 +65,7 @@ type
     dbnameID: TIntegerField;
     DSServer1: TDSServer;
     DSServerClass1: TDSServerClass;
+    DSTCPServerTransport1: TDSTCPServerTransport;
     DSRESTWebDispatcher1: TDSRESTWebDispatcher;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
@@ -121,6 +121,8 @@ type
       TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1LogoutHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure DSServerClass1GetClass(DSServerClass: TDSServerClass;
+      var PersistentClass: TPersistentClass);
   private
     { private 宣言 }
     ini: TStringList;
@@ -137,6 +139,8 @@ var
 implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
+
+uses ServerMethodsUnit1;
 
 {$R *.dfm}
 
@@ -250,6 +254,12 @@ begin
   end;
 end;
 
+procedure TWebModule1.DSServerClass1GetClass(DSServerClass: TDSServerClass;
+  var PersistentClass: TPersistentClass);
+begin
+  PersistentClass := ServerMethodsUnit1.TServerMethods1;
+end;
+
 procedure TWebModule1.footerHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
@@ -257,9 +267,9 @@ var
   i, j, page: integer;
 begin
   if TagParams.Values['admin'] = 'true' then
-    x := '/admin?db=' + Request.QueryFields.Values['db']
+    x := './admin?db=' + Request.QueryFields.Values['db']
   else
-    x := '/?db=' + Request.QueryFields.Values['db'];
+    x := './?db=' + Request.QueryFields.Values['db'];
   s := x + '&page=';
   ReplaceText := '<div style=text-align:center><b>[</b>';
   t := Request.QueryFields.Values['page'];
@@ -388,7 +398,7 @@ begin
       p := Request.QueryFields.Values['db'];
       s1 := Copy(t.Value, 3, t.Length);
       s2 := s2 + Copy(line, ep, t.index - ep) +
-        '<a class=minpreview data-preview-url=/?db=' + p + '&key=' + s1 +
+        '<a class=minpreview data-preview-url=./?db=' + p + '&key=' + s1 +
         ' href=/user?db=' + p + '&job=' + s1 + '>>>' + s1 + '</a>';
     end
     else
@@ -422,14 +432,17 @@ end;
 procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  alerttable.Open;
-  while alerttable.Eof = false do
+  if TagString = 'main' then
   begin
-    ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName('message')
-      .AsString + '<p>' + alerttable.FieldByName('datetime').AsString;
-    alerttable.Next;
+    alerttable.Open;
+    while alerttable.Eof = false do
+    begin
+      ReplaceText := ReplaceText + '<hr>' + alerttable.FieldByName('message')
+        .AsString + '<p>' + alerttable.FieldByName('datetime').AsString;
+      alerttable.Next;
+    end;
+    alerttable.Close;
   end;
-  alerttable.Close;
 end;
 
 procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
@@ -449,7 +462,7 @@ begin
     while nametable.Eof = false do
     begin
       if k mod j = 1 then
-        s := s + '<div class=slide><img src=/img?name=slide' + ((k div j) + 1)
+        s := s + '<div class=slide><img src=./img?name=slide' + ((k div j) + 1)
           .ToString + ' style=float:right;height:465px>';
       inc(k);
       t1 := nametable.FieldByName('tbnumber').AsString;
@@ -462,9 +475,9 @@ begin
       full.ParamByName('param').AsInteger := t1.ToInteger;
       full.Open;
       if full.Fields[0].AsInteger < i then
-        s := s + '<p><a href=/?db=' + t1 + '>' + t2 + '</a>'
+        s := s + '<p><a href=./?db=' + t1 + '>' + t2 + '</a>'
       else
-        s := s + '<p style=color:red><a href=/?db=' + t1 + '>' + t2 + '</a>';
+        s := s + '<p style=color:red><a href=./?db=' + t1 + '>' + t2 + '</a>';
       full.Close;
       if k mod j = 1 then
         s := s + '</div>';
@@ -484,7 +497,7 @@ begin
     s := ini.Values['info'];
     nametable.Open;
     if nametable.Locate('tbname', s) = true then
-      ReplaceText := '<a href=/?db=' + nametable.FieldByName('tbnumber')
+      ReplaceText := '<a href=./?db=' + nametable.FieldByName('tbnumber')
         .AsString + '>' + s + '</a>'
     else
       ReplaceText := 'info';
@@ -555,7 +568,7 @@ begin
         begin
           s := FDQuery1.FieldByName('cmnumber').AsString;
           t := FDQuery1.FieldByName('tbnumber').AsString;
-          Text := '<p style=display:inline><a href=/user?db=' + t + '&job=' + s
+          Text := '<p style=display:inline><a href=./user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p style=color:green;display:inline>' +
             FDQuery1.FieldByName('title').AsString;
@@ -615,37 +628,40 @@ var
   i, k: integer;
   s: string;
 begin
-  temp.First;
-  nametable.Open;
-  maintable.Open;
-  while temp.Eof = false do
+  if TagString = 'main' then
   begin
-    k := temp.FieldByName('dbid').AsInteger;
-    full.ParamByName('param').AsInteger := k;
-    full.Open;
-    i := full.Fields[0].AsInteger;
-    full.Close;
-    if i = ini.Values['count'].ToInteger then
-      s := ' style=color:red'
-    else if i = 0 then
+    temp.First;
+    nametable.Open;
+    maintable.Open;
+    while temp.Eof = false do
     begin
+      k := temp.FieldByName('dbid').AsInteger;
+      full.ParamByName('param').AsInteger := k;
+      full.Open;
+      i := full.Fields[0].AsInteger;
+      full.Close;
+      if i = ini.Values['count'].ToInteger then
+        s := ' style=color:red'
+      else if i = 0 then
+      begin
+        temp.Next;
+        continue;
+      end
+      else
+        s := '';
+      nametable.Locate('tbnumber', k);
+      maintable.Locate('id', temp.FieldByName('first').AsInteger);
+      ReplaceText := ReplaceText + '<a href=./?db=' + k.ToString + s + '>' +
+        nametable.FieldByName('tbname').AsString + '</a>↓<div>タイトル:' +
+        maintable.FieldByName('title').AsString;
+      ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
+        DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
       temp.Next;
-      continue;
-    end
-    else
-      s := '';
-    nametable.Locate('tbnumber', k);
-    maintable.Locate('id', temp.FieldByName('first').AsInteger);
-    ReplaceText := ReplaceText + '<a href=/?db=' + k.ToString + s + '>' +
-      nametable.FieldByName('tbname').AsString + '</a>↓<div>タイトル:' +
-      maintable.FieldByName('title').AsString;
-    ReplaceText := ReplaceText + '記事数:' + i.ToString + '更新日:' +
-      DateToStr(temp.FieldByName('score').AsDateTime) + '</div>';
-    temp.Next;
+    end;
+    temp.Close;
+    nametable.Close;
+    maintable.Close;
   end;
-  temp.Close;
-  nametable.Close;
-  maintable.Close;
 end;
 
 procedure TWebModule1.WebModule1AdminHandlerAction(Sender: TObject;
@@ -665,7 +681,7 @@ begin
     ini.SaveToFile('setting.ini');
   end;
   if LoginCheck = false then
-    Response.SendRedirect('/login')
+    Response.SendRedirect('./login')
   else
   begin
     with FDQuery1.SQL do
@@ -744,7 +760,8 @@ begin
         alerttable.AppendRecord([i, com, time]);
         alerttable.Close;
       end;
-      Response.SendRedirect(AnsiString('/user?db=' + s + '&job=' + j.ToString));
+      Response.SendRedirect(AnsiString('./user?db=' + s + '&job=' +
+        j.ToString));
     end;
   end
   else
@@ -821,9 +838,9 @@ begin
   raw.Close;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
-    Response.SendRedirect(AnsiString('/admin?db=' + t + '&page=' + s))
+    Response.SendRedirect(AnsiString('./admin?db=' + t + '&page=' + s))
   else
-    Response.SendRedirect('/admin?db=' + AnsiString(t));
+    Response.SendRedirect('./admin?db=' + AnsiString(t));
 end;
 
 procedure TWebModule1.WebModule1HelpHandlerAction(Sender: TObject;
@@ -886,7 +903,7 @@ begin
       begin
         Domain := Request.Host;
         Expires := Now + 7;
-        Path := '/';
+        Path := Request.ScriptName + '/';
         Secure := false;
         Name := 'password';
         Value := AnsiString(s);
@@ -894,10 +911,10 @@ begin
       nametable.Open;
       if nametable.Locate('tbname', Request.ContentFields.Values['dbname']) = true
       then
-        Response.SendRedirect('/admin?db=' + nametable.FieldByName('tbnumber')
+        Response.SendRedirect('./admin?db=' + nametable.FieldByName('tbnumber')
           .AsAnsiString)
       else
-        Response.SendRedirect('/master');
+        Response.SendRedirect('./master');
       nametable.Close;
       Exit;
     end;
@@ -914,10 +931,11 @@ begin
     Domain := Request.Host;
     Expires := Now - 1;
     Name := 'password';
-    Path := '/';
+    Path := Request.ScriptName + '/';
     Secure := false;
   end;
-  Response.SendRedirect('/?db=' + AnsiString(Request.QueryFields.Values['db']));
+  Response.SendRedirect('./?db=' +
+    AnsiString(Request.QueryFields.Values['db']));
 end;
 
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
@@ -929,7 +947,7 @@ begin
     Response.Content := master.Content;
   end
   else
-    Response.SendRedirect('/login');
+    Response.SendRedirect('./login');
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -983,7 +1001,7 @@ begin
     i := ini.Values['count'].ToInteger;
     if page = 0 then
     begin
-      Response.SendRedirect('/?db=' + AnsiString(DB));
+      Response.SendRedirect('./?db=' + AnsiString(DB));
       Exit;
     end
     else
@@ -995,7 +1013,7 @@ begin
         FDQuery1.MoveBy(i * j)
       else
       begin
-        Response.SendRedirect('/?db=' + AnsiString(DB));
+        Response.SendRedirect('./?db=' + AnsiString(DB));
         full.Close;
         Exit;
       end;
@@ -1088,8 +1106,8 @@ begin
     s.Free;
   end;
   if x = true then
-    Response.SendRedirect('/?db=' + AnsiString(Request.QueryFields.Values['db'])
-      + '#bottom')
+    Response.SendRedirect('./?db=' + AnsiString(Request.QueryFields.Values['db']
+      ) + '#bottom')
   else
   begin
     Response.ContentType := 'text/plain;charset=utf-8';
@@ -1108,14 +1126,11 @@ end;
 procedure TWebModule1.WebModule1TitleHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  i, j, k, id: integer;
+  i, j, k: integer;
   s: TDateTime;
   t: string;
 begin
-  if temp.Exists = false then
-    temp.CreateTable(false);
   temp.Open;
-  id := 1;
   FDQuery1.SQL.Clear;
   FDQuery1.SQL.Add
     ('select * from dbname where tbnumber = :param order by cmnumber;');
@@ -1141,8 +1156,7 @@ begin
     maintable.Locate('id', k);
     s := maintable.FieldByName('datetime').AsDateTime;
     t := FormatDateTime('yyyy/mm/dd', s);
-    temp.AppendRecord([id, i, j, k, StrToDate(t)]);
-    inc(id);
+    temp.AppendRecord([i, j, k, StrToDate(t)]);
     nametable.Next;
   end;
   nametable.Close;
@@ -1179,7 +1193,7 @@ begin
         s := ''
       else
         s := '&page=' + (1 + k div j).ToString;
-      Response.SendRedirect(AnsiString('/?db=' + t + s + '#' + num));
+      Response.SendRedirect(AnsiString('./?db=' + t + s + '#' + num));
     end;
   end
   else
@@ -1207,7 +1221,7 @@ begin
       raw.Close;
     end;
     maintable.Close;
-    Response.SendRedirect(AnsiString('/user?db=' + t + '&job=' + num));
+    Response.SendRedirect(AnsiString('./user?db=' + t + '&job=' + num));
   end;
 end;
 

@@ -98,6 +98,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="ServerMethodsUnit1.pas"/>
         <None Include="DATA.FDB"/>
         <None Include="FBCLIENT.DLL"/>
         <RcItem Include="setting.txt">

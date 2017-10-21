@@ -40,6 +40,7 @@ type
     DBGrid6: TDBGrid;
     DBNavigator5: TDBNavigator;
     DBNavigator6: TDBNavigator;
+    procedure FormCreate(Sender: TObject);
   private
     { Private êÈåæ }
   public
@@ -52,5 +53,15 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  FDTable1.Open;
+  FDTable2.Open;
+  FDTable3.Open;
+  FDTable4.Open;
+  FDTable5.Open;
+  FDTable6.Open;
+end;
 
 end.

@@ -68,7 +68,7 @@ header h1 {
 
 .slideshow-nav a:before,
 .slideshow-indicator a:before {
-	content:url(/img?name=sprites);
+	content:url(./img?name=sprites);
 	display:inline-block;
 	font-size:0;
 	line-height:0

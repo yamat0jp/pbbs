@@ -88,8 +88,8 @@ object WebModule1: TWebModule1
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'DBNAME'
     TableName = 'DBNAME'
-    Left = 64
-    Top = 152
+    Left = 72
+    Top = 128
     object dbnameTBNUMBER: TIntegerField
       FieldName = 'TBNUMBER'
       Origin = 'TBNUMBER'
@@ -112,8 +112,8 @@ object WebModule1: TWebModule1
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'MAINTABLE'
     TableName = 'MAINTABLE'
-    Left = 136
-    Top = 152
+    Left = 144
+    Top = 128
     object maintableID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
@@ -147,8 +147,8 @@ object WebModule1: TWebModule1
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'RAW'
     TableName = 'RAW'
-    Left = 216
-    Top = 152
+    Left = 224
+    Top = 128
     object rawID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
@@ -180,12 +180,12 @@ object WebModule1: TWebModule1
       '</title>'
       '</head>'
       '<body>'
-      #9'<#style href="/css?name=top_css">'
-      #9'<#style href="/css?name=normalize_css">'
-      #9'<#script src=/css?name=min>'
-      #9'<#script src=/css?name=top>'
-      #9'<#script src=/css?name=modernizr>'
-      #9'<#script src=/css?name=ui_custom>'
+      #9'<#style href=./css?name=top_css>'
+      #9'<#style href=./css?name=normalize_css>'
+      #9'<#script src=./css?name=min>'
+      #9'<#script src=./css?name=top>'
+      #9'<#script src=./css?name=modernizr>'
+      #9'<#script src=./css?name=ui_custom>'
       '<div id="fb-root"></div>'
       '<script>(function(d, s, id) {'
       '  var js, fjs = d.getElementsByTagName(s)[0];'
@@ -213,17 +213,17 @@ object WebModule1: TWebModule1
       '</div>'
       ''
       '    <p>[ <#name class="info"> ] <='#12362#30693#12425#12379
-      '    <p>[ <a href=/master>master</a> ] <='#31649#29702#20154
+      '    <p>[ <a href=./master>master</a> ] <='#31649#29702#20154
       
         '<div class="fb-like" data-href="http://pybbs.herokuapp.com" data' +
         '-layout="box_count" data-action="like" data-size="small" data-sh' +
         'ow-faces="true" data-share="false"></div><footer>'
       '<p><br>'
-      '<p><a href="/search">'#26908#32034
+      '<p><a href="./search">'#26908#32034
       '</a>'
-      '<p><a href="/title">'#12479#12452#12488#12523#34920#31034
+      '<p><a href="./title">'#12479#12452#12488#12523#34920#31034
       '</a>'
-      '<p><a href="/help">'#20351#12356#26041#26696#20869
+      '<p><a href="./help">'#20351#12356#26041#26696#20869
       '</a>'
       '<p>PR '#12522#12531#12463'<br>'
       
@@ -260,28 +260,28 @@ object WebModule1: TWebModule1
       '  <head>'
       '    <title><#title></title>'
       
-        '    <meta charset="utf-8"><link rel=stylesheet href=/css?name=ma' +
-        'in_css>'
+        '    <meta charset="utf-8"><link rel=stylesheet href=./css?name=m' +
+        'ain_css>'
       
         '    <script type=text/javascript src=http://ajax.googleapis.com/' +
         'ajax/libs/jquery/1.8.1/jquery.min.js></script>'
       
-        '    <script type=text/javascript src=/css?name=livepreview></scr' +
-        'ipt>'
-      '    <script type=text/javascript src=/css?name=sub></script>'
-      '    <link rel=stylesheet href=/css?name=livepreview_css>'
+        '    <script type=text/javascript src=./css?name=livepreview></sc' +
+        'ript>'
+      '    <script type=text/javascript src=./css?name=sub></script>'
+      '    <link rel=stylesheet href=./css?name=livepreview_css>'
       '  </head>'
       ''
       '  <body>'
-      '    <a href=/ style=text-decoration:none><#title2></a>'
+      '    <a href=./ style=text-decoration:none><#title2></a>'
       '    <p><a id=top></a>'
       '    <p>'
       '    <#form>'
       '    <p>'
       '      <hr size="1" width="100%">'
       
-        '      <form action="/user?db=<#tbnumber>" method="post" id=searc' +
-        'h>'
+        '      <form action="./user?db=<#tbnumber>" method="post" id=sear' +
+        'ch>'
       '      <p>'#35352#20107'No.'
       '      <p><input name="number">'
       '      <p>Pass'
@@ -292,16 +292,16 @@ object WebModule1: TWebModule1
       '    <p style=text-align:center><#dbname>'
       '    <#footer>'
       
-        '    <p style=text-align:end><a href=/?db=<#tbnumber>#bottom>'#12506#12540#12472#19979 +
-        #37096#12408#31227#21205'</a>'
+        '    <p style=text-align:end><a href=./?db=<#tbnumber>#bottom>'#12506#12540#12472 +
+        #19979#37096#12408#31227#21205'</a>'
       '    <#main>'
       
-        '    <p style=text-align:end><a href=/?db=<#tbnumber>#top>'#12506#12540#12472#20808#38957#12408#31227 +
-        #21205'</a>'
+        '    <p style=text-align:end><a href=./?db=<#tbnumber>#top>'#12506#12540#12472#20808#38957#12408 +
+        #31227#21205'</a>'
       '    <a id=bottom></a>'
       
-        '    <p style=text-align:center><a href=/admin?db=<#tbnumber>>'#31649#29702#32773 +
-        #29992#12525#12464#12452#12531'</a>'
+        '    <p style=text-align:center><a href=./admin?db=<#tbnumber>>'#31649#29702 +
+        #32773#29992#12525#12464#12452#12531'</a>'
       '    <#footer>'
       '  </body>'
       '</html>')
@@ -322,7 +322,7 @@ object WebModule1: TWebModule1
       '    <p>'
       '    <p align="center">'#31649#29702#32773#29992#12525#12464#12452#12531#30011#38754
       '    <p>'
-      '    <form action="/login" method="post">'
+      '    <form action="./login" method="post">'
       '    <p align="center"><select name=dbname><#option></select>'
       '        <input type="password" name="password">'
       '      <input type="submit" value="'#12525#12464#12452#12531'">'
@@ -331,22 +331,22 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = loginHTMLTag
     Left = 64
-    Top = 224
+    Top = 184
   end
   object main: TDataSetPageProducer
     HTMLDoc.Strings = (
       '<p><a id=<#cmnumber>></a>'
       
-        '<section id=number><a href=/user?db=<#tbnumber>&job=<#cmnumber> ' +
-        'style=text-decoration:none>[ <#cmnumber> ]</a></section>'
+        '<section id=number><a href=./user?db=<#tbnumber>&job=<#cmnumber>' +
+        ' style=text-decoration:none>[ <#cmnumber> ]</a></section>'
       '<section id=title><#title></section><br>'
       
         '<section id=name><#name></section> | <section id=date><#datetime' +
         '></section>'
       '<section id=comment><#comment></section>'
       
-        '<section id=alert><p style=text-align:end><a href=/alert?db=<#tb' +
-        'number>&page=<#cmnumber>>'#22577#21578'</a>')
+        '<section id=alert><p style=text-align:end><a href=./alert?db=<#t' +
+        'bnumber>&page=<#cmnumber>>'#22577#21578'</a>')
     DataSet = FDQuery1
     Left = 256
     Top = 16
@@ -380,8 +380,8 @@ object WebModule1: TWebModule1
     Connection = PbbsConnection
     SQL.Strings = (
       'select count(*) from dbname where tbnumber = :param;')
-    Left = 280
-    Top = 152
+    Left = 288
+    Top = 128
     ParamData = <
       item
         Name = 'PARAM'
@@ -395,7 +395,7 @@ object WebModule1: TWebModule1
       ' <td><#name></td><td><#title></td><td><#datetime></td></tr>')
     DataSet = FDQuery1
     Left = 112
-    Top = 224
+    Top = 184
   end
   object search: TPageProducer
     HTMLDoc.Strings = (
@@ -407,7 +407,7 @@ object WebModule1: TWebModule1
       '  </head>'
       ''
       '  <body>'
-      '    <form action="/search" method="post">'
+      '    <form action="./search" method="post">'
       '    <p style=text-align:center><strong>'#25237#31295#26908#32034'</strong>'
       '    <p>'
       '    <p>'
@@ -426,25 +426,25 @@ object WebModule1: TWebModule1
       '    <p>'
       '    <input type="submit" value="'#26908#32034'">'
       '    </form>'
-      '      <p><a href="/">'#25522#31034#26495#12408#25147#12427'</a>'
+      '      <p><a href="./">'#25522#31034#26495#12408#25147#12427'</a>'
       '    <#main>'
       '  </body>'
       '</html>')
     OnHTMLTag = searchHTMLTag
     Left = 184
-    Top = 224
+    Top = 184
   end
   object footer: TPageProducer
     OnHTMLTag = footerHTMLTag
     Left = 240
-    Top = 224
+    Top = 184
   end
   object key: TPageProducer
     HTMLDoc.Strings = (
       '<!doctype html>'
       '<html>'
       '<head><meta charset=utf-8><title></title>'
-      '<link rel=stylesheet href=/css?name=main_css>'
+      '<link rel=stylesheet href=./css?name=main_css>'
       '</head>'
       '<body>'
       '<#main>'
@@ -452,12 +452,12 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = keyHTMLTag
     Left = 296
-    Top = 224
+    Top = 184
   end
   object htmlfile: TPageProducer
     HTMLDoc.Strings = (
       '<header>'
-      '<form action=/regist?db=<#tbnumber> method="post">'
+      '<form action=./regist?db=<#tbnumber> method="post">'
       '<table><tr><td>'
       
         '        <p>'#12362#21517#21069'<input name="name" class=name value="<#name>" plac' +
@@ -485,7 +485,7 @@ object WebModule1: TWebModule1
       '</header>')
     OnHTMLTag = htmlfileHTMLTag
     Left = 64
-    Top = 280
+    Top = 240
   end
   object title: TPageProducer
     HTMLDoc.Strings = (
@@ -498,13 +498,13 @@ object WebModule1: TWebModule1
       
         '<script type=text/javascript src=http://ajax.googleapis.com/ajax' +
         '/libs/jquery/1.8.1/jquery.min.js></script>'
-      '<script type=text/javascript src=/css?name=min></script>'
-      '<script type=text/javascript src=/css?name=main></script>'
-      '<link rel=stylesheet href=/css?name=top_css>'
+      '<script type=text/javascript src=./css?name=min></script>'
+      '<script type=text/javascript src=./css?name=main></script>'
+      '<link rel=stylesheet href=./css?name=top_css>'
       '</head>'
       '<body>'
       '<#main>'
-      '<p><a href=/>'#12418#12393#12427'</a>'
+      '<p><a href=./>'#12418#12393#12427'</a>'
       '<footer>PR '#12522#12531#12463
       
         '<p><a href=https://www.amazon.co.jp/%E9%AB%98%E6%A0%A1%E5%8D%92%' +
@@ -526,7 +526,7 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = titleHTMLTag
     Left = 112
-    Top = 280
+    Top = 240
   end
   object help: TPageProducer
     HTMLDoc.Strings = (
@@ -535,7 +535,7 @@ object WebModule1: TWebModule1
       '<html><head><meta charset=utf-8><title>'#20351#12356#26041'</title></head>'
       '<body>'
       '<P>'#35370#21839#32773#12398#30342#12373#12435'</P>'
-      '<form action=/help method=post>'
+      '<form action=./help method=post>'
       #9'<p>'#12362#21839#12356#21512#12431#12379'<'#21066#38500#20381#38972#12394#12393#20309#12391#12418'></p>'
       #9'<textarea name=help style=height:100px;width:250px>'
       #25237#31295#32773#21517#12394#12393#65306
@@ -547,22 +547,24 @@ object WebModule1: TWebModule1
       '<p>pybbs'#12398'API'
       '<p>ArticleAPI ... ~/read/api/<b>dbname</b>/<b>number</b>'
       '<p>ListAPI ... ~/list/api/<b>dbname</b>'
-      '<p style=text-align:center><a href=/>'#25147#12427'</a>'
+      '<p style=text-align:center><a href=./>'#25147#12427'</a>'
       '</body>'
       '</html>')
     OnHTMLTag = helpHTMLTag
     Left = 184
-    Top = 280
+    Top = 240
   end
   object alert: TPageProducer
     HTMLDoc.Strings = (
       '<!doctype html>'
       '<html>'
       '<head><meta charset=utf-8><title>'#22577#21578#30003#35531#30011#38754'</title>'
-      '<link rel=stylesheet href=/css?name=main></head>'
+      '<link rel=stylesheet href=./css?name=main></head>'
       ''
       '<body>'
-      '<form action=/alert?db=<#tbnumber>&page=<#cmnumber> method=post>'
+      
+        '<form action=./alert?db=<#tbnumber>&page=<#cmnumber> method=post' +
+        '>'
       '<p>'#23452#12375#12369#12428#12400#20309#12363#12362#26360#12365#28155#12360#12367#12384#12373#12356
       '<p><textarea name=com></textarea>'
       '<p><#comment>'
@@ -573,15 +575,15 @@ object WebModule1: TWebModule1
       '</body></html>')
     OnHTMLTag = alertHTMLTag
     Left = 240
-    Top = 280
+    Top = 240
   end
   object alerttable: TFDTable
     IndexFieldNames = 'ID'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'ALERTTABLE'
     TableName = 'ALERTTABLE'
-    Left = 344
-    Top = 152
+    Left = 352
+    Top = 128
     object alerttableID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
@@ -603,7 +605,7 @@ object WebModule1: TWebModule1
       '<!doctype html>'
       '<html>'
       '<head><meta charset=utf-8><title>mail</title>'
-      '<link rel=stylesheet href=/css?name=main></head>'
+      '<link rel=stylesheet href=./css?name=main></head>'
       ''
       '<body>'
       '<p>'#22577#21578#19968#35239
@@ -613,21 +615,15 @@ object WebModule1: TWebModule1
       '</html>')
     OnHTMLTag = masterHTMLTag
     Left = 296
-    Top = 280
+    Top = 240
   end
   object temp: TFDTable
-    IndexFieldNames = 'SCORE;DBID'
+    IndexFieldNames = 'SCORE;DBID;FIRST'
     Connection = PbbsConnection
-    UpdateOptions.UpdateTableName = 'TITLE'
-    TableName = 'TITLE'
+    UpdateOptions.UpdateTableName = 'title'
+    TableName = 'title'
     Left = 352
-    Top = 240
-    object tempID: TIntegerField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
-      Required = True
-    end
+    Top = 200
     object tempDBID: TIntegerField
       FieldName = 'DBID'
       Origin = 'DBID'
@@ -650,7 +646,7 @@ object WebModule1: TWebModule1
     SQL.Strings = (
       'delete from title;')
     Left = 352
-    Top = 296
+    Top = 256
   end
   object admin: TPageProducer
     HTMLDoc.Strings = (
@@ -661,8 +657,8 @@ object WebModule1: TWebModule1
       '<style>p{margin:5px}</style>'
       '<body>'
       
-        '    <form method="post" action=/admin?db=<#tbnumber> style=text-' +
-        'align:center>'
+        '    <form method="post" action=./admin?db=<#tbnumber> style=text' +
+        '-align:center>'
       '    <input type=hidden name=setting value=true>'
       '    <p>'#21066#38500#12375#12383#12356#35352#20107#12398#12481#12455#12483#12463#12508#12483#12463#12473#12395#12481#12455#12483#12463#12434#20837#12428#12289#21066#38500#12508#12479#12531#12434#25276#12375#12390#19979#12373#12356
       '    <p><br>'
@@ -674,11 +670,11 @@ object WebModule1: TWebModule1
         '    <input type="checkbox" value="on" name="maintenance" <#check' +
         '>>'#12513#12531#12486#12490#12531#12473#34920#31034
       '    <p><input type="submit" value="'#22793#26356'">'
-      '    <p><a href="/logout?db=<#tbnumber>">'#12525#12464#12450#12454#12488'</a>'
+      '    <p><a href="./logout?db=<#tbnumber>">'#12525#12464#12450#12454#12488'</a>'
       '    </form>'
       
-        '<form action=/delete?db=<#tbnumber><#page> style=text-align:cent' +
-        'er method=post>'
+        '<form action=./delete?db=<#tbnumber><#page> style=text-align:cen' +
+        'ter method=post>'
       '<table style=margin:auto cellspacing=0>'
       
         '<tr style=background-color:#bbbbbb><td>'#21066#38500'</td><td>'#35352#20107'no.</td><td>' +
@@ -694,8 +690,8 @@ object WebModule1: TWebModule1
       '<#footer>'
       '</body></html>')
     OnHTMLTag = adminHTMLTag
-    Left = 104
-    Top = 112
+    Left = 112
+    Top = 104
   end
   object FDScript1: TFDScript
     SQLScripts = <
@@ -721,9 +717,9 @@ object WebModule1: TWebModule1
             '000),'
           ' datetime varchar(30), primary key ( id ) );'
           
-            'create table temp ( id integer not null, dbid integer, first int' +
-            'eger, last integer,'
-          ' score integer, primary key ( id ) );')
+            'create table title ( dbid integer, first integer, last integer, ' +
+            'score date,'
+          ' primary key( first ) );')
       end>
     Connection = PbbsConnection
     Params = <>
@@ -748,18 +744,18 @@ object WebModule1: TWebModule1
       '<p>'
       '<p>'
       '<p>'
-      '<p style=text-align:center><a href=/login>'#31649#29702#32773#12525#12464#12452#12531'</a>'
+      '<p style=text-align:center><a href=./login>'#31649#29702#32773#12525#12464#12452#12531'</a>'
       '</body>'
       '</html>')
     Left = 24
-    Top = 312
+    Top = 264
   end
   object nametable: TFDTable
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'nametable'
     TableName = 'nametable'
     Left = 16
-    Top = 192
+    Top = 160
     object nametabletbnumber: TIntegerField
       FieldName = 'tbnumber'
     end
@@ -768,18 +764,25 @@ object WebModule1: TWebModule1
     end
   end
   object DSServer1: TDSServer
-    AutoStart = False
-    Left = 312
-    Top = 328
+    Left = 352
+    Top = 312
   end
   object DSServerClass1: TDSServerClass
+    OnGetClass = DSServerClass1GetClass
     Server = DSServer1
-    Left = 104
-    Top = 328
+    Left = 80
+    Top = 296
+  end
+  object DSTCPServerTransport1: TDSTCPServerTransport
+    Server = DSServer1
+    Filters = <>
+    Left = 184
+    Top = 296
   end
   object DSRESTWebDispatcher1: TDSRESTWebDispatcher
     Server = DSServer1
-    Left = 208
+    WebDispatch.MethodType = mtGet
+    Left = 272
     Top = 328
   end
 end
