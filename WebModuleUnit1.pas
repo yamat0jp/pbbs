@@ -399,7 +399,7 @@ begin
       s1 := Copy(t.Value, 3, t.Length);
       s2 := s2 + Copy(line, ep, t.index - ep) +
         '<a class=minpreview data-preview-url=./?db=' + p + '&key=' + s1 +
-        ' href=/user?db=' + p + '&job=' + s1 + '>>>' + s1 + '</a>';
+        ' href=./user?db=' + p + '&job=' + s1 + '>>>' + s1 + '</a>';
     end
     else
     begin
@@ -753,7 +753,7 @@ begin
         raw.Open;
         raw.Locate('id', i);
         com := '<p style=font-weight:bold>' + Request.ContentFields.Values
-          ['com'] + '<p><a href=/user?db=' + s + '&job=' + t +
+          ['com'] + '<p><a href=./user?db=' + s + '&job=' + t +
           ' style=text-decoration:none>[' + s + '-' + t + ']</a> ' +
           Copy(raw.FieldByName('raw').AsString, 1, 100) + ' ...<p>';
         raw.Close;
@@ -1101,7 +1101,8 @@ begin
     s.Clear;
     s.Add('name=' + na);
     s.Add('aikotoba=‚°‚ñ‚«');
-    Response.SetCookieField(s, Request.Host, '/', Now + 7, false);
+    Response.SetCookieField(s, Request.Host, Request.ScriptName + '/',
+      Now + 7, false);
   finally
     s.Free;
   end;
