@@ -49,6 +49,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1CssHandlerAction
     end
     item
+      MethodType = mtGet
       Name = 'ImageHandler'
       PathInfo = '/img'
       OnAction = WebModule1ImageHandlerAction
@@ -764,6 +765,7 @@ object WebModule1: TWebModule1
     end
   end
   object DSServer1: TDSServer
+    AutoStart = False
     Left = 352
     Top = 312
   end
