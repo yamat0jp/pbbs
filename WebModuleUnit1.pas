@@ -887,6 +887,7 @@ procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
+  t: TStringList;
   m5: TIdHashMessageDigest5;
 begin
   if Request.MethodType = mtPost then
@@ -894,17 +895,14 @@ begin
     if ini.Values['password'] = Request.ContentFields.Values['password'] then
     begin
       m5 := TIdHashMessageDigest5.Create;
+      t := TStringList.Create;
       try
         s := m5.HashStringAsHex(ini.Values['password']);
+        t.Add('password=' + s);
+        Response.SetCookieField(t, '', '', Now + 7, false);
       finally
         m5.Free;
-      end;
-      with Response.Cookies.Add do
-      begin
-        Expires := Now + 7;
-        Secure := false;
-        Name := 'password';
-        Value := AnsiString(s);
+        t.Free;
       end;
       nametable.Open;
       if nametable.Locate('tbname', Request.ContentFields.Values['dbname']) = true
@@ -923,12 +921,15 @@ end;
 
 procedure TWebModule1.WebModule1LogoutHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s: TStringList;
 begin
-  with Response.Cookies.Add do
-  begin
-    Expires := Now - 1;
-    Name := 'password';
-    Secure := false;
+  s := TStringList.Create;
+  try
+    s.Add('password=');
+    Response.SetCookieField(s, '', '', Now - 1, false);
+  finally
+    s.Free;
   end;
   Response.SendRedirect('./?db=' +
     AnsiString(Request.QueryFields.Values['db']));
@@ -1097,7 +1098,7 @@ begin
     s.Clear;
     s.Add('name=' + na);
     s.Add('aikotoba=‚°‚ñ‚«');
-    Response.SetCookieField(s,'','', Now + 7, false);
+    Response.SetCookieField(s, '', '', Now + 7, false);
   finally
     s.Free;
   end;
