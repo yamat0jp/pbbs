@@ -901,9 +901,7 @@ begin
       end;
       with Response.Cookies.Add do
       begin
-        Domain := Request.Host;
         Expires := Now + 7;
-        Path := Request.ScriptName + '/';
         Secure := false;
         Name := 'password';
         Value := AnsiString(s);
@@ -928,10 +926,8 @@ procedure TWebModule1.WebModule1LogoutHandlerAction(Sender: TObject;
 begin
   with Response.Cookies.Add do
   begin
-    Domain := Request.Host;
     Expires := Now - 1;
     Name := 'password';
-    Path := Request.ScriptName + '/';
     Secure := false;
   end;
   Response.SendRedirect('./?db=' +
@@ -1101,8 +1097,7 @@ begin
     s.Clear;
     s.Add('name=' + na);
     s.Add('aikotoba=‚°‚ñ‚«');
-    Response.SetCookieField(s, Request.Host, Request.ScriptName + '/',
-      Now + 7, false);
+    Response.SetCookieField(s,'','', Now + 7, false);
   finally
     s.Free;
   end;
