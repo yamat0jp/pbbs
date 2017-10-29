@@ -778,15 +778,9 @@ object WebModule1: TWebModule1
     Left = 80
     Top = 296
   end
-  object DSTCPServerTransport1: TDSTCPServerTransport
+  object DSHTTPWebDispatcher1: TDSHTTPWebDispatcher
     Server = DSServer1
     Filters = <>
-    Left = 184
-    Top = 296
-  end
-  object DSRESTWebDispatcher1: TDSRESTWebDispatcher
-    Server = DSServer1
-    WebDispatch.MethodType = mtGet
     Left = 272
     Top = 328
   end

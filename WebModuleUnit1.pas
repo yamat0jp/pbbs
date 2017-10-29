@@ -65,8 +65,7 @@ type
     dbnameID: TIntegerField;
     DSServer1: TDSServer;
     DSServerClass1: TDSServerClass;
-    DSTCPServerTransport1: TDSTCPServerTransport;
-    DSRESTWebDispatcher1: TDSRESTWebDispatcher;
+    DSHTTPWebDispatcher1: TDSHTTPWebDispatcher;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
