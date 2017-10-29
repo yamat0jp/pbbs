@@ -546,8 +546,12 @@ object WebModule1: TWebModule1
       #9'<p><#message></p><br>'
       '<p>'#38283#30330#32773#12398#30342#12373#12435
       '<p>pybbs'#12398'API'
-      '<p>ArticleAPI ... ~/read/api/<b>dbname</b>/<b>number</b>'
-      '<p>ListAPI ... ~/list/api/<b>dbname</b>'
+      
+        '<p>ArticleAPI ... ~/datasnap/rest/tservermethods1/read/<b>dbname' +
+        '</b>/<b>number</b>'
+      
+        '<p>ListAPI ... ~/datasnap/rest/tservermethods1/list/<b>dbname</b' +
+        '>'
       '<p style=text-align:center><a href=./>'#25147#12427'</a>'
       '</body>'
       '</html>')
@@ -765,7 +769,6 @@ object WebModule1: TWebModule1
     end
   end
   object DSServer1: TDSServer
-    AutoStart = False
     Left = 352
     Top = 312
   end
