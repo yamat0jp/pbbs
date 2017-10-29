@@ -15,6 +15,7 @@ type
   TServerMethods1 = class(TDataModule)
     FDConnection1: TFDConnection;
     FDTable1: TFDTable;
+    FDQuery1: TFDQuery;
   private
     { private êÈåæ }
   public
@@ -33,36 +34,39 @@ uses System.StrUtils;
 function TServerMethods1.List(const name: string): TJSONArray;
 var
   jo1, jo2: TJSONObject;
-  ja1, ja2: TJSONArray;
+  ja1, ja2, num: TJSONArray;
   DB: integer;
 begin
   ja1 := TJSONArray.Create;
-  ja2 := TJSONArray.Create;
+  num := TJSONArray.Create;
   FDTable1.TableName := 'nametable';
   FDTable1.Open;
   DB := FDTable1.Lookup('tbname', name, 'tbnumber');
   FDTable1.Close;
-  FDTable1.TableName := 'maintable';
-  FDTable1.Open;
-  if FDTable1.Locate('id', DB) = true then
+  FDQuery1.ParamByName('id').AsInteger := DB;
+  FDQuery1.Open;
+  ja1.Add('id');
+  ja1.Add('name');
+  ja1.Add('title');
+  ja1.Add('comment');
+  ja1.Add('datetime');
+  jo1 := TJSONObject.Create;
+  jo1.AddPair('name', ja1);
+  while FDQuery1.Eof = false do
   begin
-    ja1.Add('id');
-    ja2.Add(FDTable1.FieldByName('id').AsInteger);
-    ja1.Add('name');
-    ja2.Add(FDTable1.FieldByName('name').AsString);
-    ja1.Add('title');
-    ja2.Add(FDTable1.FieldByName('title').AsString);
-    ja1.Add('comment');
-    ja2.Add(Copy(FDTable1.FieldByName('comment').AsString, 1, 10));
-    ja1.Add('datetime');
-    ja2.Add(FDTable1.FieldByName('datetime').AsDateTime);
-    jo1 := TJSONObject.Create;
-    jo1.AddPair('name', ja1);
-    jo2 := TJSONObject.Create;
-    jo2.AddPair('data', ja2);
-    result := TJSONArray.Create(jo1, jo2);
+    ja2 := TJSONArray.Create;
+    ja2.Add(FDQuery1.FieldByName('id').AsInteger);
+    ja2.Add(FDQuery1.FieldByName('name').AsString);
+    ja2.Add(FDQuery1.FieldByName('title').AsString);
+    ja2.Add(FDQuery1.FieldByName('raw').AsString);
+    ja2.Add(FDQuery1.FieldByName('datetime').AsDateTime);
+    num.Add(ja2);
+    FDQuery1.Next;
   end;
-  FDTable1.Close;
+  FDQuery1.Close;
+  jo2 := TJSONObject.Create;
+  jo2.AddPair('data', num);
+  result := TJSONArray.Create(jo1, jo2);
 end;
 
 function TServerMethods1.Read(const name: string; cm: integer): string;
