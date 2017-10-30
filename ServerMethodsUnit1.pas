@@ -39,13 +39,9 @@ var
 begin
   ja1 := TJSONArray.Create;
   num := TJSONArray.Create;
-  FDTable1.TableName := 'nametable';
-  FDTable1.Open;
-  DB := FDTable1.Lookup('tbname', name, 'tbnumber');
-  FDTable1.Close;
-  FDQuery1.ParamByName('id').AsInteger := DB;
+  FDQuery1.ParamByName('name').AsString := name;
   FDQuery1.Open;
-  ja1.Add('id');
+  ja1.Add('number');
   ja1.Add('name');
   ja1.Add('title');
   ja1.Add('comment');
@@ -55,7 +51,7 @@ begin
   while FDQuery1.Eof = false do
   begin
     ja2 := TJSONArray.Create;
-    ja2.Add(FDQuery1.FieldByName('id').AsInteger);
+    ja2.Add(FDQuery1.FieldByName('cmnumber').AsInteger);
     ja2.Add(FDQuery1.FieldByName('name').AsString);
     ja2.Add(FDQuery1.FieldByName('title').AsString);
     ja2.Add(FDQuery1.FieldByName('raw').AsString);

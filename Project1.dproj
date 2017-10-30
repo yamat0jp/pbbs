@@ -98,7 +98,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="ServerMethodsUnit1.pas"/>
+        <DCCReference Include="ServerMethodsUnit1.pas">
+            <Form>ServerMethods1</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <None Include="DATA.FDB"/>
         <None Include="FBCLIENT.DLL"/>
         <RcItem Include="setting.txt">
@@ -340,13 +344,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="main.css" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="setup.htm" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="setup.htm" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="main.css" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

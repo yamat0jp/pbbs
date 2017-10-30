@@ -9,7 +9,7 @@ uses
   IdHTTPWebBrokerBridge,
   FormUnit1 in 'FormUnit1.pas' {Form1},
   WebModuleUnit1 in 'WebModuleUnit1.pas' {WebModule1: TWebModule},
-  ServerMethodsUnit1 in 'ServerMethodsUnit1.pas';
+  ServerMethodsUnit1 in 'ServerMethodsUnit1.pas' {ServerMethods1: TDataModule};
 
 {$R *.res}
 

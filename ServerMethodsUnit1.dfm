@@ -8,7 +8,6 @@ object ServerMethods1: TServerMethods1
       'Password=masterkey'
       'Database=DATA.FDB'
       'DriverID=FB')
-    Connected = True
     Left = 48
     Top = 32
   end
@@ -22,15 +21,16 @@ object ServerMethods1: TServerMethods1
   object FDQuery1: TFDQuery
     Connection = FDConnection1
     SQL.Strings = (
-      'select raw.id,raw,title,name,datetime from'
-      ' dbname,maintable,raw'
-      ' where (tbnumber = :id)and(dbname.id = raw.id)and'
-      ' (maintable.id = raw.id);')
+      'select cmnumber,raw,title,name,datetime from'
+      ' nametable,dbname,maintable,raw'
+      ' where (tbname = :name)and'
+      ' (nametable.tbnumber = dbname.tbnumber)and'
+      ' (dbname.id = raw.id)and(maintable.id = raw.id);')
     Left = 136
     Top = 32
     ParamData = <
       item
-        Name = 'ID'
+        Name = 'NAME'
         DataType = ftString
         ParamType = ptInput
         Value = '1'

@@ -121,24 +121,23 @@ object WebModule1: TWebModule1
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object maintableNAME: TStringField
+    object maintableNAME: TWideStringField
       FieldName = 'NAME'
       Origin = 'NAME'
       Size = 30
     end
-    object maintableTITLE: TStringField
+    object maintableTITLE: TWideStringField
       FieldName = 'TITLE'
       Origin = 'TITLE'
-      Size = 80
+      Size = 30
     end
-    object maintableCOMMENT: TStringField
-      DisplayWidth = 32765
+    object maintableCOMMENT: TWideStringField
       FieldName = 'COMMENT'
       Origin = '"COMMENT"'
       Size = 1000
     end
-    object maintableDATETIME: TStringField
-      FieldName = 'datetime'
+    object maintableDATETIME: TWideStringField
+      FieldName = 'DATETIME'
       Origin = 'DATETIME'
       Size = 30
     end
@@ -156,13 +155,12 @@ object WebModule1: TWebModule1
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object rawRAW: TStringField
-      DisplayWidth = 32765
+    object rawRAW: TWideStringField
       FieldName = 'RAW'
       Origin = 'RAW'
       Size = 1000
     end
-    object rawPASSWORD: TStringField
+    object rawPASSWORD: TWideStringField
       FieldName = 'PASSWORD'
       Origin = '"PASSWORD"'
       Size = 8
@@ -364,6 +362,7 @@ object WebModule1: TWebModule1
       'User_Name=sysdba'
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
+      'CharacterSet=UTF8'
       'DriverID=FB')
     Connected = True
     LoginPrompt = False
@@ -595,13 +594,13 @@ object WebModule1: TWebModule1
       ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
       Required = True
     end
-    object alerttableMESSAGE: TStringField
+    object alerttableMESSAGE: TWideStringField
       FieldName = 'MESSAGE'
       Origin = '"MESSAGE"'
       Size = 1000
     end
-    object alerttableDATETIME: TStringField
-      FieldName = 'datetime'
+    object alerttableDATETIME: TDateField
+      FieldName = 'DATETIME'
       Origin = 'DATETIME'
     end
   end
@@ -711,15 +710,13 @@ object WebModule1: TWebModule1
             'ar(30),'
           ' primary key ( tbnumber ) );'
           'create table maintable ( id integer not null, name varchar(30),'
-          
-            ' title varchar(30), comment varchar(32765), datetime varchar(30)' +
-            ','
+          ' title varchar(30), comment varchar(500), datetime varchar(30),'
           ' primary key (id) );'
-          'create table raw ( id integer not null, raw varchar(32765),'
+          'create table raw ( id integer not null, raw varchar(500),'
           ' password varchar(8), primary key ( id ) );'
           
-            'create table alerttable ( id integer not null, message varchar(1' +
-            '000),'
+            'create table alerttable ( id integer not null, message varchar(5' +
+            '00),'
           ' datetime varchar(30), primary key ( id ) );'
           
             'create table title ( dbid integer, first integer, last integer, ' +
@@ -756,16 +753,22 @@ object WebModule1: TWebModule1
     Top = 264
   end
   object nametable: TFDTable
+    IndexFieldNames = 'TBNUMBER'
     Connection = PbbsConnection
     UpdateOptions.UpdateTableName = 'nametable'
     TableName = 'nametable'
     Left = 16
     Top = 160
-    object nametabletbnumber: TIntegerField
-      FieldName = 'tbnumber'
+    object nametableTBNUMBER: TIntegerField
+      FieldName = 'TBNUMBER'
+      Origin = 'TBNUMBER'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
     end
-    object nametabletbname: TStringField
-      FieldName = 'tbname'
+    object nametableTBNAME: TWideStringField
+      FieldName = 'TBNAME'
+      Origin = 'TBNAME'
+      Size = 30
     end
   end
   object DSServer1: TDSServer
