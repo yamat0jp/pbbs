@@ -588,21 +588,6 @@ object WebModule1: TWebModule1
     TableName = 'ALERTTABLE'
     Left = 352
     Top = 128
-    object alerttableID: TIntegerField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
-      Required = True
-    end
-    object alerttableMESSAGE: TWideStringField
-      FieldName = 'MESSAGE'
-      Origin = '"MESSAGE"'
-      Size = 1000
-    end
-    object alerttableDATETIME: TDateField
-      FieldName = 'DATETIME'
-      Origin = 'DATETIME'
-    end
   end
   object master: TPageProducer
     HTMLDoc.Strings = (
@@ -614,7 +599,7 @@ object WebModule1: TWebModule1
       '<body>'
       '<p>'#22577#21578#19968#35239
       '<#main>'
-      ''
+      '<a href=./logout>'#12525#12464#12450#12454#12488'</a>'
       '</body>'
       '</html>')
     OnHTMLTag = masterHTMLTag
@@ -784,7 +769,7 @@ object WebModule1: TWebModule1
   object DSHTTPWebDispatcher1: TDSHTTPWebDispatcher
     Server = DSServer1
     Filters = <>
-    Left = 272
-    Top = 328
+    Left = 216
+    Top = 304
   end
 end

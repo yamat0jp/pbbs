@@ -63,9 +63,6 @@ type
     rawID: TIntegerField;
     rawRAW: TWideStringField;
     rawPASSWORD: TWideStringField;
-    alerttableID: TIntegerField;
-    alerttableMESSAGE: TWideStringField;
-    alerttableDATETIME: TDateField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -1239,7 +1236,19 @@ begin
   else
     ini.LoadFromFile('setting.ini');
   if dbname.Exists = false then
+  begin
     FDScript1.ExecuteAll;
+    nametable.Open;
+    nametable.AppendRecord([1,'info']);
+    nametable.AppendRecord([2,'bbs1']);
+    nametable.AppendRecord([3,'bbs2']);
+    nametable.AppendRecord([4,'bbs3']);
+    nametable.AppendRecord([5,'bbs4']);
+    nametable.AppendRecord([6,'bbs5']);
+    nametable.AppendRecord([7,'bbs6']);
+    nametable.AppendRecord([8,'bbs7']);
+    nametable.Close;
+  end;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);

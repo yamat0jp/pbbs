@@ -55,7 +55,7 @@ begin
     ja2.Add(FDQuery1.FieldByName('name').AsString);
     ja2.Add(FDQuery1.FieldByName('title').AsString);
     ja2.Add(FDQuery1.FieldByName('raw').AsString);
-    ja2.Add(FDQuery1.FieldByName('datetime').AsDateTime);
+    ja2.Add(FDQuery1.FieldByName('datetime').AsString);
     num.Add(ja2);
     FDQuery1.Next;
   end;
