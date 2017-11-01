@@ -475,6 +475,8 @@ object WebModule1: TWebModule1
       '</td></tr>'
       '<tr><td>'
       '<p>'#12497#12473#12527#12540#12489'<input name="password" type="password">'
+      '<label><input type=checkbox name=htmltag value=active checked>'
+      '        html'#12479#12464#12434#20351#29992#12375#12394#12356'</label>'
       '</td></tr>'
       '<tr><td>'
       '<p>'#21512#35328#33865#12434#24179#20206#21517#12391#20837#21147#12375#12390#12367#12384#12373#12356': gennki'

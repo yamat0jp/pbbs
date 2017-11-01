@@ -53,16 +53,16 @@ type
     DSServer1: TDSServer;
     DSServerClass1: TDSServerClass;
     DSHTTPWebDispatcher1: TDSHTTPWebDispatcher;
-    maintableID: TIntegerField;
-    maintableNAME: TWideStringField;
-    maintableTITLE: TWideStringField;
-    maintableCOMMENT: TWideStringField;
-    maintableDATETIME: TWideStringField;
     nametableTBNUMBER: TIntegerField;
     nametableTBNAME: TWideStringField;
     rawID: TIntegerField;
     rawRAW: TWideStringField;
     rawPASSWORD: TWideStringField;
+    maintableID: TIntegerField;
+    maintableNAME: TWideStringField;
+    maintableTITLE: TWideStringField;
+    maintableCOMMENT: TWideStringField;
+    maintableDATETIME: TWideStringField;
     procedure WebModule1RegistHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1UserHandlerAction(Sender: TObject; Request: TWebRequest;
@@ -1029,6 +1029,7 @@ var
   na, sub, com, pass, Text: string;
   i, j, k, p: integer;
   s: TStringList;
+  u: THTMLEncoding;
   x: Boolean;
 begin
   if Request.ContentFields.Values['aikotoba'] <> '‚°‚ñ‚«' then
@@ -1042,6 +1043,7 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
+  x := Request.ContentFields.Values['htmltag'] = 'active';
   with FDQuery1.SQL do
   begin
     Clear;
@@ -1062,13 +1064,18 @@ begin
     if CheckWords(s) = true then
     begin
       Text := '';
+      u:=THTMLEncoding.Create;
       for i := 0 to s.Count - 1 do
       begin
-        com := s[i];
+        if x = true then
+          com := u.Encode(s[i])
+        else
+          com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
         Text := Text + LinkCreator('<p>' + LinkCreator(com, 1), 2);
       end;
+      u.Free;
       if sub = '' then
         sub := 'ƒ^ƒCƒgƒ‹‚È‚µ.';
       if na = '' then
