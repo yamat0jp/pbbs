@@ -125,7 +125,8 @@ type
     function CheckWords(comment: TStringList): Boolean;
   public
     { public éŒ¾ }
-    function LinkCreator(const line: string; index: integer): string;
+    function LinkCreator(const line: string; index: integer;
+      x: Boolean = false): string;
     function LoginCheck: Boolean;
   end;
 
@@ -375,39 +376,51 @@ begin
   ReplaceText := main.Content;
 end;
 
-function TWebModule1.LinkCreator(const line: string; index: integer): string;
+function TWebModule1.LinkCreator(const line: string; index: integer;
+  x: Boolean = false): string;
 var
-  s1, s2, p: string;
+  s1, s2, p, m: string;
+  u: TURLEncoding;
   ep: integer;
   t: TMatch;
 begin
-  ep := 1;
-  if index = 1 then
-    t := TRegEx.Match(line, '>>[0-9]+')
-  else
-    t := TRegEx.Match(line,
-      'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+');
-  while t.Success = true do
-  begin
+  u := TURLEncoding.Create;
+  try
+    ep := 1;
     if index = 1 then
-    begin
-      p := Request.QueryFields.Values['db'];
-      s1 := Copy(t.Value, 3, t.Length);
-      s2 := s2 + Copy(line, ep, t.index - ep) +
-        '<a class=minpreview data-preview-url=./?db=' + p + '&key=' + s1 +
-        ' href=./user?db=' + p + '&job=' + s1 + '>>>' + s1 + '</a>';
-    end
+      t := TRegEx.Match(line, '>>[0-9]+')
     else
+      t := TRegEx.Match(line,
+        'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+');
+    while t.Success = true do
     begin
-      s1 := t.Value;
-      s2 := s2 + Copy(line, ep, t.index - ep) +
-        '<a class=minpreview data-preview-url=' + s1 + ' href=' + s1 + '>' +
-        s1 + '</a>'
+      if index = 1 then
+      begin
+        p := Request.QueryFields.Values['db'];
+        s1 := Copy(t.Value, 3, t.Length);
+        m := Copy(line, ep, t.index - ep);
+        if x = true then
+          m := u.Encode(m);
+        s2 := s2 + m + '<a class=minpreview data-preview-url=./?db=' + p +
+          '&key=' + s1 + ' href=./user?db=' + p + '&job=' + s1 + '>>>' +
+          s1 + '</a>';
+      end
+      else
+      begin
+        s1 := t.Value;
+        m := Copy(line, ep, t.index - ep);
+        if x = true then
+          m := u.Encode(m);
+        s2 := s2 + m + '<a class=minpreview data-preview-url=' + s1 + ' href=' +
+          s1 + '>' + s1 + '</a>'
+      end;
+      ep := t.index + t.Length;
+      t := t.NextMatch;
     end;
-    ep := t.index + t.Length;
-    t := t.NextMatch;
+    result := s2 + Copy(line, ep, Length(line));
+  finally
+    u.Free;
   end;
-  result := s2 + Copy(line, ep, Length(line));
 end;
 
 function TWebModule1.LoginCheck: Boolean;
@@ -1029,7 +1042,6 @@ var
   na, sub, com, pass, Text: string;
   i, j, k, p: integer;
   s: TStringList;
-  u: THTMLEncoding;
   x: Boolean;
 begin
   if Request.ContentFields.Values['aikotoba'] <> '‚°‚ñ‚«' then
@@ -1064,18 +1076,13 @@ begin
     if CheckWords(s) = true then
     begin
       Text := '';
-      u:=THTMLEncoding.Create;
       for i := 0 to s.Count - 1 do
       begin
-        if x = true then
-          com := u.Encode(s[i])
-        else
-          com := s[i];
+        com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1), 2);
+        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1, x), 2);
       end;
-      u.Free;
       if sub = '' then
         sub := 'ƒ^ƒCƒgƒ‹‚È‚µ.';
       if na = '' then
@@ -1246,14 +1253,14 @@ begin
   begin
     FDScript1.ExecuteAll;
     nametable.Open;
-    nametable.AppendRecord([1,'info']);
-    nametable.AppendRecord([2,'bbs1']);
-    nametable.AppendRecord([3,'bbs2']);
-    nametable.AppendRecord([4,'bbs3']);
-    nametable.AppendRecord([5,'bbs4']);
-    nametable.AppendRecord([6,'bbs5']);
-    nametable.AppendRecord([7,'bbs6']);
-    nametable.AppendRecord([8,'bbs7']);
+    nametable.AppendRecord([1, 'info']);
+    nametable.AppendRecord([2, 'bbs1']);
+    nametable.AppendRecord([3, 'bbs2']);
+    nametable.AppendRecord([4, 'bbs3']);
+    nametable.AppendRecord([5, 'bbs4']);
+    nametable.AppendRecord([6, 'bbs5']);
+    nametable.AppendRecord([7, 'bbs6']);
+    nametable.AppendRecord([8, 'bbs7']);
     nametable.Close;
   end;
 end;
@@ -1264,7 +1271,9 @@ begin
 end;
 
 initialization
+
 finalization
-  Web.WebReq.FreeWebModules;
+
+Web.Webreq.FreeWebModules;
 
 end.
