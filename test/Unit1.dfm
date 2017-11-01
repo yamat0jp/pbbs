@@ -142,12 +142,11 @@ object Form1: TForm1
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
-      'Database=data.fdb'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'User_Name=sysdba'
       'Password=masterkey'
       'CharacterSet=UTF8'
       'DriverID=FB')
-    Connected = True
     Left = 176
     Top = 24
   end
@@ -157,7 +156,6 @@ object Form1: TForm1
     Top = 24
   end
   object FDTable1: TFDTable
-    Active = True
     IndexFieldNames = 'ID'
     MasterSource = DataSource5
     MasterFields = 'ID'
@@ -173,7 +171,6 @@ object Form1: TForm1
     Top = 80
   end
   object FDTable2: TFDTable
-    Active = True
     IndexFieldNames = 'ID'
     MasterSource = DataSource1
     MasterFields = 'ID'
@@ -189,7 +186,6 @@ object Form1: TForm1
     Top = 240
   end
   object FDTable3: TFDTable
-    Active = True
     IndexFieldNames = 'ID'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'ALERTTABLE'
@@ -208,7 +204,6 @@ object Form1: TForm1
     Top = 352
   end
   object FDTable4: TFDTable
-    Active = True
     IndexFieldNames = 'SCORE'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'title'
@@ -217,7 +212,6 @@ object Form1: TForm1
     Top = 352
   end
   object FDTable5: TFDTable
-    Active = True
     IndexFieldNames = 'TBNUMBER;CMNUMBER'
     MasterSource = DataSource6
     MasterFields = 'TBNUMBER'
@@ -233,7 +227,6 @@ object Form1: TForm1
     Top = 344
   end
   object FDTable6: TFDTable
-    Active = True
     IndexFieldNames = 'TBNUMBER'
     Connection = FDConnection1
     UpdateOptions.UpdateTableName = 'NAMETABLE'
