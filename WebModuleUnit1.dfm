@@ -544,7 +544,7 @@ object WebModule1: TWebModule1
       #9'<input type=submit value="'#36865#20449'"></form>'
       #9'<p><#message></p><br>'
       '<p>'#38283#30330#32773#12398#30342#12373#12435
-      '<p>pybbs'#12398'API'
+      '<p>pbbs'#12398'API'
       
         '<p>ArticleAPI ... ~/datasnap/rest/tservermethods1/read/<b>dbname' +
         '</b>/<b>number</b>'

@@ -35,7 +35,6 @@ function TServerMethods1.List(const name: string): TJSONArray;
 var
   jo1, jo2: TJSONObject;
   ja1, ja2, num: TJSONArray;
-  DB: integer;
 begin
   ja1 := TJSONArray.Create;
   num := TJSONArray.Create;

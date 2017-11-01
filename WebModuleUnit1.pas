@@ -136,7 +136,7 @@ implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
-uses ServerMethodsUnit1;
+uses ServerMethodsUnit1, Web.Webreq;
 
 {$R *.dfm}
 
@@ -1255,5 +1255,9 @@ procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
   ini.Free;
 end;
+
+initialization
+finalization
+  Web.WebReq.FreeWebModules;
 
 end.
