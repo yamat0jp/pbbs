@@ -357,14 +357,13 @@ object WebModule1: TWebModule1
   end
   object PbbsConnection: TFDConnection
     Params.Strings = (
-      'Database=data.fdb'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\data.fdb'
       'ExtendedMetadata=True'
       'User_Name=sysdba'
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
       'CharacterSet=UTF8'
       'DriverID=FB')
-    Connected = True
     LoginPrompt = False
     Left = 62
     Top = 29

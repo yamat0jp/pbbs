@@ -153,7 +153,7 @@
         <RcItem Include="js\jquery-live-preview.js">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
-            <ResourceId>preview</ResourceId>
+            <ResourceId>livepreview</ResourceId>
         </RcItem>
         <RcItem Include="js\jquery-ui.min.js">
             <ContainerId>ResourceItem</ContainerId>
