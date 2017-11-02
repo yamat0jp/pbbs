@@ -14,13 +14,12 @@ type
 {$METHODINFO ON}
   TServerMethods1 = class(TDataModule)
     FDConnection1: TFDConnection;
-    FDTable1: TFDTable;
     FDQuery1: TFDQuery;
   private
     { private êÈåæ }
   public
     { public êÈåæ }
-    function Read(const name: string; cm: integer): string;
+    function Read(const name: string; cm: integer): TJSONArray;
     function List(const name: string): TJSONArray;
   end;
 {$METHODINFO OFF}
@@ -33,16 +32,33 @@ uses System.StrUtils;
 
 function TServerMethods1.List(const name: string): TJSONArray;
 var
-  jo1, jo2: TJSONObject;
-  ja1, ja2, num: TJSONArray;
+  jo: TJSONObject;
 begin
+  result := TJSONArray.Create;
   if name = 'master' then
-  begin
-    result := TJSONArray.Create;
     Exit;
+  FDQuery1.ParamByName('name').AsString := name;
+  FDQuery1.Open;
+  while FDQuery1.Eof = false do
+  begin
+    jo := TJSONObject.Create;
+    jo.AddPair(FDQuery1.FieldByName('cmnumber').AsString,
+      Copy(FDQuery1.FieldByName('raw').AsString, 1, 10) + '...');
+    result.Add(jo);
+    FDQuery1.Next;
   end;
+  FDQuery1.Close;
+end;
+
+function TServerMethods1.Read(const name: string; cm: integer): TJSONArray;
+var
+  jo1, jo2: TJSONObject;
+  ja1, ja2: TJSONArray;
+begin
+  result := TJSONArray.Create;
+  if name = 'master' then
+    Exit;
   ja1 := TJSONArray.Create;
-  num := TJSONArray.Create;
   FDQuery1.ParamByName('name').AsString := name;
   FDQuery1.Open;
   ja1.Add('number');
@@ -52,45 +68,20 @@ begin
   ja1.Add('datetime');
   jo1 := TJSONObject.Create;
   jo1.AddPair('name', ja1);
-  while FDQuery1.Eof = false do
-  begin
-    ja2 := TJSONArray.Create;
-    ja2.Add(FDQuery1.FieldByName('cmnumber').AsInteger);
-    ja2.Add(FDQuery1.FieldByName('name').AsString);
-    ja2.Add(FDQuery1.FieldByName('title').AsString);
-    ja2.Add(FDQuery1.FieldByName('raw').AsString);
-    ja2.Add(FDQuery1.FieldByName('datetime').AsString);
-    num.Add(ja2);
-    FDQuery1.Next;
-  end;
+  FDQuery1.Filter := 'cmnumber = ' + cm.ToString;
+  FDQuery1.Filtered := true;
+  ja2 := TJSONArray.Create;
+  ja2.Add(cm);
+  ja2.Add(FDQuery1.FieldByName('name').AsString);
+  ja2.Add(FDQuery1.FieldByName('title').AsString);
+  ja2.Add(FDQuery1.FieldByName('raw').AsString);
+  ja2.Add(FDQuery1.FieldByName('datetime').AsString);
   FDQuery1.Close;
+  FDQuery1.Filtered := false;
   jo2 := TJSONObject.Create;
-  jo2.AddPair('data', num);
-  result := TJSONArray.Create(jo1, jo2);
-end;
-
-function TServerMethods1.Read(const name: string; cm: integer): string;
-var
-  s: Variant;
-  DB: integer;
-begin
-  if name = 'master' then
-  begin
-    result := '';
-    Exit;
-  end;
-  FDTable1.TableName := 'nametable';
-  FDTable1.Open;
-  DB := FDTable1.Lookup('tbname', name, 'tbnumber');
-  FDTable1.Close;
-  FDTable1.TableName := 'dbname';
-  FDTable1.Open;
-  s := FDTable1.Lookup('tbnumber;cmnumber', VarArrayOf([DB, cm]), 'id');
-  FDTable1.Close;
-  FDTable1.TableName := 'raw';
-  FDTable1.Open;
-  result := FDTable1.Lookup('id', s, 'raw');
-  FDTable1.Close;
+  jo2.AddPair('data', ja2);
+  result.Add(jo1);
+  result.Add(jo2);
 end;
 
 end.

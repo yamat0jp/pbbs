@@ -6,17 +6,10 @@ object ServerMethods1: TServerMethods1
     Params.Strings = (
       'User_Name=sysdba'
       'Password=masterkey'
-      'Database=DATA.FDB'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'DriverID=FB')
     Left = 48
     Top = 32
-  end
-  object FDTable1: TFDTable
-    Connection = FDConnection1
-    UpdateOptions.UpdateTableName = 'DBNAME'
-    TableName = 'DBNAME'
-    Left = 48
-    Top = 88
   end
   object FDQuery1: TFDQuery
     Connection = FDConnection1
