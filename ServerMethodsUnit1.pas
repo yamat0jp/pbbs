@@ -36,6 +36,11 @@ var
   jo1, jo2: TJSONObject;
   ja1, ja2, num: TJSONArray;
 begin
+  if name = 'master' then
+  begin
+    result := TJSONArray.Create;
+    Exit;
+  end;
   ja1 := TJSONArray.Create;
   num := TJSONArray.Create;
   FDQuery1.ParamByName('name').AsString := name;
@@ -69,6 +74,11 @@ var
   s: Variant;
   DB: integer;
 begin
+  if name = 'master' then
+  begin
+    result := '';
+    Exit;
+  end;
   FDTable1.TableName := 'nametable';
   FDTable1.Open;
   DB := FDTable1.Lookup('tbname', name, 'tbnumber');
