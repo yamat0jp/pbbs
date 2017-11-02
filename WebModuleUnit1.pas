@@ -1081,7 +1081,7 @@ begin
         com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1, x), 2);
+        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1, x) + '<br>', 2);
       end;
       if sub = '' then
         sub := 'ƒ^ƒCƒgƒ‹‚È‚µ.';
