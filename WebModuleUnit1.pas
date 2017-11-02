@@ -401,7 +401,7 @@ begin
         m := Copy(line, ep, t.index - ep);
         if x = true then
           m := u.Encode(m);
-        s2 := s2 + m + '<a class=minpreview data-preview-url=./?db=' + p +
+        s2 := s2 + m + '<a class=mypreview data-preview-url=./?db=' + p +
           '&key=' + s1 + ' href=./user?db=' + p + '&job=' + s1 + '>>>' +
           s1 + '</a>';
       end

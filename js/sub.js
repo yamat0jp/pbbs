@@ -1,7 +1,7 @@
 
 $(function(){
-	$('.livepreview').livePreview({position:'top'});
-	$('.minpreview').livePreview({scale:1,viewWidth:900,viewHeight:600});
+	$('.mypreview').livePreview({viewWidth:800,viewHeight:250});
+	$('.minpreview').livePreview({scale:0.3,viewWidth:300,viewHeight:200,position:'top'});
 	
 	var $window = $(window),
 		$header = $('header'),
@@ -18,7 +18,7 @@ $(function(){
 				.css({
 					opacity:1,
 					top:-$window.scrollTop()+headerOffsetTop
-				})				
+				})
 				.animate({top:0},300)
 				.find('textarea').val($header.find('textarea').val());
 			$headerCloneContainer.find('.name').val($header.find('.name').val());
