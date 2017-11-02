@@ -896,7 +896,6 @@ procedure TWebModule1.WebModule1LoginHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s: string;
-  t: TStringList;
   m5: TIdHashMessageDigest5;
 begin
   if Request.MethodType = mtPost then
@@ -904,15 +903,20 @@ begin
     if ini.Values['password'] = Request.ContentFields.Values['password'] then
     begin
       m5 := TIdHashMessageDigest5.Create;
-      t := TStringList.Create;
       try
         s := m5.HashStringAsHex(ini.Values['password']);
-        t.Add('password=' + s);
-        Response.SetCookieField(t, '', '', Now + 7, false);
       finally
         m5.Free;
-        t.Free;
       end;
+      with Response.Cookies.Add do
+      begin
+        Domain := Request.Host;
+        Name := 'password';
+        Value := AnsiString(s);
+        Expires := Now + 7;
+        Secure := false;
+      end;
+      Response.SendResponse;
       nametable.Open;
       if nametable.Locate('tbname', Request.ContentFields.Values['dbname']) = true
       then
@@ -930,16 +934,16 @@ end;
 
 procedure TWebModule1.WebModule1LogoutHandlerAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  s: TStringList;
 begin
-  s := TStringList.Create;
-  try
-    s.Add('password=');
-    Response.SetCookieField(s, '', '', Now - 1, false);
-  finally
-    s.Free;
+  with Response.Cookies.Add do
+  begin
+    Domain := Request.Host;
+    Name := 'password';
+    Value := '';
+    Expires := Now - 1;
+    Secure := false;
   end;
+  Response.SendResponse;
   Response.SendRedirect('./?db=' +
     AnsiString(Request.QueryFields.Values['db']));
 end;
@@ -1105,16 +1109,31 @@ begin
     end
     else
       x := false;
-    s.Clear;
-    s.Add('name=' + na);
-    s.Add('aikotoba=‚°‚ñ‚«');
-    Response.SetCookieField(s, '', '', Now + 7, false);
   finally
     s.Free;
   end;
   if x = true then
+  begin
+    with Response.Cookies.Add do
+    begin
+      Domain := Request.Host;
+      Name := 'name';
+      Value := AnsiString(na);
+      Expires := Now + 7;
+      Secure := false;
+    end;
+    with Response.Cookies.Add do
+    begin
+      Domain := Request.Host;
+      Name := 'aikotoba';
+      Value := '‚°‚ñ‚«';
+      Expires := Now + 7;
+      Secure := false;
+    end;
+    Response.SendResponse;
     Response.SendRedirect('./?db=' + AnsiString(Request.QueryFields.Values['db']
-      ) + '#bottom')
+      ) + '#bottom');
+  end
   else
   begin
     Response.ContentType := 'text/plain;charset=utf-8';
