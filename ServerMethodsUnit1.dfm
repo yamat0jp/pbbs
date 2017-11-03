@@ -1,5 +1,6 @@
 object ServerMethods1: TServerMethods1
   OldCreateOrder = False
+  OnCreate = DataModuleCreate
   Height = 150
   Width = 203
   object FDConnection1: TFDConnection

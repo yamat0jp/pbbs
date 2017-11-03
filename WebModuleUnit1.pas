@@ -543,7 +543,7 @@ begin
           s := dbname.FieldByName('cmnumber').AsString;
           t := dbname.FieldByName('tbnumber').AsString;
           com.Text := raw.Lookup('id', i, 'raw');
-          Text := '<p stype=display:inline><a href=/user?db=' + t + '&job=' + s
+          Text := '<p stype=display:inline><a href=./user?db=' + t + '&job=' + s
             + ' target=_blank>[ ' + t + '-' + s + ' ]</a>';
           Text := Text + '<p id=title style=color:green;display:inline>' +
             maintable.FieldByName('title').AsString;
@@ -1254,6 +1254,7 @@ end;
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
 var
   s: TResourceStream;
+  t: string;
 begin
   ini := TStringList.Create;
   if FileExists('setting.ini') = false then
@@ -1268,6 +1269,12 @@ begin
   end
   else
     ini.LoadFromFile('setting.ini');
+  if (ExtractFileName(ParamStr(0)) = 'pbbs.dll') and
+    (FileExists(PbbsConnection.Params.Values['database']) = false) then
+  begin
+    t := ExtractFilePath(GetModuleName(HInstance)) + 'data.fdb';
+    PbbsConnection.Params.Values['database'] := t;
+  end;
   if dbname.Exists = false then
   begin
     FDScript1.ExecuteAll;

@@ -15,6 +15,7 @@ type
   TServerMethods1 = class(TDataModule)
     FDConnection1: TFDConnection;
     FDQuery1: TFDQuery;
+    procedure DataModuleCreate(Sender: TObject);
   private
     { private êÈåæ }
   public
@@ -30,6 +31,18 @@ implementation
 
 uses System.StrUtils;
 
+procedure TServerMethods1.DataModuleCreate(Sender: TObject);
+var
+  s: string;
+begin
+  if (ExtractFileName(ParamStr(0)) = 'pbbs.dll') and
+    (FileExists(FDConnection1.Params.Values['database']) = false) then
+  begin
+    s := ExtractFilePath(GetModuleName(HInstance)) + 'data.fdb';
+    FDConnection1.Params.Values['database'] := s;
+  end;
+end;
+
 function TServerMethods1.List(const name: string): TJSONArray;
 var
   jo: TJSONObject;
@@ -43,7 +56,7 @@ begin
   begin
     jo := TJSONObject.Create;
     jo.AddPair(FDQuery1.FieldByName('cmnumber').AsString,
-      Copy(FDQuery1.FieldByName('raw').AsString, 1, 10) + '...');
+      Copy(FDQuery1.FieldByName('raw').AsString, 1, 20) + '...');
     result.Add(jo);
     FDQuery1.Next;
   end;
@@ -68,16 +81,16 @@ begin
   ja1.Add('datetime');
   jo1 := TJSONObject.Create;
   jo1.AddPair('name', ja1);
-  FDQuery1.Filter := 'cmnumber = ' + cm.ToString;
-  FDQuery1.Filtered := true;
   ja2 := TJSONArray.Create;
-  ja2.Add(cm);
-  ja2.Add(FDQuery1.FieldByName('name').AsString);
-  ja2.Add(FDQuery1.FieldByName('title').AsString);
-  ja2.Add(FDQuery1.FieldByName('raw').AsString);
-  ja2.Add(FDQuery1.FieldByName('datetime').AsString);
+  if FDQuery1.Locate('cmnumber', cm) = true then
+  begin
+    ja2.Add(cm);
+    ja2.Add(FDQuery1.FieldByName('name').AsString);
+    ja2.Add(FDQuery1.FieldByName('title').AsString);
+    ja2.Add(FDQuery1.FieldByName('raw').AsString);
+    ja2.Add(FDQuery1.FieldByName('datetime').AsString);
+  end;
   FDQuery1.Close;
-  FDQuery1.Filtered := false;
   jo2 := TJSONObject.Create;
   jo2.AddPair('data', ja2);
   result.Add(jo1);
