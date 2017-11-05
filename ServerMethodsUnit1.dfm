@@ -7,7 +7,6 @@ object ServerMethods1: TServerMethods1
     Params.Strings = (
       'User_Name=sysdba'
       'Password=masterkey'
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'DriverID=FB')
     Left = 48
     Top = 32

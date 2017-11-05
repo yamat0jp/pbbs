@@ -916,15 +916,16 @@ begin
         Expires := Now + 7;
         Secure := false;
       end;
-      Response.SendResponse;
       nametable.Open;
       if nametable.Locate('tbname', Request.ContentFields.Values['dbname']) = true
       then
-        Response.SendRedirect('./admin?db=' + nametable.FieldByName('tbnumber')
-          .AsAnsiString)
+        Response.Location := './admin?db=' + nametable.FieldByName('tbnumber')
+          .AsAnsiString
       else
-        Response.SendRedirect('./master');
+        Response.Location := './master';
       nametable.Close;
+      Response.StatusCode := 301;
+      Response.SendResponse;
       Exit;
     end;
   end;
@@ -943,9 +944,9 @@ begin
     Expires := Now - 1;
     Secure := false;
   end;
+  Response.Location := './?db=' + AnsiString(Request.QueryFields.Values['db']);
+  Response.StatusCode := 301;
   Response.SendResponse;
-  Response.SendRedirect('./?db=' +
-    AnsiString(Request.QueryFields.Values['db']));
 end;
 
 procedure TWebModule1.WebModule1MasterHandlerAction(Sender: TObject;
@@ -1085,7 +1086,7 @@ begin
         com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + '<p>'+ LinkCreator(LinkCreator(com, 1, x), 2)+'<br>';
+        Text := Text + '<p>' + LinkCreator(LinkCreator(com, 1, x), 2) + '<br>';
       end;
       if sub = '' then
         sub := 'ƒ^ƒCƒgƒ‹‚È‚µ.';
@@ -1130,9 +1131,10 @@ begin
       Expires := Now + 7;
       Secure := false;
     end;
+    Response.Location := './?db=' + AnsiString(Request.QueryFields.Values['db'])
+      + '#bottom';
+    Response.StatusCode := 301;
     Response.SendResponse;
-    Response.SendRedirect('./?db=' + AnsiString(Request.QueryFields.Values['db']
-      ) + '#bottom');
   end
   else
   begin

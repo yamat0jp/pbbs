@@ -362,7 +362,6 @@ object WebModule1: TWebModule1
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
       'CharacterSet=UTF8'
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'DriverID=FB')
     LoginPrompt = False
     Left = 62
