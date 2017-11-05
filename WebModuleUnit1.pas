@@ -1085,7 +1085,7 @@ begin
         com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + LinkCreator('<p>' + LinkCreator(com, 1, x) + '<br>', 2);
+        Text := Text + '<p>'+ LinkCreator(LinkCreator(com, 1, x), 2)+'<br>';
       end;
       if sub = '' then
         sub := 'ƒ^ƒCƒgƒ‹‚È‚µ.';
@@ -1256,25 +1256,24 @@ var
   s: TResourceStream;
   t: string;
 begin
+  if ExtractFileName(ParamStr(0)) = 'pbbs.dll' then
+    t := ExtractFilePath(GetModuleName(HInstance))
+  else
+    t := ExtractFilePath(ParamStr(0));
+  PbbsConnection.Params.Values['database'] := t + 'data.fdb';
   ini := TStringList.Create;
-  if FileExists('setting.ini') = false then
+  if FileExists(t + 'setting.ini') = false then
   begin
     s := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
     try
       ini.LoadFromStream(s);
-      ini.SaveToFile('setting.ini');
+      ini.SaveToFile(t + 'setting.ini');
     finally
       s.Free;
     end;
   end
   else
-    ini.LoadFromFile('setting.ini');
-  if (ExtractFileName(ParamStr(0)) = 'pbbs.dll') and
-    (FileExists(PbbsConnection.Params.Values['database']) = false) then
-  begin
-    t := ExtractFilePath(GetModuleName(HInstance)) + 'data.fdb';
-    PbbsConnection.Params.Values['database'] := t;
-  end;
+    ini.LoadFromFile(t + 'setting.ini');
   if dbname.Exists = false then
   begin
     FDScript1.ExecuteAll;

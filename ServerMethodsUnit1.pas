@@ -35,12 +35,11 @@ procedure TServerMethods1.DataModuleCreate(Sender: TObject);
 var
   s: string;
 begin
-  if (ExtractFileName(ParamStr(0)) = 'pbbs.dll') and
-    (FileExists(FDConnection1.Params.Values['database']) = false) then
-  begin
-    s := ExtractFilePath(GetModuleName(HInstance)) + 'data.fdb';
-    FDConnection1.Params.Values['database'] := s;
-  end;
+  if ExtractFileName(ParamStr(0)) = 'pbbs.dll' then
+    s := ExtractFilePath(GetModuleName(HInstance))
+  else
+    s := ExtractFilePath(ParamStr(0));
+  FDConnection1.Params.Values['database'] := s + 'data.fdb';
 end;
 
 function TServerMethods1.List(const name: string): TJSONArray;
