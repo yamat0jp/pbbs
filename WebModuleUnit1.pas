@@ -122,7 +122,7 @@ type
   private
     { private êÈåæ }
     ini: TStringList;
-    function CheckWords(comment: TStringList): Boolean;
+    function CheckWords(comment: TStringList; Tag: Boolean): Boolean;
   public
     { public êÈåæ }
     function LinkCreator(const line: string; index: integer;
@@ -217,7 +217,7 @@ begin
     ReplaceText := Request.QueryFields.Values['page'];
 end;
 
-function TWebModule1.CheckWords(comment: TStringList): Boolean;
+function TWebModule1.CheckWords(comment: TStringList; Tag: Boolean): Boolean;
 var
   t: TStringList;
   function sub: Boolean;
@@ -238,7 +238,8 @@ var
 begin
   t := TStringList.Create;
   try
-    t.DelimitedText := ini.Values['tags'];
+    if Tag = false then
+      t.DelimitedText := ini.Values['tags'];
     if sub = true then
     begin
       t.DelimitedText := ini.Values['words'];
@@ -400,7 +401,7 @@ begin
         s1 := Copy(t.Value, 3, t.Length);
         m := Copy(line, ep, t.index - ep);
         if x = true then
-          m := u.Encode(m);
+          m := u.HTML.Encode(m);
         s2 := s2 + m + '<a class=mypreview data-preview-url=./?db=' + p +
           '&key=' + s1 + ' href=./user?db=' + p + '&job=' + s1 + '>>>' +
           s1 + '</a>';
@@ -410,14 +411,17 @@ begin
         s1 := t.Value;
         m := Copy(line, ep, t.index - ep);
         if x = true then
-          m := u.Encode(m);
+          m := u.HTML.Encode(m);
         s2 := s2 + m + '<a class=minpreview data-preview-url=' + s1 + ' href=' +
           s1 + '>' + s1 + '</a>'
       end;
       ep := t.index + t.Length;
       t := t.NextMatch;
     end;
-    result := s2 + Copy(line, ep, Length(line));
+    if x = true then
+      result := s2 + u.HTML.Encode(Copy(line, ep, Length(line)))
+    else
+      result := s2 + Copy(line, ep, Length(line));
   finally
     u.Free;
   end;
@@ -1078,7 +1082,7 @@ begin
   try
     s.Text := com;
     com := '';
-    if CheckWords(s) = true then
+    if CheckWords(s, x) = true then
     begin
       Text := '';
       for i := 0 to s.Count - 1 do
