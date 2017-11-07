@@ -79,7 +79,7 @@ object WebModule1: TWebModule1
     item
       MethodType = mtGet
       Name = 'LogoutHandler'
-      PathInfo = '/signout'
+      PathInfo = '/logout'
       OnAction = WebModule1LogoutHandlerAction
     end>
   Height = 383
@@ -362,7 +362,6 @@ object WebModule1: TWebModule1
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
       'CharacterSet=UTF8'
-      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'DriverID=FB')
     LoginPrompt = False
     Left = 62
