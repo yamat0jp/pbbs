@@ -965,7 +965,7 @@ begin
     Response.Content := master.Content;
   end
   else
-    Response.SendRedirect('./logout');
+    Response.SendRedirect('./login');
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
