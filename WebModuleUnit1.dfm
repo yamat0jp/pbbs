@@ -32,7 +32,7 @@ object WebModule1: TWebModule1
       OnAction = WebModule1LoginHandlerAction
     end
     item
-      MethodType = mtDelete
+      MethodType = mtPost
       Name = 'DeleteHandler'
       PathInfo = '/delete'
       OnAction = WebModule1DeleteHandlerAction
@@ -79,7 +79,7 @@ object WebModule1: TWebModule1
     item
       MethodType = mtGet
       Name = 'LogoutHandler'
-      PathInfo = '/logout'
+      PathInfo = '/signout'
       OnAction = WebModule1LogoutHandlerAction
     end>
   Height = 383
@@ -362,6 +362,7 @@ object WebModule1: TWebModule1
       'Password=masterkey'
       'OpenMode=OpenOrCreate'
       'CharacterSet=UTF8'
+      'Database=C:\Users\yamat\Documents\GitHub\pbbs\DATA.FDB'
       'DriverID=FB')
     LoginPrompt = False
     Left = 62
@@ -599,7 +600,7 @@ object WebModule1: TWebModule1
       '<body>'
       '<p>'#22577#21578#19968#35239
       '<#main>'
-      '<a href=./logout>'#12525#12464#12450#12454#12488'</a>'
+      '<p><a href=./logout>'#12525#12464#12450#12454#12488'</a>'
       '</body>'
       '</html>')
     OnHTMLTag = masterHTMLTag
@@ -659,7 +660,7 @@ object WebModule1: TWebModule1
         '    <input type="checkbox" value="on" name="maintenance" <#check' +
         '>>'#12513#12531#12486#12490#12531#12473#34920#31034
       '    <p><input type="submit" value="'#22793#26356'">'
-      '    <p><a href="./logout?db=<#tbnumber>">'#12525#12464#12450#12454#12488'</a>'
+      '    <p><a href=./logout?db=<#tbnumber>>'#12525#12464#12450#12454#12488'</a>'
       '    </form>'
       
         '<form action=./delete?db=<#tbnumber><#page> style=text-align:cen' +

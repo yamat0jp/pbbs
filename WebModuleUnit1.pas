@@ -122,6 +122,7 @@ type
   private
     { private êÈåæ }
     ini: TStringList;
+    path: string;
     function CheckWords(comment: TStringList; Tag: Boolean): Boolean;
   public
     { public êÈåæ }
@@ -182,7 +183,7 @@ begin
   else if TagString = 'page' then
   begin
     s := Request.QueryFields.Values['page'];
-    if (s <> '') or (s <> '0') then
+    if (s <> '') and (s <> '0') then
       ReplaceText := '&page=' + s;
   end
   else if TagString = 'password' then
@@ -691,7 +692,7 @@ begin
       ini.Values['maintenance'] := 'on'
     else
       ini.Values['maintenance'] := 'off';
-    ini.SaveToFile('setting.ini');
+    ini.SaveToFile(path + 'setting.ini');
   end;
   if LoginCheck = false then
     Response.SendRedirect('./login')
@@ -917,6 +918,7 @@ begin
         Domain := Request.Host;
         Name := 'password';
         Value := AnsiString(s);
+        path := Request.ScriptName;
         Expires := Now + 7;
         Secure := false;
       end;
@@ -945,6 +947,7 @@ begin
     Domain := Request.Host;
     Name := 'password';
     Value := '';
+    path := Request.ScriptName;
     Expires := Now - 1;
     Secure := false;
   end;
@@ -962,7 +965,7 @@ begin
     Response.Content := master.Content;
   end
   else
-    Response.SendRedirect('./login');
+    Response.SendRedirect('./logout');
 end;
 
 procedure TWebModule1.WebModule1NavHandlerAction(Sender: TObject;
@@ -1007,7 +1010,7 @@ begin
   if FDQuery1.FieldByName('tbname').AsString = ini.Values['info'] then
     FDQuery1.IndexFieldNames := 'cmnumber:D'
   else
-    FDQuery1.IndexFieldNames := '';
+    FDQuery1.IndexFieldNames := 'cmnumber';
   FDQuery1.First;
   s := Request.QueryFields.Values['page'];
   if s <> '' then
@@ -1051,7 +1054,7 @@ var
   na, sub, com, pass, Text: string;
   i, j, k, p: integer;
   s: TStringList;
-  x: Boolean;
+  x, y: Boolean;
 begin
   if Request.ContentFields.Values['aikotoba'] <> 'Ç∞ÇÒÇ´' then
   begin
@@ -1064,11 +1067,11 @@ begin
   na := Request.ContentFields.Values['name'];
   sub := Request.ContentFields.Values['title'];
   pass := Request.ContentFields.Values['password'];
-  x := Request.ContentFields.Values['htmltag'] = 'active';
+  y := Request.ContentFields.Values['htmltag'] = 'active';
   with FDQuery1.SQL do
   begin
     Clear;
-    Add('select cmnumber from dbname where tbnumber = :param;');
+    Add('select cmnumber from dbname where tbnumber = :param order by cmnumber;');
   end;
   FDQuery1.ParamByName('param').AsInteger := p;
   FDQuery1.Open;
@@ -1082,7 +1085,7 @@ begin
   try
     s.Text := com;
     com := '';
-    if CheckWords(s, x) = true then
+    if CheckWords(s, y) = true then
     begin
       Text := '';
       for i := 0 to s.Count - 1 do
@@ -1090,7 +1093,7 @@ begin
         com := s[i];
         if (Length(com) > 0) and (com[1] = ' ') then
           com := '&nbsp;' + Copy(com, 2, Length(com));
-        Text := Text + '<p>' + LinkCreator(LinkCreator(com, 1, x), 2) + '<br>';
+        Text := Text + '<p>' + LinkCreator(LinkCreator(com, 1, y), 2) + '<br>';
       end;
       if sub = '' then
         sub := 'É^ÉCÉgÉãÇ»Çµ.';
@@ -1124,6 +1127,7 @@ begin
       Domain := Request.Host;
       Name := 'name';
       Value := AnsiString(na);
+      path := Request.ScriptName;
       Expires := Now + 7;
       Secure := false;
     end;
@@ -1132,6 +1136,7 @@ begin
       Domain := Request.Host;
       Name := 'aikotoba';
       Value := 'Ç∞ÇÒÇ´';
+      path := Request.ScriptName;
       Expires := Now + 7;
       Secure := false;
     end;
@@ -1142,9 +1147,11 @@ begin
   end
   else
   begin
+    Text := 'ã÷é~åÍãÂÇä‹ÇﬂÇ»Ç¢Ç≈Ç≠ÇæÇ≥Ç¢.:';
+    if y = false then
+      Text := Text + ini.Values['tags'] + ';';
     Response.ContentType := 'text/plain;charset=utf-8';
-    Response.Content := 'ã÷é~åÍãÂÇä‹ÇﬂÇ»Ç¢Ç≈Ç≠ÇæÇ≥Ç¢.:' + ini.Values['tags'] + ';' +
-      ini.Values['words'];
+    Response.Content := Text + ini.Values['words'];
   end;
 end;
 
@@ -1260,26 +1267,27 @@ end;
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
 var
   s: TResourceStream;
-  t: string;
 begin
   if ExtractFileName(ParamStr(0)) = 'pbbs.dll' then
-    t := ExtractFilePath(GetModuleName(HInstance))
+  begin
+    path := ExtractFilePath(GetModuleName(HInstance));
+  end
   else
-    t := ExtractFilePath(ParamStr(0));
-  PbbsConnection.Params.Values['database'] := t + 'data.fdb';
+    path := ExtractFilePath(ParamStr(0));
+  PbbsConnection.Params.Values['database'] := path + 'data.fdb';
   ini := TStringList.Create;
-  if FileExists(t + 'setting.ini') = false then
+  if FileExists(path + 'setting.ini') = false then
   begin
     s := TResourceStream.Create(HInstance, 'setting', RT_RCDATA);
     try
       ini.LoadFromStream(s);
-      ini.SaveToFile(t + 'setting.ini');
+      ini.SaveToFile(path + 'setting.ini');
     finally
       s.Free;
     end;
   end
   else
-    ini.LoadFromFile(t + 'setting.ini');
+    ini.LoadFromFile(path + 'setting.ini');
   if dbname.Exists = false then
   begin
     FDScript1.ExecuteAll;
