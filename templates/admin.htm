@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        <link rel=stylesheet href=css/main.css>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <form method=post>
+        <#table>
+        <input type="submit" formaction="/admin?db=<#dbnumber>&tn=<#titlenum>" value="削除"><input type=reset value="取り消し">
+        </form>
+        <#footer>
+        <#section>
+        <p style=text-align:center><a href="/bbs?db=<#dbnumber>&tn=<#titlenum>">もどる</a></p>
+</body>
+</html>
