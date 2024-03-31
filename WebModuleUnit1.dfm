@@ -162,8 +162,9 @@ object WebModule1: TWebModule1
       Origin = 'DATETIME'
       Required = True
     end
-    object FDTable2comcnt: TIntegerField
-      FieldName = 'comcnt'
+    object FDTable2COMCNT: TIntegerField
+      FieldName = 'COMCNT'
+      Origin = 'COMCNT'
     end
   end
   object DataSetPageProducer1: TDataSetPageProducer
@@ -205,7 +206,7 @@ object WebModule1: TWebModule1
         Title.BgColor = 'Aqua'
       end
       item
-        FieldName = 'name'
+        FieldName = 'NAME'
         Title.BgColor = 'Aqua'
       end
       item

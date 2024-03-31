@@ -68,7 +68,6 @@ type
     FDTable2DATETIME: TDateField;
     DataSetPageProducer5: TDataSetPageProducer;
     PageProducer9: TPageProducer;
-    FDTable2comcnt: TIntegerField;
     FDMemTable1id: TIntegerField;
     FDMemTable1rank: TIntegerField;
     FDTable1DBNUMBER: TIntegerField;
@@ -80,6 +79,7 @@ type
     DataSetPageProducer6: TDataSetPageProducer;
     OAuth2Authenticator1: TOAuth2Authenticator;
     FDTable2NAME: TWideStringField;
+    FDTable2COMCNT: TIntegerField;
     procedure DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure DataSetTableProducer1FormatCell(Sender: TObject;
@@ -165,6 +165,7 @@ implementation
 
 const
   fname = 'data/voice.txt';
+  nobody = 'no name';
 
 function TWebModule1.ActiveRecordisNew: Boolean;
 var
@@ -247,6 +248,7 @@ procedure TWebModule1.DataSetPageProducer2HTMLTag(Sender: TObject; Tag: TTag;
 var
   Text: string;
   cnt: integer;
+  DataSet: TDataSet;
 begin
   if TagString = 'comment' then
   begin
@@ -254,16 +256,17 @@ begin
       ReplaceText := ''
     else
     begin
-      cnt := FDTable2.FieldByName('comcnt').AsInteger;
-      Text := FDTable2.FieldByName('comment').AsString;
+      DataSet := DataSetPageProducer2.DataSet;
+      cnt := DataSet.FieldByName('comcnt').AsInteger;
+      Text := DataSet.FieldByName('comment').AsString;
       ReplaceText := makeComment(Text, cnt);
     end;
   end
   else if TagString = 'username' then
   begin
-    Text := FDTable2.FieldByName('name').AsString;
+    Text := DataSetPageProducer2.DataSet.FieldByName('name').AsString;
     if Text = '' then
-      ReplaceText := 'no name'
+      ReplaceText := nobody
     else
       ReplaceText := Text;
   end;
@@ -296,8 +299,8 @@ var
   DB, num, cnt: integer;
 begin
   if (TagString = 'form') and (Request.PathInfo = '/members') then
-    ReplaceText := DataSetPageProducer5.Content;
-  if TagString = 'table' then
+    ReplaceText := DataSetPageProducer5.Content
+  else if TagString = 'table' then
   begin
     DB := FDTable1.FieldByName('dbnumber').AsInteger;
     cnt := 1;
@@ -310,8 +313,8 @@ begin
       else if num > 1 then
       begin
         ReplaceText := ReplaceText +
-          Format('<p align="center"><a href="/bbs?db=%d&tn=%d" style="text-decoration:none">[ %d ] %s</a></p>',
-          [DB, num, cnt, str]);
+          Format('<p align="center"><a href="/bbs?db=%d&tn=%d" style="text-decoration:none">[ %d ] %s</a> ìäçeêî:%d</p>',
+          [DB, num, cnt, str, FDTable2.RecordCount]);
         inc(cnt);
       end;
       FDTable1.Next;
@@ -445,15 +448,21 @@ end;
 procedure TWebModule1.PageProducer3HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  temp, Text, bbsName: string;
+  temp, Text, bbsName, name: string;
   cnt: integer;
+  bool: Boolean;
 begin
   if TagString = 'adtext' then
     ReplaceText := adtext
   else if (TagString = 'main') and (Request.MethodType = mtPost) then
   begin
     if Request.ContentFields.Values['filter'] = 'com' then
+    begin
       commentoff := true;
+      bool := true;
+    end
+    else
+      bool := false;
     FDQuery1.Open('select * from maintable order by datetime desc;');
     FDQuery2.Open('select * from nametable;');
     DataSetPageProducer2.DataSet := FDQuery1;
@@ -471,13 +480,30 @@ begin
           FDQuery2.FieldByName('title').AsString]);
         cnt := FDQuery1.FieldByName('comcnt').AsInteger;
         temp := readComment(FDQuery1.FieldByName('comment').AsString, 0, cnt);
-        Text := mysearch.Execute(temp);
-        if Text <> '' then
+        if bool then
         begin
-          temp := '<pre><code>' + readComment(FDQuery1.FieldByName('comment')
-            .AsString, cnt, -1) + '</code></pre>';
-          ReplaceText := ReplaceText + bbsName + DataSetPageProducer2.Content +
-            makeComment(Text, -1) + temp + '<hr>';
+          Text := mysearch.Execute(temp);
+          if Text <> '' then
+          begin
+            temp := '<pre><code>' + readComment(FDQuery1.FieldByName('comment')
+              .AsString, cnt, -1) + '</code></pre>';
+            ReplaceText := ReplaceText + bbsName + DataSetPageProducer2.Content
+              + makeComment(Text, -1) + temp + '<hr>';
+          end;
+        end
+        else
+        begin
+          name := Request.ContentFields.Values['word1'];
+          if name = '' then
+          begin
+            FDQuery1.Next;
+            Continue;
+          end
+          else if name = nobody then
+            name := '';
+          if name = FDQuery1.FieldByName('name').AsString then
+            ReplaceText := ReplaceText + bbsName + DataSetPageProducer2.Content
+              + makeComment(Text, -1) + temp + '<hr>';
         end;
         FDQuery1.Next;
       end;
@@ -659,7 +685,7 @@ end;
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  raw: string;
+  raw, name: string;
   j, cnt: integer;
   DB, tid: integer;
 begin
@@ -673,6 +699,7 @@ begin
   if Request.MethodType = mtPost then
   begin
     raw := replaceRawData(Request.ContentFields.Values['comment']);
+    name := Request.ContentFields.Values['name'];
     FDTable2.Last;
     j := FDTable2.FieldByName('cmnumber').AsInteger + 1;
     bglist.Text := TNetEncoding.HTML.Encode(raw);
@@ -683,7 +710,7 @@ begin
       cnt := bglist.count;
       bglist.Add(raw);
     end;
-    FDTable2.AppendRecord([DB, j, tid, bglist.Text, Now, cnt]);
+    FDTable2.AppendRecord([DB, j, tid, name, bglist.Text, Now, cnt]);
   end;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := DataSetPageProducer1.Content;
@@ -843,7 +870,7 @@ begin
   isget := true;
   if Request.MethodType = mtPost then
   begin
-    fs := TFileStream.Create(fname, fmCreate);
+    fs := TFileStream.Create(fname, fmOpenReadWrite);
     try
       bglist.Clear;
       bglist.Add('');
