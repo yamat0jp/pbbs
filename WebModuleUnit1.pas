@@ -79,6 +79,7 @@ type
     FDTable1ID: TIntegerField;
     DataSetPageProducer6: TDataSetPageProducer;
     OAuth2Authenticator1: TOAuth2Authenticator;
+    FDTable2NAME: TWideStringField;
     procedure DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure DataSetTableProducer1FormatCell(Sender: TObject;
@@ -258,8 +259,14 @@ begin
       ReplaceText := makeComment(Text, cnt);
     end;
   end
-  else if TagString = 'title' then
-    ReplaceText := FDTable1.FieldByName('title').AsString;
+  else if TagString = 'username' then
+  begin
+    Text := FDTable2.FieldByName('name').AsString;
+    if Text = '' then
+      ReplaceText := 'no name'
+    else
+      ReplaceText := Text;
+  end;
 end;
 
 procedure TWebModule1.DataSetPageProducer3HTMLTag(Sender: TObject; Tag: TTag;
@@ -297,11 +304,13 @@ begin
     begin
       str := FDTable1.FieldByName('title').AsString;
       num := FDTable1.FieldByName('titlenum').AsInteger;
-      if num > 1 then
+      if FDTable1.RecordCount = 1 then
+        ReplaceText := Format('<p align=center>%s</p>', [str])
+      else if num > 1 then
       begin
         ReplaceText := ReplaceText +
           Format('<p align="center"><a href="/bbs?db=%d&tn=%d" style="text-decoration:none">[ %d ] %s</a></p>',
-          [DB, num, DB, str]);
+          [DB, num, num - 1, str]);
       end;
       FDTable1.Next;
     end;
@@ -731,14 +740,16 @@ begin
       cnt := bglist.count;
       bglist.Add(Format('<pre><code>%s</code></pre>', [code]));
     end;
-    FDTable1.Last;
-    FDQuery1.Open('select max(id) as large from nametable;');
     name := FDTable1.FieldByName('dbname').AsString;
-    j := FDTable1.FieldByName('titlenum').AsInteger + 1;
+    FDQuery1.Open('select max(id) as large from nametable;');
+    FDQuery2.Open('select max(titlenum) as large from nametable;');
     k := FDQuery1.FieldByName('large').AsInteger + 1;
+    j := FDQuery2.FieldByName('large').AsInteger + 1;
     FDQuery1.Close;
+    FDQuery2.Close;
     FDTable1.AppendRecord([k, DB, name, j, title]);
-    FDTable2.AppendRecord([DB, 1, j, bglist.Text, Now, cnt]);
+    name := FDTable2.FieldByName('name').AsString;
+    FDTable2.AppendRecord([DB, 1, j, name, bglist.Text, Now, cnt]);
   end;
   FDTable1.First;
   Response.ContentType := 'text/html;charset=utf8';

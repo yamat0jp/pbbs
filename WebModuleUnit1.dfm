@@ -147,6 +147,11 @@ object WebModule1: TWebModule1
       Origin = 'TITLENUM'
       Required = True
     end
+    object FDTable2NAME: TWideStringField
+      FieldName = 'NAME'
+      Origin = 'NAME'
+      Size = 512
+    end
     object FDTable2COMMENT: TWideMemoField
       FieldName = 'COMMENT'
       Origin = 'COMMENT'
@@ -324,6 +329,7 @@ object WebModule1: TWebModule1
       '        DBNUMBER'#9'INTEGER NOT NULL,'
       '        CMNUMBER'#9'INTEGER NOT NULL,'
       '        TITLENUM'#9'INTEGER NOT NULL,'
+      '        NAME    VARCHAR(128),'
       '        COMMENT'#9'BLOB SUB_TYPE TEXT SEGMENT SIZE 80,'
       '        DATETIME'#9'DATE NOT NULL,'
       '        COMCNT'#9'INTEGER'
