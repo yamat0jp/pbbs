@@ -293,13 +293,14 @@ procedure TWebModule1.DataSetPageProducer6HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   str: string;
-  DB, num: integer;
+  DB, num, cnt: integer;
 begin
   if (TagString = 'form') and (Request.PathInfo = '/members') then
     ReplaceText := DataSetPageProducer5.Content;
   if TagString = 'table' then
   begin
     DB := FDTable1.FieldByName('dbnumber').AsInteger;
+    cnt := 1;
     while not FDTable1.Eof do
     begin
       str := FDTable1.FieldByName('title').AsString;
@@ -310,7 +311,8 @@ begin
       begin
         ReplaceText := ReplaceText +
           Format('<p align="center"><a href="/bbs?db=%d&tn=%d" style="text-decoration:none">[ %d ] %s</a></p>',
-          [DB, num, num - 1, str]);
+          [DB, num, cnt, str]);
+        inc(cnt);
       end;
       FDTable1.Next;
     end;
