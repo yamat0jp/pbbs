@@ -66,8 +66,8 @@ object WebModule1: TWebModule1
       Producer = PageProducer9
     end>
   BeforeDispatch = WebModuleBeforeDispatch
-  Height = 497
-  Width = 614
+  Height = 506
+  Width = 546
   object FDConnection1: TFDConnection
     Params.Strings = (
       
@@ -421,12 +421,137 @@ object WebModule1: TWebModule1
     HTMLFile = '.\templates\tables.htm'
     DataSet = FDTable1
     OnHTMLTag = DataSetPageProducer6HTMLTag
-    Left = 432
-    Top = 96
+    Left = 296
+    Top = 384
+  end
+  object RESTClient1: TRESTClient
+    Authenticator = OAuth2Authenticator1
+    Accept = 'application/json, text/plain; q=0.9, text/html;q=0.8,'
+    AcceptCharset = 'utf-8, *;q=0.8'
+    BaseURL = 'https://dev-8o2u4gngdq53tql7.jp.auth0.com/authorize'
+    Params = <>
+    SynchronizedEvents = False
+    Left = 440
+    Top = 128
+  end
+  object RESTRequest1: TRESTRequest
+    AssignedValues = [rvConnectTimeout, rvReadTimeout]
+    Client = RESTClient1
+    Params = <
+      item
+        Name = 'authorization'
+        Options = [poDoNotEncode]
+        Value = 
+          'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjFkMW5HNXYzMGMwTXd2' +
+          'UW85YXllViJ9.eyJpc3MiOiJodHRwczovL2Rldi04bzJ1NGduZ2RxNTN0cWw3Lmp' +
+          'wLmF1dGgwLmNvbS8iLCJzdWIiOiIwWU9LNXN6eU5DMzZnT0FpSGhOSlowdjBWbnB' +
+          'WTFdTVkBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtOG8ydTRnbmdkcTUzdHF' +
+          'sNy5qcC5hdXRoMC5jb20vYXBpL3YyLyIsImlhdCI6MTcxMjMxMzIxNCwiZXhwIjo' +
+          'xNzEyMzk5NjE0LCJzY29wZSI6InJlYWQ6Y2xpZW50X2dyYW50cyBjcmVhdGU6Y2x' +
+          'pZW50X2dyYW50cyBkZWxldGU6Y2xpZW50X2dyYW50cyB1cGRhdGU6Y2xpZW50X2d' +
+          'yYW50cyByZWFkOnVzZXJzIHVwZGF0ZTp1c2VycyBkZWxldGU6dXNlcnMgY3JlYXR' +
+          'lOnVzZXJzIHJlYWQ6dXNlcnNfYXBwX21ldGFkYXRhIHVwZGF0ZTp1c2Vyc19hcHB' +
+          'fbWV0YWRhdGEgZGVsZXRlOnVzZXJzX2FwcF9tZXRhZGF0YSBjcmVhdGU6dXNlcnN' +
+          'fYXBwX21ldGFkYXRhIHJlYWQ6dXNlcl9jdXN0b21fYmxvY2tzIGNyZWF0ZTp1c2V' +
+          'yX2N1c3RvbV9ibG9ja3MgZGVsZXRlOnVzZXJfY3VzdG9tX2Jsb2NrcyBjcmVhdGU' +
+          '6dXNlcl90aWNrZXRzIHJlYWQ6Y2xpZW50cyB1cGRhdGU6Y2xpZW50cyBkZWxldGU' +
+          '6Y2xpZW50cyBjcmVhdGU6Y2xpZW50cyByZWFkOmNsaWVudF9rZXlzIHVwZGF0ZTp' +
+          'jbGllbnRfa2V5cyBkZWxldGU6Y2xpZW50X2tleXMgY3JlYXRlOmNsaWVudF9rZXl' +
+          'zIHJlYWQ6Y29ubmVjdGlvbnMgdXBkYXRlOmNvbm5lY3Rpb25zIGRlbGV0ZTpjb25' +
+          'uZWN0aW9ucyBjcmVhdGU6Y29ubmVjdGlvbnMgcmVhZDpyZXNvdXJjZV9zZXJ2ZXJ' +
+          'zIHVwZGF0ZTpyZXNvdXJjZV9zZXJ2ZXJzIGRlbGV0ZTpyZXNvdXJjZV9zZXJ2ZXJ' +
+          'zIGNyZWF0ZTpyZXNvdXJjZV9zZXJ2ZXJzIHJlYWQ6ZGV2aWNlX2NyZWRlbnRpYWx' +
+          'zIHVwZGF0ZTpkZXZpY2VfY3JlZGVudGlhbHMgZGVsZXRlOmRldmljZV9jcmVkZW5' +
+          '0aWFscyBjcmVhdGU6ZGV2aWNlX2NyZWRlbnRpYWxzIHJlYWQ6cnVsZXMgdXBkYXR' +
+          'lOnJ1bGVzIGRlbGV0ZTpydWxlcyBjcmVhdGU6cnVsZXMgcmVhZDpydWxlc19jb25' +
+          'maWdzIHVwZGF0ZTpydWxlc19jb25maWdzIGRlbGV0ZTpydWxlc19jb25maWdzIHJ' +
+          'lYWQ6aG9va3MgdXBkYXRlOmhvb2tzIGRlbGV0ZTpob29rcyBjcmVhdGU6aG9va3M' +
+          'gcmVhZDphY3Rpb25zIHVwZGF0ZTphY3Rpb25zIGRlbGV0ZTphY3Rpb25zIGNyZWF' +
+          '0ZTphY3Rpb25zIHJlYWQ6ZW1haWxfcHJvdmlkZXIgdXBkYXRlOmVtYWlsX3Byb3Z' +
+          'pZGVyIGRlbGV0ZTplbWFpbF9wcm92aWRlciBjcmVhdGU6ZW1haWxfcHJvdmlkZXI' +
+          'gYmxhY2tsaXN0OnRva2VucyByZWFkOnN0YXRzIHJlYWQ6aW5zaWdodHMgcmVhZDp' +
+          '0ZW5hbnRfc2V0dGluZ3MgdXBkYXRlOnRlbmFudF9zZXR0aW5ncyByZWFkOmxvZ3M' +
+          'gcmVhZDpsb2dzX3VzZXJzIHJlYWQ6c2hpZWxkcyBjcmVhdGU6c2hpZWxkcyB1cGR' +
+          'hdGU6c2hpZWxkcyBkZWxldGU6c2hpZWxkcyByZWFkOmFub21hbHlfYmxvY2tzIGR' +
+          'lbGV0ZTphbm9tYWx5X2Jsb2NrcyB1cGRhdGU6dHJpZ2dlcnMgcmVhZDp0cmlnZ2V' +
+          'ycyByZWFkOmdyYW50cyBkZWxldGU6Z3JhbnRzIHJlYWQ6Z3VhcmRpYW5fZmFjdG9' +
+          'ycyB1cGRhdGU6Z3VhcmRpYW5fZmFjdG9ycyByZWFkOmd1YXJkaWFuX2Vucm9sbG1' +
+          'lbnRzIGRlbGV0ZTpndWFyZGlhbl9lbnJvbGxtZW50cyBjcmVhdGU6Z3VhcmRpYW5' +
+          'fZW5yb2xsbWVudF90aWNrZXRzIHJlYWQ6dXNlcl9pZHBfdG9rZW5zIGNyZWF0ZTp' +
+          'wYXNzd29yZHNfY2hlY2tpbmdfam9iIGRlbGV0ZTpwYXNzd29yZHNfY2hlY2tpbmd' +
+          'fam9iIHJlYWQ6Y3VzdG9tX2RvbWFpbnMgZGVsZXRlOmN1c3RvbV9kb21haW5zIGN' +
+          'yZWF0ZTpjdXN0b21fZG9tYWlucyB1cGRhdGU6Y3VzdG9tX2RvbWFpbnMgcmVhZDp' +
+          'lbWFpbF90ZW1wbGF0ZXMgY3JlYXRlOmVtYWlsX3RlbXBsYXRlcyB1cGRhdGU6ZW1' +
+          'haWxfdGVtcGxhdGVzIHJlYWQ6bWZhX3BvbGljaWVzIHVwZGF0ZTptZmFfcG9saWN' +
+          'pZXMgcmVhZDpyb2xlcyBjcmVhdGU6cm9sZXMgZGVsZXRlOnJvbGVzIHVwZGF0ZTp' +
+          'yb2xlcyByZWFkOnByb21wdHMgdXBkYXRlOnByb21wdHMgcmVhZDpicmFuZGluZyB' +
+          '1cGRhdGU6YnJhbmRpbmcgZGVsZXRlOmJyYW5kaW5nIHJlYWQ6bG9nX3N0cmVhbXM' +
+          'gY3JlYXRlOmxvZ19zdHJlYW1zIGRlbGV0ZTpsb2dfc3RyZWFtcyB1cGRhdGU6bG9' +
+          'nX3N0cmVhbXMgY3JlYXRlOnNpZ25pbmdfa2V5cyByZWFkOnNpZ25pbmdfa2V5cyB' +
+          '1cGRhdGU6c2lnbmluZ19rZXlzIHJlYWQ6bGltaXRzIHVwZGF0ZTpsaW1pdHMgY3J' +
+          'lYXRlOnJvbGVfbWVtYmVycyByZWFkOnJvbGVfbWVtYmVycyBkZWxldGU6cm9sZV9' +
+          'tZW1iZXJzIHJlYWQ6ZW50aXRsZW1lbnRzIHJlYWQ6YXR0YWNrX3Byb3RlY3Rpb24' +
+          'gdXBkYXRlOmF0dGFja19wcm90ZWN0aW9uIHJlYWQ6b3JnYW5pemF0aW9uc19zdW1' +
+          'tYXJ5IGNyZWF0ZTphdXRoZW50aWNhdGlvbl9tZXRob2RzIHJlYWQ6YXV0aGVudGl' +
+          'jYXRpb25fbWV0aG9kcyB1cGRhdGU6YXV0aGVudGljYXRpb25fbWV0aG9kcyBkZWx' +
+          'ldGU6YXV0aGVudGljYXRpb25fbWV0aG9kcyByZWFkOm9yZ2FuaXphdGlvbnMgdXB' +
+          'kYXRlOm9yZ2FuaXphdGlvbnMgY3JlYXRlOm9yZ2FuaXphdGlvbnMgZGVsZXRlOm9' +
+          'yZ2FuaXphdGlvbnMgY3JlYXRlOm9yZ2FuaXphdGlvbl9tZW1iZXJzIHJlYWQ6b3J' +
+          'nYW5pemF0aW9uX21lbWJlcnMgZGVsZXRlOm9yZ2FuaXphdGlvbl9tZW1iZXJzIGN' +
+          'yZWF0ZTpvcmdhbml6YXRpb25fY29ubmVjdGlvbnMgcmVhZDpvcmdhbml6YXRpb25' +
+          'fY29ubmVjdGlvbnMgdXBkYXRlOm9yZ2FuaXphdGlvbl9jb25uZWN0aW9ucyBkZWx' +
+          'ldGU6b3JnYW5pemF0aW9uX2Nvbm5lY3Rpb25zIGNyZWF0ZTpvcmdhbml6YXRpb25' +
+          'fbWVtYmVyX3JvbGVzIHJlYWQ6b3JnYW5pemF0aW9uX21lbWJlcl9yb2xlcyBkZWx' +
+          'ldGU6b3JnYW5pemF0aW9uX21lbWJlcl9yb2xlcyBjcmVhdGU6b3JnYW5pemF0aW9' +
+          'uX2ludml0YXRpb25zIHJlYWQ6b3JnYW5pemF0aW9uX2ludml0YXRpb25zIGRlbGV' +
+          '0ZTpvcmdhbml6YXRpb25faW52aXRhdGlvbnMgZGVsZXRlOnBob25lX3Byb3ZpZGV' +
+          'ycyBjcmVhdGU6cGhvbmVfcHJvdmlkZXJzIHJlYWQ6cGhvbmVfcHJvdmlkZXJzIHV' +
+          'wZGF0ZTpwaG9uZV9wcm92aWRlcnMgZGVsZXRlOnBob25lX3RlbXBsYXRlcyBjcmV' +
+          'hdGU6cGhvbmVfdGVtcGxhdGVzIHJlYWQ6cGhvbmVfdGVtcGxhdGVzIHVwZGF0ZTp' +
+          'waG9uZV90ZW1wbGF0ZXMgY3JlYXRlOmVuY3J5cHRpb25fa2V5cyByZWFkOmVuY3J' +
+          '5cHRpb25fa2V5cyB1cGRhdGU6ZW5jcnlwdGlvbl9rZXlzIGRlbGV0ZTplbmNyeXB' +
+          '0aW9uX2tleXMgcmVhZDpzZXNzaW9ucyBkZWxldGU6c2Vzc2lvbnMgcmVhZDpyZWZ' +
+          'yZXNoX3Rva2VucyBkZWxldGU6cmVmcmVzaF90b2tlbnMgY3JlYXRlOnNlbGZfc2V' +
+          'ydmljZV9wcm9maWxlcyByZWFkOnNlbGZfc2VydmljZV9wcm9maWxlcyB1cGRhdGU' +
+          '6c2VsZl9zZXJ2aWNlX3Byb2ZpbGVzIGRlbGV0ZTpzZWxmX3NlcnZpY2VfcHJvZml' +
+          'sZXMgY3JlYXRlOnNzb19hY2Nlc3NfdGlja2V0cyByZWFkOmNsaWVudF9jcmVkZW5' +
+          '0aWFscyBjcmVhdGU6Y2xpZW50X2NyZWRlbnRpYWxzIHVwZGF0ZTpjbGllbnRfY3J' +
+          'lZGVudGlhbHMgZGVsZXRlOmNsaWVudF9jcmVkZW50aWFscyIsImd0eSI6ImNsaWV' +
+          'udC1jcmVkZW50aWFscyIsImF6cCI6IjBZT0s1c3p5TkMzNmdPQWlIaE5KWjB2MFZ' +
+          'ucFZMV1NWIn0.lXYdeQgo2jv366WnR-7Tbq-jgPBghO-wLnXiGhlvoWf18oC5am-' +
+          '5ciTO3f-nGI2Q1UbbIr_dh64WAS39JcxGnCC3X9lVEl5GhBQuP4YyvJYRSr0gVFC' +
+          'YTfGL97meb44jLBygH7ZHUBPmxiFMfQFamsL4ZoLU7j4vSSyf-s3I1lcV4MvsPUq' +
+          'wa5joq0uEG7BhvmWzezBBb0DqAagC4L3g0HoUib5N6kQGm16ebkxS7tjg_s2BrmK' +
+          'YDx3VP3_ADsjD0VqLznMfyEVzMuvnkG5vLlvG3r7CNzB8UsToaCw3_2C8cBCBHxB' +
+          'oYRF6F2f5rByPyNXLGGmzBSONq2_rEf1u2w'
+      end>
+    Response = RESTResponse1
+    SynchronizedEvents = False
+    Left = 440
+    Top = 184
+  end
+  object RESTResponse1: TRESTResponse
+    ContentType = 'text/html'
+    Left = 440
+    Top = 240
   end
   object OAuth2Authenticator1: TOAuth2Authenticator
-    ClientID = 'nGSunByAX9RUHrCpJJNfTOViG7f1wGdx'
-    Left = 432
-    Top = 168
+    AccessToken = 
+      'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiaXNzIjoiaHR0cHM6Ly9kZXYt' +
+      'OG8ydTRnbmdkcTUzdHFsNy5qcC5hdXRoMC5jb20vIn0..7-cIKznFcn5EOCv8.h4' +
+      'y7s8DjU0IQh6zR_tfGTFyRE_d5YhG5VLUYugUNyZjXH1Y7PCCdM4avIglgQl6VpT' +
+      'zb33bKG9yS6r0ia0FfWmcgfRtG8YvSaEcxTgOc4ZQSgnhxBmdFbRoCPMMngcpShT' +
+      '6fYT65SRIdA3aOJIKa0QPJOOKgCV52YTmWt4p3dISIz74O7gY2SRqX35jBQAt-8Q' +
+      'GEj4sThwlHeYqRLhYbyNj6BgoQ3OmBd9MJA7JMLmwf8aAMRwK0_DPR4hVCHlG3ch' +
+      'jHe_DhnyqkUTL_V2VPRNGFL3ZUasFYD1I3.5Ld0gAT7qcNoktpev7G_fQ'
+    AccessTokenEndpoint = 'https://dev-8o2u4gngdq53tql7.jp.auth0.com/oauth/token'
+    AuthCode = '03749abacfe48aa937bc'
+    AuthorizationEndpoint = 'https://dev-8o2u4gngdq53tql7.jp.auth0.com/authorize'
+    ClientID = 'd0rGyVF4M65ESnTPZxFwL40FwcGeoYlt'
+    ClientSecret = '-a6zQNwcvRQCPzVRSzks8dEIbWXyXombdCzLRHIdSxULzlS7g5gvu9mP7-t1PlMA'
+    RedirectionEndpoint = 'http://localhost:8080/bbs'
+    ResponseType = rtTOKEN
+    Left = 440
+    Top = 64
   end
 end

@@ -77,9 +77,12 @@ type
     FDMemTable1enabled: TBooleanField;
     FDTable1ID: TIntegerField;
     DataSetPageProducer6: TDataSetPageProducer;
-    OAuth2Authenticator1: TOAuth2Authenticator;
     FDTable2NAME: TWideStringField;
     FDTable2COMCNT: TIntegerField;
+    RESTClient1: TRESTClient;
+    RESTRequest1: TRESTRequest;
+    RESTResponse1: TRESTResponse;
+    OAuth2Authenticator1: TOAuth2Authenticator;
     procedure DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure DataSetTableProducer1FormatCell(Sender: TObject;
@@ -639,19 +642,12 @@ function TWebModule1.replaceRawData(Data: string): string;
 const
   ng = 'Ž€‚Ë,ˆ¢•Û,”nŽ­,ŽE‚·,”š”j';
 var
-  list: TStringList;
   s: string;
 begin
   result := Data;
-  list := TStringList.Create;
-  try
-    list.DelimitedText := ng;
-    for s in list do
-      result := String(ReplaceText(AnsiString(result), AnsiString(s),
-        AnsiString('*****')));
-  finally
-    list.Free;
-  end;
+  for s in ng.Split([',']) do
+    result := String(ReplaceText(AnsiString(result), AnsiString(s),
+      AnsiString('*****')));
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
