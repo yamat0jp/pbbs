@@ -24,8 +24,8 @@ type
 
   TPageSearch = class
   private
-    FText: string;
-    FWordList, FList, FResultLST: TStringList;
+    FText, FWordList: string;
+    FList, FResultLST: TStringList;
     function checkState(var st: integer; word, line: string): TFindState;
     procedure processNormal(var id: integer; word, line: string);
     procedure processShort(var id, ln: integer; word: string; var line: string);
@@ -33,7 +33,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function Execute(const Text: string): string; virtual;
-    property WordList: TStringList read FWordList;
+    property WordList: string read FWordList write FWordList;
   end;
 
   TWebModule1 = class(TWebModule)
@@ -148,7 +148,7 @@ type
     mysearch: TPageSearch;
     bglist: TStringList;
     function readComment(const Text: string; st, cnt: integer): string;
-    function makeComment(const Text: string; cnt: integer): string;
+    function makeComment(const Text: string; cnt: integer = -1): string;
     function makeFooter(script: string): string;
     function ActiveRecordisNew: Boolean;
     function replaceRawData(Data: string): string;
@@ -357,7 +357,7 @@ begin
   DataSetTableProducer2.Header.Text := PageProducer8.Content;
 end;
 
-function TWebModule1.makeComment(const Text: string; cnt: integer): string;
+function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
 var
   s, t: string;
   ls: TStringList;
@@ -451,8 +451,8 @@ end;
 procedure TWebModule1.PageProducer3HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  temp, Text, bbsName, name: string;
-  cnt: integer;
+  temp, Text, bbsName, name, comment, jump: string;
+  cnt, DB, tn, cn: integer;
   bool: Boolean;
 begin
   if TagString = 'adtext' then
@@ -472,9 +472,10 @@ begin
     try
       while not FDQuery1.Eof do
       begin
-        if not FDQuery2.Locate('dbnumber;titlenum',
-          VarArrayOf([FDQuery1.FieldByName('dbnumber').AsVariant,
-          FDQuery1.FieldByName('titlenum').AsVariant])) then
+        DB := FDQuery1.FieldByName('dbnumber').AsInteger;
+        tn := FDQuery1.FieldByName('titlenum').AsInteger;
+        cn := FDQuery1.FieldByName('cmnumber').AsInteger;
+        if not FDQuery2.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
         begin
           FDQuery1.Next;
           Continue;
@@ -482,16 +483,19 @@ begin
         bbsName := Format('(%s:%s)', [FDQuery2.FieldByName('dbname').AsString,
           FDQuery2.FieldByName('title').AsString]);
         cnt := FDQuery1.FieldByName('comcnt').AsInteger;
-        temp := readComment(FDQuery1.FieldByName('comment').AsString, 0, cnt);
+        comment := FDQuery1.FieldByName('comment').AsString;
+        temp := readComment(comment, 0, cnt);
         if bool then
         begin
           Text := mysearch.Execute(temp);
           if Text <> '' then
           begin
-            temp := '<pre><code>' + readComment(FDQuery1.FieldByName('comment')
-              .AsString, cnt, -1) + '</code></pre>';
-            ReplaceText := ReplaceText + bbsName + DataSetPageProducer2.Content
-              + makeComment(Text, -1) + temp + '<hr>';
+            temp := '<pre><code>' + readComment(comment, cnt, -1) +
+              '</code></pre>';
+            jump := Format(' <a href="/bbs?db=%d&tn=%d#%d">jump</a>',
+              [DB, tn, cn]);
+            ReplaceText := ReplaceText + bbsName + jump +
+              DataSetPageProducer2.Content + makeComment(Text) + temp + '<hr>';
           end;
         end
         else
@@ -521,7 +525,7 @@ begin
     ReplaceText := '<hr>' + ReplaceText;
   end
   else if TagString = 'word' then
-    ReplaceText := mysearch.WordList.DelimitedText;
+    ReplaceText := mysearch.WordList;
 end;
 
 procedure TWebModule1.PageProducer5HTMLTag(Sender: TObject; Tag: TTag;
@@ -786,7 +790,7 @@ procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
 begin
   mysearch := TPageSearch.Create;
   try
-    mysearch.WordList.DelimitedText := Request.ContentFields.Values['word1'];
+    mysearch.WordList := Request.ContentFields.Values['word1'];
     Response.ContentType := 'text/html;charset=utf8';
     Response.Content := PageProducer3.Content;
   finally
@@ -978,16 +982,12 @@ end;
 
 constructor TPageSearch.Create;
 begin
-  FWordList := TStringList.Create;
-  FWordList.QuoteChar := '"';
-  FWordList.Delimiter := ' ';
   FList := TStringList.Create;
   FResultLST := TStringList.Create;
 end;
 
 destructor TPageSearch.Destroy;
 begin
-  FWordList.Free;
   FList.Free;
   FResultLST.Free;
   inherited;
@@ -1038,7 +1038,7 @@ var
 begin
   FList.Text := Text;
   bool := false;
-  for var str in WordList do
+  for var str in WordList.Split([' ']) do
   begin
     FText := '';
     i := 0;
@@ -1063,7 +1063,9 @@ begin
     FList.Text := FText;
   end;
   if bool then
-    result := FList.Text;
+    result := FList.Text
+  else
+    result := '';
 end;
 
 end.
