@@ -1081,6 +1081,8 @@ begin
   bool := false;
   for var str in WordList.Split([' ']) do
   begin
+    if str = '' then
+      continue;
     FText := '';
     i := 0;
     id := 1;
