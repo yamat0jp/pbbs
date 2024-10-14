@@ -122,7 +122,6 @@ object WebModule1: TWebModule1
   end
   object FDTable2: TFDTable
     Active = True
-    Filtered = True
     IndexFieldNames = 'DBNUMBER;TITLENUM;CMNUMBER'
     MasterSource = DataSource1
     MasterFields = 'dbnumber;TITLENUM'

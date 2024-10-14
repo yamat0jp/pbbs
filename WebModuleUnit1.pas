@@ -479,7 +479,6 @@ begin
     else
       bool := false;
     FDQuery1.Open('select * from maintable order by datetime desc;');
-    FDQuery2.Open('select * from nametable;');
     mainLoop.DataSet := FDQuery1;
     try
       while not FDQuery1.Eof do
@@ -498,7 +497,6 @@ begin
     finally
       mainLoop.DataSet := FDTable2;
       FDQuery1.Close;
-      FDQuery2.Close;
       commentoff := false;
     end;
     if ReplaceText = '' then
@@ -626,18 +624,21 @@ end;
 
 function TWebModule1.nameTableLocate(var bbsname, jump, Text: string): Boolean;
 var
-  DB, tn, cn: integer;
+  DB, tn, id, cn: integer;
 begin
   DB := FDQuery1.FieldByName('dbnumber').AsInteger;
   tn := FDQuery1.FieldByName('titlenum').AsInteger;
   cn := FDQuery1.FieldByName('cmnumber').AsInteger;
-  if not FDQuery2.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
-    Exit(false)
+  if FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) and
+    FDTable2.Locate('cmnumber', cn) then
+    result := true
   else
-    result := true;
-  bbsname := Format('(%s:%s)', [FDQuery2.FieldByName('dbname').AsString,
-    FDQuery2.FieldByName('title').AsString]);
-  jump := Format(' <a href="/bbs?db=%d&tn=%d&page=%d">jump</a>', [DB, tn, cn]);
+    Exit(false);
+  id := FDTable2.RecNo div count + 1;
+  bbsname := Format('(%s:%s)', [FDTable1.FieldByName('dbname').AsString,
+    FDTable1.FieldByName('title').AsString]);
+  jump := Format(' <a href="/bbs?db=%d&tn=%d&page=%d#%d">jump</a>',
+    [DB, tn, id, cn]);
   Text := FDQuery1.FieldByName('comment').AsString;
 end;
 
@@ -1082,7 +1083,7 @@ begin
   for var str in WordList.Split([' ']) do
   begin
     if str = '' then
-      continue;
+      Continue;
     FText := '';
     i := 0;
     id := 1;
