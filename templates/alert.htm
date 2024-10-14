@@ -5,12 +5,12 @@
 
 <body>
 <#article>
-<form action=/alert?<#query> method=post>
-<p>宜しければ何かお書き添えください
-<p><#message>
-<input type="HIDDEN" name=db value=<#dbname>>
-<input type="HIDDEN" name=tn value=<#title>>
-<input type=hidden name=num value=<#cmnumber>>
+<form action="/alert?<#query>" method="post">
+<p>宜しければ何かお書き添えください</p>
+<p><#message></p>
+<input type="HIDDEN" name="db" value="<#dbname>">
+<input type="HIDDEN" name="tn" value="<#title>">
+<input type="hidden" name="num" value="<#cmnumber>">
 </form>
-<a href=/bbs?db=<#dbnumber>&tn=<#titlenum>>もどる</a>
+<a href="/bbs?db=<#dbnumber>&tn=<#titlenum>">もどる</a>
 </body></html>

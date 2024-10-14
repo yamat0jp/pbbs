@@ -540,8 +540,13 @@ end;
 procedure TWebModule1.PageProducer5HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  if Request.MethodType = mtGet then
-    ReplaceText := '<p><input type=submit value="送信"></p>';
+  if TagString = 'code' then
+  begin
+    if Request.MethodType = mtGet then
+      ReplaceText := '<input type=submit value="送信">'
+    else
+      ReplaceText := 'ありがとうございました';
+  end;
 end;
 
 procedure TWebModule1.PageProducer6HTMLTag(Sender: TObject; Tag: TTag;
@@ -832,6 +837,7 @@ procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
 var
   fs: TFileStream;
   DB, tn, PG: integer;
+  str: string;
 begin
   DB := Request.QueryFields.Values['db'].ToInteger;
   tn := Request.QueryFields.Values['tn'].ToInteger;
@@ -844,18 +850,22 @@ begin
   end;
   if Request.MethodType = mtPost then
   begin
-    fs := TFileStream.Create(fname, fmOpenReadWrite);
+    if FileExists(fname) then
+      fs := TFileStream.Create(fname, fmOpenReadWrite)
+    else
+      fs := TFileStream.Create(fname, fmCreate);
     try
+      fs.Position := fs.Size;
+      str := '(' + FDTable1.FieldByName('dbname').AsString + ':';
+      str := str + FDTable1.FieldByName('title').AsString + ')';
+      str := str + '【' + FDTable2.FieldByName('cmnumber').AsString + '】';
+      str := str + FDTable2.FieldByName('datetime').AsString;
       bglist.Clear;
       bglist.Add('');
       bglist.Add('(*ユーザー様から報告がありました*)');
-      bglist.Add(DateToStr(Now));
-      bglist.Add(FDTable1.FieldByName('dbname').AsString);
-      bglist.Add(FDTable2.FieldByName('cmnumber').AsString);
-      bglist.Add(FDTable1.FieldByName('title').AsString);
-      bglist.Add(FDTable2.FieldByName('datetime').AsString);
+      bglist.Add('TODAY is ' + DateToStr(Now));
+      bglist.Add(str);
       bglist.Add(FDTable2.FieldByName('comment').AsString);
-      bglist.Add(Request.ContentFields.Values['com']);
       bglist.Add('(*報告ここまで*)');
       bglist.Add('');
       bglist.SaveToStream(fs);
@@ -874,8 +884,12 @@ var
 begin
   if Request.MethodType = mtPost then
   begin
-    fs := TFileStream.Create(fname, fmOpenReadWrite);
+    if FileExists(fname) then
+      fs := TFileStream.Create(fname, fmOpenReadWrite)
+    else
+      fs := TFileStream.Create(fname, fmCreate);
     try
+      fs.Position := fs.Size;
       bglist.Clear;
       bglist.Add('');
       bglist.Add('(*ユーザー様から報告がありました*)');
