@@ -534,7 +534,7 @@ begin
     ReplaceText := '<hr>' + ReplaceText;
   end
   else if TagString = 'word' then
-    ReplaceText := mysearch.WordList;
+    ReplaceText := '"'+mysearch.WordList+'"';
 end;
 
 procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;

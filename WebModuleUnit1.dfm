@@ -177,14 +177,14 @@ object WebModule1: TWebModule1
   object top: TPageProducer
     HTMLFile = '.\templates\top.htm'
     OnHTMLTag = topHTMLTag
-    Left = 48
+    Left = 32
     Top = 152
   end
   object mainLoop: TDataSetPageProducer
     HTMLFile = '.\templates\main.htm'
     DataSet = FDTable2
     OnHTMLTag = mainLoopHTMLTag
-    Left = 160
+    Left = 192
     Top = 232
   end
   object adminTable: TDataSetTableProducer
@@ -232,8 +232,8 @@ object WebModule1: TWebModule1
     HTMLFile = '.\templates\alert.htm'
     DataSet = FDTable1
     OnHTMLTag = alertContentHTMLTag
-    Left = 48
-    Top = 264
+    Left = 120
+    Top = 232
   end
   object search: TPageProducer
     HTMLFile = '.\templates\search.htm'
@@ -305,7 +305,7 @@ object WebModule1: TWebModule1
   object topJQuery: TPageProducer
     HTMLFile = '.\templates\algo.htm'
     OnHTMLTag = topJQueryHTMLTag
-    Left = 48
+    Left = 32
     Top = 208
   end
   object DataSource1: TDataSource
@@ -385,7 +385,7 @@ object WebModule1: TWebModule1
     UpdateOptions.FetchGeneratorsPoint = gpNone
     UpdateOptions.CheckRequired = False
     StoreDefs = True
-    Left = 432
+    Left = 440
     Top = 296
     object FDMemTable1id: TIntegerField
       FieldName = 'id'
