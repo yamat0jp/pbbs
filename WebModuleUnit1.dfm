@@ -554,4 +554,9 @@ object WebModule1: TWebModule1
     Left = 440
     Top = 64
   end
+  object FDGUIxWaitCursor1: TFDGUIxWaitCursor
+    Provider = 'Console'
+    Left = 48
+    Top = 392
+  end
 end

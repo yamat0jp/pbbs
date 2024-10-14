@@ -10,14 +10,14 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   FireDAC.Comp.Client, Web.HTTPProd,
   Web.DBWeb, FireDAC.Stan.ExprFuncs, IniFiles, FireDAC.Phys.IB,
   FireDAC.Phys.IBDef, System.AnsiStrings, System.NetEncoding, System.Variants,
-  FireDAC.VCLUI.Wait,
   Web.DSProd, FireDAC.Phys.PG, FireDAC.Phys.PGDef, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Phys.SQLiteWrapper.Stat,
   FireDAC.Phys.IBLiteDef, FireDAC.Phys.FB, FireDAC.Phys.FBDef, IdBaseComponent,
   IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, REST.Types,
   REST.Response.Adapter, REST.Client, Data.Bind.Components,
-  Data.Bind.ObjectScope, REST.Authenticator.OAuth.WebForm.Win,
-  REST.Authenticator.OAuth;
+  Data.Bind.ObjectScope,
+  REST.Authenticator.OAuth, FireDAC.Comp.UI,
+  FireDAC.ConsoleUI.Wait, REST.Authenticator.OAuth.WebForm.Win;
 
 type
   TFindState = (fdShort, fdNormal, fdNone);
@@ -83,6 +83,7 @@ type
     RESTRequest1: TRESTRequest;
     RESTResponse1: TRESTResponse;
     OAuth2Authenticator1: TOAuth2Authenticator;
+    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure DataSetTableProducer1FormatCell(Sender: TObject;
@@ -139,20 +140,16 @@ type
     { private êÈåæ }
     count: integer;
     pagecount: integer;
-    idcount: integer;
-    link: integer;
     mente: Boolean;
-    isget: Boolean;
     commentoff: Boolean;
-    adtext: string;
     mysearch: TPageSearch;
     bglist: TStringList;
     function readComment(const Text: string; st, cnt: integer): string;
     function makeComment(const Text: string; cnt: integer = -1): string;
-    function makeFooter(script: string): string;
+    function makeFooter(script: string; id: integer): string;
     function ActiveRecordisNew: Boolean;
     function replaceRawData(Data: string): string;
-    procedure islastproc;
+    function islastproc: integer;
   public
     { public êÈåæ }
   end;
@@ -184,31 +181,31 @@ begin
   result := day < 1;
 end;
 
-procedure TWebModule1.islastproc;
+function TWebModule1.islastproc: integer;
 var
   i: integer;
 begin
   i := StrToIntDef(Request.QueryFields.Values['page'], 0);
   if (i = 0) or ((i - 1) * count >= FDTable2.RecordCount) then
   begin
-    idcount := 0;
+    result := 0;
     FDTable2.Last;
     FDTable2.MoveBy(-count + 1);
   end
   else
   begin
-    idcount := i;
+    result := i;
     FDTable2.First;
-    FDTable2.MoveBy((idcount - 1) * count);
+    FDTable2.MoveBy((result - 1) * count);
   end;
 end;
 
 procedure TWebModule1.DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  DB, cnt, com: integer;
+  id, DB, cnt, com: integer;
 begin
-  islastproc;
+  id := islastproc;
   if TagString = 'form' then
   begin
     if count * pagecount > FDTable2.RecordCount then
@@ -243,7 +240,7 @@ begin
     end;
   end
   else if TagString = 'footer' then
-    ReplaceText := makeFooter('bbs');
+    ReplaceText := makeFooter('bbs', id);
 end;
 
 procedure TWebModule1.DataSetPageProducer2HTMLTag(Sender: TObject; Tag: TTag;
@@ -280,12 +277,12 @@ procedure TWebModule1.DataSetPageProducer3HTMLTag(Sender: TObject; Tag: TTag;
 begin
   if TagString = 'article' then
   begin
-    if isget then
+    if Request.MethodType = mtGet then
       ReplaceText := DataSetPageProducer2.Content;
   end
   else if TagString = 'message' then
   begin
-    if isget then
+    if Request.MethodType = mtGet then
       ReplaceText :=
         '<textarea name=com></textarea><p style=text-align:center><input name=admit type=submit value="ëóêM">'
     else
@@ -395,12 +392,12 @@ begin
   end;
 end;
 
-function TWebModule1.makeFooter(script: string): string;
+function TWebModule1.makeFooter(script: string; id: integer): string;
 var
   t: string;
   DB, tn: integer;
 begin
-  if idcount = 0 then
+  if id = 0 then
     t := ' active'
   else
     t := '';
@@ -411,7 +408,7 @@ begin
   tn := Request.QueryFields.Values['tn'].ToInteger;
   for var i := 1 to pagecount do
   begin
-    if i = idcount then
+    if i = id then
       bglist.Add('<li class="page-item active">')
     else
       bglist.Add('<li class="page-item">');
@@ -434,8 +431,10 @@ end;
 
 procedure TWebModule1.PageProducer2HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
+var
+  id: integer;
 begin
-  islastproc;
+  id := islastproc;
   if TagString = 'table' then
     ReplaceText := DataSetTableProducer1.Content
   else if TagString = 'dbnumber' then
@@ -443,9 +442,13 @@ begin
   else if TagString = 'titlenum' then
     ReplaceText := Request.QueryFields.Values['tn']
   else if TagString = 'footer' then
-    ReplaceText := makeFooter('admin')
-  else if (TagString = 'section') and FDTable2.Locate('cmnumber', link) then
-    ReplaceText := DataSetPageProducer2.Content;
+    ReplaceText := makeFooter('admin', id)
+  else if TagString = 'section' then
+  begin
+    id := StrToIntDef(Request.QueryFields.Values['link'], 0);
+    if FDTable2.Locate('cmnumber', id) then
+      ReplaceText := DataSetPageProducer2.Content;
+  end;
 end;
 
 procedure TWebModule1.PageProducer3HTMLTag(Sender: TObject; Tag: TTag;
@@ -456,7 +459,13 @@ var
   bool: Boolean;
 begin
   if TagString = 'adtext' then
-    ReplaceText := adtext
+  begin
+    ReplaceText := '<p>' + FDMemTable1.FieldByName('adtext').AsString + '</p>';
+    if FDMemTable1.Eof then
+      FDMemTable1.First
+    else
+      FDMemTable1.Next;
+  end
   else if (TagString = 'main') and (Request.MethodType = mtPost) then
   begin
     if Request.ContentFields.Values['filter'] = 'com' then
@@ -531,7 +540,7 @@ end;
 procedure TWebModule1.PageProducer5HTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
-  if isget then
+  if Request.MethodType = mtGet then
     ReplaceText := '<p><input type=submit value="ëóêM"></p>';
 end;
 
@@ -587,7 +596,7 @@ begin
         else
           s := '';
         FDQuery1.Next;
-        bglist.Add(Format('<p><a href="/list?db=%d"%s target=_blank>%s</a></p>',
+        bglist.Add(Format('<p><a href="/list?db=%d"%s>%s</a></p>',
           [num, s, t]));
       end;
       bglist.Add('</div></div>');
@@ -677,7 +686,6 @@ begin
         if FDTable2.RecordCount = 0 then
           FDTable1.Delete;
       end;
-  link := StrToIntDef(Request.QueryFields.Values['link'], 0);
   Response.ContentType := 'text/html;charset=utf-8;';
   Response.Content := PageProducer2.Content;
 end;
@@ -834,11 +842,8 @@ begin
     Handled := false;
     Exit;
   end;
-  if Request.MethodType = mtGet then
-    isget := true
-  else if Request.MethodType = mtPost then
+  if Request.MethodType = mtPost then
   begin
-    isget := false;
     fs := TFileStream.Create(fname, fmOpenReadWrite);
     try
       bglist.Clear;
@@ -867,7 +872,6 @@ procedure TWebModule1.WebModule1WebActionItem6Action(Sender: TObject;
 var
   fs: TFileStream;
 begin
-  isget := true;
   if Request.MethodType = mtPost then
   begin
     fs := TFileStream.Create(fname, fmOpenReadWrite);
@@ -880,7 +884,6 @@ begin
       bglist.Add('(*ïÒçêÇ±Ç±Ç‹Ç≈*)');
       bglist.Add('');
       bglist.SaveToStream(fs);
-      isget := false;
     finally
       fs.Free;
     end;
