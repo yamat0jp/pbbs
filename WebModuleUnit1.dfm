@@ -10,7 +10,7 @@ object WebModule1: TWebModule1
     item
       Name = 'alertItem'
       PathInfo = '/alert'
-      OnAction = WebModule1WebActionItem2Action
+      OnAction = WebModule1alertAction
     end
     item
       Default = True
@@ -31,13 +31,13 @@ object WebModule1: TWebModule1
     item
       Name = 'helpPage'
       PathInfo = '/help'
-      OnAction = WebModule1WebActionItem6Action
+      OnAction = WebModule1helpAction
     end
     item
       MethodType = mtPost
       Name = 'renameAction'
       PathInfo = '/rename'
-      OnAction = WebModule1WebActionItem7Action
+      OnAction = WebModule1renameAction
     end
     item
       Name = 'master'
@@ -167,27 +167,27 @@ object WebModule1: TWebModule1
       Origin = 'COMCNT'
     end
   end
-  object DataSetPageProducer1: TDataSetPageProducer
+  object index: TDataSetPageProducer
     HTMLFile = '.\templates\index.htm'
     DataSet = FDTable1
-    OnHTMLTag = DataSetPageProducer1HTMLTag
-    Left = 48
-    Top = 24
+    OnHTMLTag = indexHTMLTag
+    Left = 184
+    Top = 176
   end
-  object PageProducer1: TPageProducer
+  object top: TPageProducer
     HTMLFile = '.\templates\top.htm'
-    OnHTMLTag = PageProducer1HTMLTag
+    OnHTMLTag = topHTMLTag
     Left = 48
     Top = 152
   end
-  object DataSetPageProducer2: TDataSetPageProducer
+  object mainLoop: TDataSetPageProducer
     HTMLFile = '.\templates\main.htm'
     DataSet = FDTable2
-    OnHTMLTag = DataSetPageProducer2HTMLTag
-    Left = 48
-    Top = 88
+    OnHTMLTag = mainLoopHTMLTag
+    Left = 160
+    Top = 232
   end
-  object DataSetTableProducer1: TDataSetTableProducer
+  object adminTable: TDataSetTableProducer
     Columns = <
       item
         BgColor = 'White'
@@ -218,45 +218,45 @@ object WebModule1: TWebModule1
     MaxRows = 0
     DataSet = FDTable2
     TableAttributes.BgColor = 'White'
-    OnFormatCell = DataSetTableProducer1FormatCell
-    Left = 328
-    Top = 216
+    OnFormatCell = adminTableFormatCell
+    Left = 248
+    Top = 256
   end
-  object PageProducer2: TPageProducer
+  object admin: TPageProducer
     HTMLFile = '.\templates\admin.htm'
-    OnHTMLTag = PageProducer2HTMLTag
-    Left = 160
-    Top = 160
+    OnHTMLTag = adminHTMLTag
+    Left = 176
+    Top = 296
   end
-  object DataSetPageProducer3: TDataSetPageProducer
+  object alertContent: TDataSetPageProducer
     HTMLFile = '.\templates\alert.htm'
     DataSet = FDTable1
-    OnHTMLTag = DataSetPageProducer3HTMLTag
+    OnHTMLTag = alertContentHTMLTag
     Left = 48
     Top = 264
   end
-  object PageProducer3: TPageProducer
+  object search: TPageProducer
     HTMLFile = '.\templates\search.htm'
-    OnHTMLTag = PageProducer3HTMLTag
-    Left = 248
-    Top = 104
+    OnHTMLTag = searchHTMLTag
+    Left = 48
+    Top = 80
   end
-  object PageProducer4: TPageProducer
+  object mentenance: TPageProducer
     HTMLFile = '.\templates\mentenance.htm'
-    Left = 248
-    Top = 160
+    Left = 48
+    Top = 16
   end
-  object PageProducer5: TPageProducer
+  object help: TPageProducer
     HTMLFile = '.\templates\help.htm'
-    OnHTMLTag = PageProducer5HTMLTag
+    OnHTMLTag = helpHTMLTag
     Left = 248
-    Top = 264
+    Top = 176
   end
-  object DataSetPageProducer4: TDataSetPageProducer
+  object formDesign: TDataSetPageProducer
     HTMLFile = '.\templates\form.htm'
     DataSet = FDTable1
-    Left = 160
-    Top = 232
+    Left = 128
+    Top = 176
   end
   object WebFileDispatcher1: TWebFileDispatcher
     WebFileExtensions = <
@@ -302,16 +302,16 @@ object WebModule1: TWebModule1
     Left = 152
     Top = 24
   end
-  object PageProducer7: TPageProducer
+  object topJQuery: TPageProducer
     HTMLFile = '.\templates\algo.htm'
-    OnHTMLTag = PageProducer7HTMLTag
+    OnHTMLTag = topJQueryHTMLTag
     Left = 48
     Top = 208
   end
   object DataSource1: TDataSource
     DataSet = FDTable1
-    Left = 248
-    Top = 24
+    Left = 328
+    Top = 232
   end
   object FDQuery1: TFDQuery
     Connection = FDConnection1
@@ -353,7 +353,7 @@ object WebModule1: TWebModule1
     Left = 160
     Top = 104
   end
-  object DataSetTableProducer2: TDataSetTableProducer
+  object adTable: TDataSetTableProducer
     Columns = <
       item
         FieldName = 'adtext'
@@ -362,15 +362,15 @@ object WebModule1: TWebModule1
     TableAttributes.Align = haCenter
     TableAttributes.Border = 1
     TableAttributes.Width = 50
-    OnCreateContent = DataSetTableProducer2CreateContent
-    Left = 224
-    Top = 320
+    OnCreateContent = adTableCreateContent
+    Left = 248
+    Top = 344
   end
-  object PageProducer8: TPageProducer
+  object master: TPageProducer
     HTMLFile = '.\templates\master.htm'
-    OnHTMLTag = PageProducer8HTMLTag
-    Left = 336
-    Top = 320
+    OnHTMLTag = masterHTMLTag
+    Left = 248
+    Top = 104
   end
   object FDMemTable1: TFDMemTable
     FieldDefs = <>
@@ -405,11 +405,11 @@ object WebModule1: TWebModule1
       FieldName = 'enabled'
     end
   end
-  object DataSetPageProducer5: TDataSetPageProducer
+  object members: TDataSetPageProducer
     HTMLFile = '.\templates\members.htm'
     DataSet = FDTable1
-    Left = 432
-    Top = 352
+    Left = 392
+    Top = 384
   end
   object PageProducer9: TPageProducer
     HTMLFile = '.\templates\login.htm'
@@ -417,11 +417,11 @@ object WebModule1: TWebModule1
     Left = 168
     Top = 384
   end
-  object DataSetPageProducer6: TDataSetPageProducer
+  object titleList: TDataSetPageProducer
     HTMLFile = '.\templates\tables.htm'
     DataSet = FDTable1
-    OnHTMLTag = DataSetPageProducer6HTMLTag
-    Left = 296
+    OnHTMLTag = titleListHTMLTag
+    Left = 312
     Top = 384
   end
   object RESTClient1: TRESTClient

@@ -40,24 +40,24 @@ type
     FDConnection1: TFDConnection;
     FDTable1: TFDTable;
     FDTable2: TFDTable;
-    DataSetPageProducer1: TDataSetPageProducer;
-    PageProducer1: TPageProducer;
-    DataSetPageProducer2: TDataSetPageProducer;
-    DataSetTableProducer1: TDataSetTableProducer;
-    PageProducer2: TPageProducer;
-    DataSetPageProducer3: TDataSetPageProducer;
-    PageProducer3: TPageProducer;
-    PageProducer4: TPageProducer;
-    PageProducer5: TPageProducer;
-    DataSetPageProducer4: TDataSetPageProducer;
+    index: TDataSetPageProducer;
+    top: TPageProducer;
+    mainLoop: TDataSetPageProducer;
+    adminTable: TDataSetTableProducer;
+    admin: TPageProducer;
+    alertContent: TDataSetPageProducer;
+    search: TPageProducer;
+    mentenance: TPageProducer;
+    help: TPageProducer;
+    formDesign: TDataSetPageProducer;
     WebFileDispatcher1: TWebFileDispatcher;
-    PageProducer7: TPageProducer;
+    topJQuery: TPageProducer;
     DataSource1: TDataSource;
     FDQuery1: TFDQuery;
     FDQuery2: TFDQuery;
     PageProducer6: TPageProducer;
-    DataSetTableProducer2: TDataSetTableProducer;
-    PageProducer8: TPageProducer;
+    adTable: TDataSetTableProducer;
+    master: TPageProducer;
     FDMemTable1: TFDMemTable;
     FDMemTable1adtext: TWideStringField;
     FDMemTable1company: TWideStringField;
@@ -66,7 +66,7 @@ type
     FDTable2TITLENUM: TIntegerField;
     FDTable2COMMENT: TWideMemoField;
     FDTable2DATETIME: TDateField;
-    DataSetPageProducer5: TDataSetPageProducer;
+    members: TDataSetPageProducer;
     PageProducer9: TPageProducer;
     FDMemTable1id: TIntegerField;
     FDMemTable1rank: TIntegerField;
@@ -76,7 +76,7 @@ type
     FDTable1TITLE: TWideStringField;
     FDMemTable1enabled: TBooleanField;
     FDTable1ID: TIntegerField;
-    DataSetPageProducer6: TDataSetPageProducer;
+    titleList: TDataSetPageProducer;
     FDTable2NAME: TWideStringField;
     FDTable2COMCNT: TIntegerField;
     RESTClient1: TRESTClient;
@@ -84,39 +84,39 @@ type
     RESTResponse1: TRESTResponse;
     OAuth2Authenticator1: TOAuth2Authenticator;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
-    procedure DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
+    procedure indexHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure DataSetTableProducer1FormatCell(Sender: TObject;
+    procedure adminTableFormatCell(Sender: TObject;
       CellRow, CellColumn: integer; var BgColor: THTMLBgColor;
       var Align: THTMLAlign; var VAlign: THTMLVAlign;
       var CustomAttrs, CellData: string);
     procedure WebModuleCreate(Sender: TObject);
-    procedure PageProducer2HTMLTag(Sender: TObject; Tag: TTag;
+    procedure adminHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure WebModule1WebActionItem2Action(Sender: TObject;
+    procedure WebModule1alertAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure DataSetPageProducer3HTMLTag(Sender: TObject; Tag: TTag;
+    procedure alertContentHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure PageProducer3HTMLTag(Sender: TObject; Tag: TTag;
+    procedure searchHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleBeforeDispatch(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1WebActionItem6Action(Sender: TObject;
+    procedure WebModule1helpAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1WebActionItem7Action(Sender: TObject;
+    procedure WebModule1renameAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure DataSetPageProducer2HTMLTag(Sender: TObject; Tag: TTag;
+    procedure mainLoopHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleDestroy(Sender: TObject);
-    procedure PageProducer5HTMLTag(Sender: TObject; Tag: TTag;
+    procedure helpHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1searchItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1mainItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure PageProducer7HTMLTag(Sender: TObject; Tag: TTag;
+    procedure topJQueryHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
+    procedure topHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1adminPageAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -126,15 +126,15 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure PageProducer6HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure DataSetTableProducer2CreateContent(Sender: TObject;
+    procedure adTableCreateContent(Sender: TObject;
       var Continue: Boolean);
-    procedure PageProducer8HTMLTag(Sender: TObject; Tag: TTag;
+    procedure masterHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1membersAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure PageProducer9HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure DataSetPageProducer6HTMLTag(Sender: TObject; Tag: TTag;
+    procedure titleListHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
@@ -200,7 +200,7 @@ begin
   end;
 end;
 
-procedure TWebModule1.DataSetPageProducer1HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.indexHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   id, DB, cnt, com: integer;
@@ -209,7 +209,7 @@ begin
   if TagString = 'form' then
   begin
     if count * pagecount > FDTable2.RecordCount then
-      ReplaceText := DataSetPageProducer4.Content
+      ReplaceText := formDesign.Content
     else
       ReplaceText := '<h1>èëÇ´çûÇ›ç≈ëÂêîÇ…íBÇµÇ‹ÇµÇΩÅBÇ±ÇÍà»è„èëÇ´çûÇﬂÇ‹ÇπÇÒÅB</h1>';
   end
@@ -230,7 +230,7 @@ begin
           FDMemTable1.First;
         com := 5;
       end;
-      ReplaceText := ReplaceText + DataSetPageProducer2.Content +
+      ReplaceText := ReplaceText + mainLoop.Content +
         Format('<p style="text-align:end"><a href="/alert?db=%d&tn=%d&page=%d">ïÒçê</a></p>',
         [DB, FDTable1.FieldByName('titlenum').AsInteger,
         FDTable2.FieldByName('cmnumber').AsInteger]);
@@ -243,7 +243,7 @@ begin
     ReplaceText := makeFooter('bbs', id);
 end;
 
-procedure TWebModule1.DataSetPageProducer2HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.mainLoopHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   Text: string;
@@ -256,7 +256,7 @@ begin
       ReplaceText := ''
     else
     begin
-      DataSet := DataSetPageProducer2.DataSet;
+      DataSet := mainLoop.DataSet;
       cnt := DataSet.FieldByName('comcnt').AsInteger;
       Text := DataSet.FieldByName('comment').AsString;
       ReplaceText := makeComment(Text, cnt);
@@ -264,7 +264,7 @@ begin
   end
   else if TagString = 'username' then
   begin
-    Text := DataSetPageProducer2.DataSet.FieldByName('name').AsString;
+    Text := mainLoop.DataSet.FieldByName('name').AsString;
     if Text = '' then
       ReplaceText := nobody
     else
@@ -272,13 +272,13 @@ begin
   end;
 end;
 
-procedure TWebModule1.DataSetPageProducer3HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.alertContentHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if TagString = 'article' then
   begin
     if Request.MethodType = mtGet then
-      ReplaceText := DataSetPageProducer2.Content;
+      ReplaceText := mainLoop.Content;
   end
   else if TagString = 'message' then
   begin
@@ -292,14 +292,14 @@ begin
     ReplaceText := Request.Query;
 end;
 
-procedure TWebModule1.DataSetPageProducer6HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.titleListHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   str: string;
   DB, num, cnt: integer;
 begin
   if (TagString = 'form') and (Request.PathInfo = '/members') then
-    ReplaceText := DataSetPageProducer5.Content
+    ReplaceText := members.Content
   else if TagString = 'table' then
   begin
     DB := FDTable1.FieldByName('dbnumber').AsInteger;
@@ -322,7 +322,7 @@ begin
   end;
 end;
 
-procedure TWebModule1.DataSetTableProducer1FormatCell(Sender: TObject;
+procedure TWebModule1.adminTableFormatCell(Sender: TObject;
   CellRow, CellColumn: integer; var BgColor: THTMLBgColor;
   var Align: THTMLAlign; var VAlign: THTMLVAlign;
   var CustomAttrs, CellData: string);
@@ -348,10 +348,10 @@ begin
     BgColor := 'Silver';
 end;
 
-procedure TWebModule1.DataSetTableProducer2CreateContent(Sender: TObject;
+procedure TWebModule1.adTableCreateContent(Sender: TObject;
   var Continue: Boolean);
 begin
-  DataSetTableProducer2.Header.Text := PageProducer8.Content;
+  adTable.Header.Text := master.Content;
 end;
 
 function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
@@ -422,21 +422,21 @@ begin
   result := bglist.Text;
 end;
 
-procedure TWebModule1.PageProducer1HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.topHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if TagString = 'main' then
-    ReplaceText := PageProducer7.Content;
+    ReplaceText := topJQuery.Content;
 end;
 
-procedure TWebModule1.PageProducer2HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   id: integer;
 begin
   id := islastproc;
   if TagString = 'table' then
-    ReplaceText := DataSetTableProducer1.Content
+    ReplaceText := adminTable.Content
   else if TagString = 'dbnumber' then
     ReplaceText := Request.QueryFields.Values['db']
   else if TagString = 'titlenum' then
@@ -447,11 +447,11 @@ begin
   begin
     id := StrToIntDef(Request.QueryFields.Values['link'], 0);
     if FDTable2.Locate('cmnumber', id) then
-      ReplaceText := DataSetPageProducer2.Content;
+      ReplaceText := mainLoop.Content;
   end;
 end;
 
-procedure TWebModule1.PageProducer3HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
   temp, Text, bbsName, name, comment, jump: string;
@@ -477,7 +477,7 @@ begin
       bool := false;
     FDQuery1.Open('select * from maintable order by datetime desc;');
     FDQuery2.Open('select * from nametable;');
-    DataSetPageProducer2.DataSet := FDQuery1;
+    mainLoop.DataSet := FDQuery1;
     try
       while not FDQuery1.Eof do
       begin
@@ -504,7 +504,7 @@ begin
             jump := Format(' <a href="/bbs?db=%d&tn=%d#%d">jump</a>',
               [DB, tn, cn]);
             ReplaceText := ReplaceText + bbsName + jump +
-              DataSetPageProducer2.Content + makeComment(Text) + temp + '<hr>';
+              mainLoop.Content + makeComment(Text) + temp + '<hr>';
           end;
         end
         else
@@ -518,13 +518,13 @@ begin
           else if name = nobody then
             name := '';
           if name = FDQuery1.FieldByName('name').AsString then
-            ReplaceText := ReplaceText + bbsName + DataSetPageProducer2.Content
+            ReplaceText := ReplaceText + bbsName + mainLoop.Content
               + makeComment(Text, -1) + temp + '<hr>';
         end;
         FDQuery1.Next;
       end;
     finally
-      DataSetPageProducer2.DataSet := FDTable2;
+      mainLoop.DataSet := FDTable2;
       FDQuery1.Close;
       FDQuery2.Close;
       commentoff := false;
@@ -537,7 +537,7 @@ begin
     ReplaceText := mysearch.WordList;
 end;
 
-procedure TWebModule1.PageProducer5HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if TagString = 'code' then
@@ -556,7 +556,7 @@ begin
     ReplaceText := '';
 end;
 
-procedure TWebModule1.PageProducer7HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.topJQueryHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 const
   conf = 7;
@@ -611,7 +611,7 @@ begin
   end;
 end;
 
-procedure TWebModule1.PageProducer8HTMLTag(Sender: TObject; Tag: TTag;
+procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if (TagString = 'checked') and mente then
@@ -692,7 +692,7 @@ begin
           FDTable1.Delete;
       end;
   Response.ContentType := 'text/html;charset=utf-8;';
-  Response.Content := PageProducer2.Content;
+  Response.Content := admin.Content;
 end;
 
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
@@ -726,7 +726,7 @@ begin
     FDTable2.AppendRecord([DB, j, tid, name, bglist.Text, Now, cnt]);
   end;
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := DataSetPageProducer1.Content;
+  Response.Content := index.Content;
 end;
 
 procedure TWebModule1.WebModule1masterAction(Sender: TObject;
@@ -757,7 +757,7 @@ begin
   end;
   FDMemTable1.First;
   Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := DataSetTableProducer2.Content;
+  Response.Content := adTable.Content;
 end;
 
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
@@ -770,7 +770,10 @@ begin
   FDTable1.Filter := Format('dbnumber = ''%d''', [DB]);
   FDTable1.Filtered := true;
   if FDTable1.RecordCount = 0 then
-    Response.SendRedirect('/top');
+  begin
+    Handled:=false;
+    Exit;
+  end;
   if Request.MethodType = mtPost then
   begin
     title := Request.ContentFields.Values['title'];
@@ -795,7 +798,7 @@ begin
   end;
   FDTable1.First;
   Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := DataSetPageProducer6.Content;
+  Response.Content := titleList.Content;
 end;
 
 procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
@@ -805,7 +808,7 @@ begin
   try
     mysearch.WordList := Request.ContentFields.Values['word1'];
     Response.ContentType := 'text/html;charset=utf8';
-    Response.Content := PageProducer3.Content;
+    Response.Content := search.Content;
   finally
     mysearch.Free;
   end;
@@ -829,10 +832,10 @@ begin
     end;
   end;
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := PageProducer1.Content;
+  Response.Content := top.Content;
 end;
 
-procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
+procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   fs: TFileStream;
@@ -874,10 +877,10 @@ begin
     end;
   end;
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := DataSetPageProducer3.Content;
+  Response.Content := alertContent.Content;
 end;
 
-procedure TWebModule1.WebModule1WebActionItem6Action(Sender: TObject;
+procedure TWebModule1.WebModule1helpAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   fs: TFileStream;
@@ -903,10 +906,10 @@ begin
     end;
   end;
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := PageProducer5.Content;
+  Response.Content := help.Content;
 end;
 
-procedure TWebModule1.WebModule1WebActionItem7Action(Sender: TObject;
+procedure TWebModule1.WebModule1renameAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   DB: integer;
@@ -929,7 +932,7 @@ begin
   if mente and (Request.PathInfo <> '/master') then
   begin
     Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := PageProducer4.Content;
+    Response.Content := mentenance.Content;
     Handled := true;
   end;
 end;
@@ -946,7 +949,7 @@ begin
   finally
     ini.Free;
   end;
-  DataSetTableProducer1.MaxRows := count;
+  adminTable.MaxRows := count;
   bglist := TStringList.Create;
   FDQuery1.Open('select * from adlist;');
   FDMemTable1.Data := FDQuery1.Data;
