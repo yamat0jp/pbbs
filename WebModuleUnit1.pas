@@ -26,9 +26,11 @@ type
   private
     FText, FWordList: string;
     FList, FResultLST: TStringList;
-    function checkState(var st: integer; word, line: string): TFindState;
+    function checkState(var st: integer; var bool: Boolean; word, line: string)
+      : TFindState;
     procedure processNormal(var id: integer; word, line: string);
-    procedure processShort(var id, ln: integer; word: string; var line: string);
+    procedure processShort(var id, ln: integer; var bool: Boolean; word: string;
+      var line: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -84,40 +86,40 @@ type
     RESTResponse1: TRESTResponse;
     OAuth2Authenticator1: TOAuth2Authenticator;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
-    procedure indexHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure indexHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
     procedure adminTableFormatCell(Sender: TObject;
       CellRow, CellColumn: integer; var BgColor: THTMLBgColor;
       var Align: THTMLAlign; var VAlign: THTMLVAlign;
       var CustomAttrs, CellData: string);
     procedure WebModuleCreate(Sender: TObject);
-    procedure adminHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure WebModule1alertAction(Sender: TObject;
-      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
+    procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
     procedure alertContentHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure searchHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure searchHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleBeforeDispatch(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1helpAction(Sender: TObject;
-      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1renameAction(Sender: TObject;
-      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1helpAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1renameAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
     procedure mainLoopHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleDestroy(Sender: TObject);
-    procedure helpHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure helpHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1searchItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1mainItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure topJQueryHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure topHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure topHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1adminPageAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1showTopAction(Sender: TObject; Request: TWebRequest;
@@ -126,10 +128,9 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure PageProducer6HTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure adTableCreateContent(Sender: TObject;
-      var Continue: Boolean);
-    procedure masterHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure adTableCreateContent(Sender: TObject; var Continue: Boolean);
+    procedure masterHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
+      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1membersAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure PageProducer9HTMLTag(Sender: TObject; Tag: TTag;
@@ -150,6 +151,9 @@ type
     function ActiveRecordisNew: Boolean;
     function replaceRawData(Data: string): string;
     function islastproc: integer;
+    function txtForSearch(const bbsname, jump, Text: string): string;
+    function nameForSearch(const bbsname, jump, Text: string): string;
+    function nameTableLocate(var bbsname, jump, Text: string): Boolean;
   public
     { public êÈåæ }
   end;
@@ -454,8 +458,7 @@ end;
 procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
-  temp, Text, bbsName, name, comment, jump: string;
-  cnt, DB, tn, cn: integer;
+  Text, bbsname, jump: string;
   bool: Boolean;
 begin
   if TagString = 'adtext' then
@@ -481,46 +484,15 @@ begin
     try
       while not FDQuery1.Eof do
       begin
-        DB := FDQuery1.FieldByName('dbnumber').AsInteger;
-        tn := FDQuery1.FieldByName('titlenum').AsInteger;
-        cn := FDQuery1.FieldByName('cmnumber').AsInteger;
-        if not FDQuery2.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
+        if not nameTableLocate(bbsname, jump, Text) then
         begin
           FDQuery1.Next;
           Continue;
         end;
-        bbsName := Format('(%s:%s)', [FDQuery2.FieldByName('dbname').AsString,
-          FDQuery2.FieldByName('title').AsString]);
-        cnt := FDQuery1.FieldByName('comcnt').AsInteger;
-        comment := FDQuery1.FieldByName('comment').AsString;
-        temp := readComment(comment, 0, cnt);
         if bool then
-        begin
-          Text := mysearch.Execute(temp);
-          if Text <> '' then
-          begin
-            temp := '<pre><code>' + readComment(comment, cnt, -1) +
-              '</code></pre>';
-            jump := Format(' <a href="/bbs?db=%d&tn=%d#%d">jump</a>',
-              [DB, tn, cn]);
-            ReplaceText := ReplaceText + bbsName + jump +
-              mainLoop.Content + makeComment(Text) + temp + '<hr>';
-          end;
-        end
+          ReplaceText := ReplaceText + txtForSearch(bbsname, jump, Text)
         else
-        begin
-          name := Request.ContentFields.Values['word1'];
-          if name = '' then
-          begin
-            FDQuery1.Next;
-            Continue;
-          end
-          else if name = nobody then
-            name := '';
-          if name = FDQuery1.FieldByName('name').AsString then
-            ReplaceText := ReplaceText + bbsName + mainLoop.Content
-              + makeComment(Text, -1) + temp + '<hr>';
-        end;
+          ReplaceText := ReplaceText + nameForSearch(bbsname, jump, Text);
         FDQuery1.Next;
       end;
     finally
@@ -534,7 +506,7 @@ begin
     ReplaceText := '<hr>' + ReplaceText;
   end
   else if TagString = 'word' then
-    ReplaceText := '"'+mysearch.WordList+'"';
+    ReplaceText := '"' + mysearch.WordList + '"';
 end;
 
 procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
@@ -611,11 +583,62 @@ begin
   end;
 end;
 
+function TWebModule1.txtForSearch(const bbsname, jump, Text: string): string;
+var
+  cnt: integer;
+  temp, code: string;
+begin
+  cnt := FDQuery1.FieldByName('comcnt').AsInteger;
+  temp := mysearch.Execute(readComment(Text, 0, cnt));
+  if temp <> '' then
+  begin
+    code := readComment(Text, cnt, -1);
+    if code <> '' then
+      code := '<pre><code>' + code + '</code></pre>';
+    result := bbsname + jump + mainLoop.Content + makeComment(temp) +
+      code + '<hr>';
+  end
+  else
+    result := '';
+end;
+
 procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 begin
   if (TagString = 'checked') and mente then
     ReplaceText := 'checked';
+end;
+
+function TWebModule1.nameForSearch(const bbsname, jump, Text: string): string;
+var
+  name: string;
+begin
+  name := Request.ContentFields.Values['word1'];
+  if name = '' then
+    Exit('')
+  else if Name = nobody then
+    name := '';
+  if name = FDQuery1.FieldByName('name').AsString then
+    result := bbsname + jump + mainLoop.Content + '<hr>'
+  else
+    result := '';
+end;
+
+function TWebModule1.nameTableLocate(var bbsname, jump, Text: string): Boolean;
+var
+  DB, tn, cn: integer;
+begin
+  DB := FDQuery1.FieldByName('dbnumber').AsInteger;
+  tn := FDQuery1.FieldByName('titlenum').AsInteger;
+  cn := FDQuery1.FieldByName('cmnumber').AsInteger;
+  if not FDQuery2.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
+    Exit(false)
+  else
+    result := true;
+  bbsname := Format('(%s:%s)', [FDQuery2.FieldByName('dbname').AsString,
+    FDQuery2.FieldByName('title').AsString]);
+  jump := Format(' <a href="/bbs?db=%d&tn=%d&page=%d">jump</a>', [DB, tn, cn]);
+  Text := FDQuery1.FieldByName('comment').AsString;
 end;
 
 procedure TWebModule1.PageProducer9HTMLTag(Sender: TObject; Tag: TTag;
@@ -771,7 +794,7 @@ begin
   FDTable1.Filtered := true;
   if FDTable1.RecordCount = 0 then
   begin
-    Handled:=false;
+    Handled := false;
     Exit;
   end;
   if Request.MethodType = mtPost then
@@ -976,11 +999,8 @@ end;
 const
   str = '<span style=background-color:yellow>%s</span>';
 
-var
-  bool: Boolean;
-
-function TPageSearch.checkState(var st: integer; word, line: string)
-  : TFindState;
+function TPageSearch.checkState(var st: integer; var bool: Boolean;
+  word, line: string): TFindState;
 begin
   result := fdNone;
   for var id := st to Length(line) do
@@ -1019,8 +1039,8 @@ begin
   inc(id, Length(word));
 end;
 
-procedure TPageSearch.processShort(var id, ln: integer; word: string;
-  var line: string);
+procedure TPageSearch.processShort(var id, ln: integer; var bool: Boolean;
+  word: string; var line: string);
 var
   wrd: string;
   cnt: integer;
@@ -1044,7 +1064,7 @@ begin
     end;
     line := FList[ln];
     id := 1;
-    state := checkState(id, wrd, line);
+    state := checkState(id, bool, wrd, line);
     inc(id, Length(wrd));
   end;
   bool := cnt = 0;
@@ -1055,6 +1075,7 @@ var
   i, id: integer;
   state: TFindState;
   s: string;
+  bool: Boolean;
 begin
   FList.Text := Text;
   bool := false;
@@ -1066,10 +1087,10 @@ begin
     while i < FList.count do
     begin
       s := FList[i];
-      state := checkState(id, str, s);
+      state := checkState(id, bool, str, s);
       case state of
         fdShort:
-          processShort(id, i, str, s);
+          processShort(id, i, bool, str, s);
         fdNormal:
           processNormal(id, str, s);
         fdNone:
