@@ -24,7 +24,7 @@ type
 
   TPageSearch = class
   private
-    FText, FWordList: string;
+    FText, FWordList, FBlindStr: string;
     FList, FResultLST: TStringList;
     function checkState(var st: integer; var bool: Boolean; word, line: string)
       : TFindState;
@@ -1096,11 +1096,10 @@ var
   state: TFindState;
   s: string;
   bool: Boolean;
-  strArray: TARray<string>;
 begin
   FList.Text := Text;
   bool := false;
-  for var str in WordList.Split([' ']) do
+  for var str in FBlindStr.Split([' ']) do
   begin
     if str = '' then
       Continue;
@@ -1141,7 +1140,7 @@ begin
     for var str in FWordList.Split([' ', 'Å@']) do
       if str <> '' then
         lst.Add(str, Length(str));
-    FWordList := '';
+    FBlindStr := '';
     while lst.count > 0 do
     begin
       max := 0;
@@ -1152,7 +1151,7 @@ begin
           max := pair.Value;
         end;
       lst.Remove(tmp);
-      FWordList := FWordList + ' ' + tmp;
+      FBlindStr := FBlindStr + ' ' + tmp;
     end;
   finally
     lst.Free;
