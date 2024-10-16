@@ -31,11 +31,13 @@ type
     procedure processNormal(var id: integer; word, line: string);
     procedure processShort(var id, ln: integer; var bool: Boolean; word: string;
       var line: string);
+    procedure initWordList;
+    procedure SetWordList(const Value: string);
   public
     constructor Create;
     destructor Destroy; override;
     function Execute(const Text: string): string; virtual;
-    property WordList: string read FWordList write FWordList;
+    property WordList: string read FWordList write SetWordList;
   end;
 
   TWebModule1 = class(TWebModule)
@@ -137,6 +139,8 @@ type
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure titleListHTMLTag(Sender: TObject; Tag: TTag;
       const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure formDesignHTMLTag(Sender: TObject; Tag: TTag;
+      const TagString: string; TagParams: TStrings; var ReplaceText: string);
   private
     { private êÈåæ }
     count: integer;
@@ -166,6 +170,8 @@ implementation
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}
+
+uses System.Generics.Collections;
 
 const
   fname = 'data/voice.txt';
@@ -296,6 +302,13 @@ begin
     ReplaceText := Request.Query;
 end;
 
+procedure TWebModule1.formDesignHTMLTag(Sender: TObject; Tag: TTag;
+  const TagString: string; TagParams: TStrings; var ReplaceText: string);
+begin
+  if TagString = 'ad' then
+    ReplaceText := FDMemTable1.FieldByName('adtext').AsString;
+end;
+
 procedure TWebModule1.titleListHTMLTag(Sender: TObject; Tag: TTag;
   const TagString: string; TagParams: TStrings; var ReplaceText: string);
 var
@@ -338,7 +351,7 @@ begin
       0:
         CellData := Format('<input type=checkbox name=check value=%d>',
           [FDTable2.FieldByName('cmnumber').AsInteger]);
-      4:
+      3:
         begin
           s := Request.QueryFields.Values['page'];
           if s <> '' then
@@ -1071,12 +1084,19 @@ begin
   bool := cnt = 0;
 end;
 
+procedure TPageSearch.SetWordList(const Value: string);
+begin
+  FWordList := Value;
+  initWordList;
+end;
+
 function TPageSearch.Execute(const Text: string): string;
 var
   i, id: integer;
   state: TFindState;
   s: string;
   bool: Boolean;
+  strArray: TARray<string>;
 begin
   FList.Text := Text;
   bool := false;
@@ -1104,12 +1124,39 @@ begin
           end;
       end;
     end;
-    FList.Text := FText;
+    if bool then
+      Exit(FText);
   end;
-  if bool then
-    result := FList.Text
-  else
-    result := '';
+  result := '';
+end;
+
+procedure TPageSearch.initWordList;
+var
+  lst: TDictionary<string, integer>;
+  max: integer;
+  tmp: string;
+begin
+  lst := TDictionary<string, integer>.Create;
+  try
+    for var str in FWordList.Split([' ', 'Å@']) do
+      if str <> '' then
+        lst.Add(str, Length(str));
+    FWordList := '';
+    while lst.count > 0 do
+    begin
+      max := 0;
+      for var pair in lst do
+        if max < pair.Value then
+        begin
+          tmp := pair.Key;
+          max := pair.Value;
+        end;
+      lst.Remove(tmp);
+      FWordList := FWordList + ' ' + tmp;
+    end;
+  finally
+    lst.Free;
+  end;
 end;
 
 end.

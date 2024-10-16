@@ -201,10 +201,6 @@ object WebModule1: TWebModule1
         Title.Caption = 'NUMBER'
       end
       item
-        FieldName = 'TITLE'
-        Title.BgColor = 'Aqua'
-      end
-      item
         FieldName = 'NAME'
         Title.BgColor = 'Aqua'
       end
@@ -216,10 +212,13 @@ object WebModule1: TWebModule1
       end>
     MaxRows = 0
     DataSet = FDTable2
+    TableAttributes.Align = haCenter
     TableAttributes.BgColor = 'White'
+    TableAttributes.CellSpacing = 10
+    TableAttributes.Width = 85
     OnFormatCell = adminTableFormatCell
     Left = 248
-    Top = 256
+    Top = 296
   end
   object admin: TPageProducer
     HTMLFile = '.\templates\admin.htm'
@@ -254,6 +253,7 @@ object WebModule1: TWebModule1
   object formDesign: TDataSetPageProducer
     HTMLFile = '.\templates\form.htm'
     DataSet = FDTable1
+    OnHTMLTag = formDesignHTMLTag
     Left = 128
     Top = 176
   end
@@ -363,7 +363,7 @@ object WebModule1: TWebModule1
     TableAttributes.Width = 50
     OnCreateContent = adTableCreateContent
     Left = 248
-    Top = 344
+    Top = 368
   end
   object master: TPageProducer
     HTMLFile = '.\templates\master.htm'
