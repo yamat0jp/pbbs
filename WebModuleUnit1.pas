@@ -1,4 +1,4 @@
-unit WebModuleUnit1;
+Ôªøunit WebModuleUnit1;
 
 interface
 
@@ -17,15 +17,17 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   REST.Response.Adapter, REST.Client, Data.Bind.Components,
   Data.Bind.ObjectScope,
   REST.Authenticator.OAuth, FireDAC.Comp.UI,
-  FireDAC.ConsoleUI.Wait, REST.Authenticator.OAuth.WebForm.Win;
+  FireDAC.ConsoleUI.Wait, REST.Authenticator.OAuth.WebForm.Win, Web.Stencils,
+  System.JSON;
 
 type
   TFindState = (fdShort, fdNormal, fdNone);
 
   TPageSearch = class
   private
-    FText, FWordList, FBlindStr: string;
+    FWordList, FBlindStr: string;
     FList, FResultLST: TStringList;
+    FStBuild: TStringBuilder;
     function checkState(var st: integer; var bool: Boolean; word, line: string)
       : TFindState;
     procedure processNormal(var id: integer; word, line: string);
@@ -42,107 +44,53 @@ type
 
   TWebModule1 = class(TWebModule)
     FDConnection1: TFDConnection;
-    FDTable1: TFDTable;
-    FDTable2: TFDTable;
-    index: TDataSetPageProducer;
-    top: TPageProducer;
-    mainLoop: TDataSetPageProducer;
-    adminTable: TDataSetTableProducer;
-    admin: TPageProducer;
-    alertContent: TDataSetPageProducer;
-    search: TPageProducer;
     mentenance: TPageProducer;
-    help: TPageProducer;
-    formDesign: TDataSetPageProducer;
     WebFileDispatcher1: TWebFileDispatcher;
-    topJQuery: TPageProducer;
-    DataSource1: TDataSource;
     FDQuery1: TFDQuery;
-    FDQuery2: TFDQuery;
-    PageProducer6: TPageProducer;
-    adTable: TDataSetTableProducer;
     master: TPageProducer;
-    FDMemTable1: TFDMemTable;
-    FDMemTable1adtext: TWideStringField;
-    FDMemTable1company: TWideStringField;
-    FDTable2DBNUMBER: TIntegerField;
-    FDTable2CMNUMBER: TIntegerField;
-    FDTable2TITLENUM: TIntegerField;
-    FDTable2COMMENT: TWideMemoField;
-    FDTable2DATETIME: TDateField;
-    members: TDataSetPageProducer;
-    PageProducer9: TPageProducer;
-    FDMemTable1id: TIntegerField;
-    FDMemTable1rank: TIntegerField;
-    FDTable1DBNUMBER: TIntegerField;
-    FDTable1DBNAME: TWideStringField;
-    FDTable1TITLENUM: TIntegerField;
-    FDTable1TITLE: TWideStringField;
-    FDMemTable1enabled: TBooleanField;
-    FDTable1ID: TIntegerField;
-    titleList: TDataSetPageProducer;
-    FDTable2NAME: TWideStringField;
-    FDTable2COMCNT: TIntegerField;
-    RESTClient1: TRESTClient;
-    RESTRequest1: TRESTRequest;
-    RESTResponse1: TRESTResponse;
-    OAuth2Authenticator1: TOAuth2Authenticator;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
-    procedure indexHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
-    procedure adminTableFormatCell(Sender: TObject;
-      CellRow, CellColumn: integer; var BgColor: THTMLBgColor;
-      var Align: THTMLAlign; var VAlign: THTMLVAlign;
-      var CustomAttrs, CellData: string);
+    WebStencilsProcessor1: TWebStencilsProcessor;
+    WebStencilsProcessor2: TWebStencilsProcessor;
+    WebStencilsProcessor3: TWebStencilsProcessor;
+    WebStencilsProcessor4: TWebStencilsProcessor;
+    WebStencilsProcessor5: TWebStencilsProcessor;
+    WebStencilsEngine1: TWebStencilsEngine;
+    FDPhysPgDriverLink1: TFDPhysPgDriverLink;
+    WebStencilsProcessor6: TWebStencilsProcessor;
+    WebStencilsProcessor7: TWebStencilsProcessor;
+    FDQuery2: TFDQuery;
+    WebStencilsProcessor8: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
-    procedure adminHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure alertContentHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure searchHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleBeforeDispatch(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1helpAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1renameAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure mainLoopHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
     procedure WebModuleDestroy(Sender: TObject);
-    procedure helpHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1searchItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1mainItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure topJQueryHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure topHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1adminPageAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1showTopAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
-    procedure PageProducer6HTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure adTableCreateContent(Sender: TObject; var Continue: Boolean);
-    procedure masterHTMLTag(Sender: TObject; Tag: TTag; const TagString: string;
-      TagParams: TStrings; var ReplaceText: string);
     procedure WebModule1membersAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure PageProducer9HTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure titleListHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
-    procedure formDesignHTMLTag(Sender: TObject; Tag: TTag;
-      const TagString: string; TagParams: TStrings; var ReplaceText: string);
+    procedure FDQuery1FilterRecord(DataSet: TDataSet; var Accept: Boolean);
+    procedure WebStencilsProcessor5Value(Sender: TObject; const AObjectName,
+      APropName: string; var AValue: string; var AHandled: Boolean);
+    procedure WebStencilsProcessor6Value(Sender: TObject; const AObjectName,
+      APropName: string; var AValue: string; var AHandled: Boolean);
+    procedure WebModule1linkItemAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
   private
-    { private êÈåæ }
+    { private ÂÆ£Ë®Ä }
     count: integer;
     pagecount: integer;
     mente: Boolean;
@@ -151,15 +99,11 @@ type
     bglist: TStringList;
     function readComment(const Text: string; st, cnt: integer): string;
     function makeComment(const Text: string; cnt: integer = -1): string;
-    function makeFooter(script: string; id: integer): string;
-    function ActiveRecordisNew: Boolean;
+    function makeFooter(script: string; db, id: integer): TJSONObject;
     function replaceRawData(Data: string): string;
-    function islastproc: integer;
-    function txtForSearch(const bbsname, jump, Text: string): string;
-    function nameForSearch(const bbsname, jump, Text: string): string;
-    function nameTableLocate(var bbsname, jump, Text: string): Boolean;
+    procedure PageIndex(AQuery: TFDQuery; page: integer);
   public
-    { public êÈåæ }
+    { public ÂÆ£Ë®Ä }
   end;
 
 var
@@ -177,198 +121,11 @@ const
   fname = 'data/voice.txt';
   nobody = 'no name';
 
-function TWebModule1.ActiveRecordisNew: Boolean;
-var
-  day: TDateTime;
+procedure TWebModule1.FDQuery1FilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
 begin
-  FDQuery2.SQL.Text :=
-    'select max(datetime) as large from maintable where dbnumber = :db;';
-  FDQuery2.ParamByName('db').AsInteger := FDQuery1.FieldByName('dbnumber')
-    .AsInteger;
-  FDQuery2.Open;
-  day := Now - FDQuery2.FieldByName('large').AsDateTime;
-  FDQuery2.Close;
-  result := day < 1;
-end;
-
-function TWebModule1.islastproc: integer;
-var
-  i: integer;
-begin
-  i := StrToIntDef(Request.QueryFields.Values['page'], 0);
-  if (i = 0) or ((i - 1) * count >= FDTable2.RecordCount) then
-  begin
-    result := 0;
-    FDTable2.Last;
-    FDTable2.MoveBy(-count + 1);
-  end
-  else
-  begin
-    result := i;
-    FDTable2.First;
-    FDTable2.MoveBy((result - 1) * count);
-  end;
-end;
-
-procedure TWebModule1.indexHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  id, DB, cnt, com: integer;
-begin
-  id := islastproc;
-  if TagString = 'form' then
-  begin
-    if count * pagecount > FDTable2.RecordCount then
-      ReplaceText := formDesign.Content
-    else
-      ReplaceText := '<h1>èëÇ´çûÇ›ç≈ëÂêîÇ…íBÇµÇ‹ÇµÇΩÅBÇ±ÇÍà»è„èëÇ´çûÇﬂÇ‹ÇπÇÒÅB</h1>';
-  end
-  else if TagString = 'main' then
-  begin
-    cnt := count;
-    com := 3;
-    DB := FDTable1.FieldByName('dbnumber').AsInteger;
-    while not FDTable2.Eof and (cnt > 0) do
-    begin
-      if com = 0 then
-      begin
-        ReplaceText := ReplaceText +
-          Format('<hr><p>çLçê</p><div align="center">%s</div><hr>',
-          [FDMemTable1.FieldByName('adtext').AsString]);
-        FDMemTable1.Next;
-        if FDMemTable1.Eof then
-          FDMemTable1.First;
-        com := 5;
-      end;
-      ReplaceText := ReplaceText + mainLoop.Content +
-        Format('<p style="text-align:end"><a href="/alert?db=%d&tn=%d&page=%d">ïÒçê</a></p>',
-        [DB, FDTable1.FieldByName('titlenum').AsInteger,
-        FDTable2.FieldByName('cmnumber').AsInteger]);
-      FDTable2.Next;
-      dec(cnt);
-      dec(com);
-    end;
-  end
-  else if TagString = 'footer' then
-    ReplaceText := makeFooter('bbs', id);
-end;
-
-procedure TWebModule1.mainLoopHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  Text: string;
-  cnt: integer;
-  DataSet: TDataSet;
-begin
-  if TagString = 'comment' then
-  begin
-    if commentoff then
-      ReplaceText := ''
-    else
-    begin
-      DataSet := mainLoop.DataSet;
-      cnt := DataSet.FieldByName('comcnt').AsInteger;
-      Text := DataSet.FieldByName('comment').AsString;
-      ReplaceText := makeComment(Text, cnt);
-    end;
-  end
-  else if TagString = 'username' then
-  begin
-    Text := mainLoop.DataSet.FieldByName('name').AsString;
-    if Text = '' then
-      ReplaceText := nobody
-    else
-      ReplaceText := Text;
-  end;
-end;
-
-procedure TWebModule1.alertContentHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if TagString = 'article' then
-  begin
-    if Request.MethodType = mtGet then
-      ReplaceText := mainLoop.Content;
-  end
-  else if TagString = 'message' then
-  begin
-    if Request.MethodType = mtGet then
-      ReplaceText :=
-        '<textarea name=com></textarea><p style=text-align:center><input name=admit type=submit value="ëóêM">'
-    else
-      ReplaceText := 'Ç≤ã¶óÕÇ†ÇËÇ™Ç∆Ç§Ç≤Ç¥Ç¢Ç‹ÇµÇΩ';
-  end
-  else if TagString = 'query' then
-    ReplaceText := Request.Query;
-end;
-
-procedure TWebModule1.formDesignHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if TagString = 'ad' then
-    ReplaceText := FDMemTable1.FieldByName('adtext').AsString;
-end;
-
-procedure TWebModule1.titleListHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  str: string;
-  DB, num, cnt: integer;
-begin
-  if (TagString = 'form') and (Request.PathInfo = '/members') then
-    ReplaceText := members.Content
-  else if TagString = 'table' then
-  begin
-    DB := FDTable1.FieldByName('dbnumber').AsInteger;
-    cnt := 1;
-    while not FDTable1.Eof do
-    begin
-      str := FDTable1.FieldByName('title').AsString;
-      num := FDTable1.FieldByName('titlenum').AsInteger;
-      if FDTable1.RecordCount = 1 then
-        ReplaceText := Format('<p align=center>%s</p>', [str])
-      else if num > 1 then
-      begin
-        ReplaceText := ReplaceText +
-          Format('<p align="center"><a href="/bbs?db=%d&tn=%d" style="text-decoration:none">[ %d ] %s</a> ìäçeêî:%d</p>',
-          [DB, num, cnt, str, FDTable2.RecordCount]);
-        inc(cnt);
-      end;
-      FDTable1.Next;
-    end;
-  end;
-end;
-
-procedure TWebModule1.adminTableFormatCell(Sender: TObject;
-  CellRow, CellColumn: integer; var BgColor: THTMLBgColor;
-  var Align: THTMLAlign; var VAlign: THTMLVAlign;
-  var CustomAttrs, CellData: string);
-var
-  s: string;
-begin
-  if CellRow > 0 then
-    case CellColumn of
-      0:
-        CellData := Format('<input type=checkbox name=check value=%d>',
-          [FDTable2.FieldByName('cmnumber').AsInteger]);
-      3:
-        begin
-          s := Request.QueryFields.Values['page'];
-          if s <> '' then
-            s := '&page=' + s;
-          CellData := Format('<a href="/admin?db=%s&tn=%s%s&link=%d">go</a>',
-            [Request.QueryFields.Values['db'], Request.QueryFields.Values['tn'],
-            s, FDTable2.FieldByName('cmnumber').AsInteger]);
-        end;
-    end;
-  if (CellRow > 1) and (CellRow mod 2 = 0) then
-    BgColor := 'Silver';
-end;
-
-procedure TWebModule1.adTableCreateContent(Sender: TObject;
-  var Continue: Boolean);
-begin
-  adTable.Header.Text := master.Content;
+  for var i := 0 to Request.ContentFields.Count-1 do
+    Accept := Request.ContentFields.Names[i] = 'check';
 end;
 
 function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
@@ -409,263 +166,42 @@ begin
   end;
 end;
 
-function TWebModule1.makeFooter(script: string; id: integer): string;
+function TWebModule1.makeFooter(script: string; db, id: integer): TJSONObject;
 var
-  t: string;
-  DB, tn: integer;
-begin
-  if id = 0 then
-    t := ' active'
-  else
-    t := '';
-  bglist.Clear;
-  bglist.Add
-    ('<nav aria-label="Page navigation"><ul class="pagination pagination-sm justify-content-center">');
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  tn := Request.QueryFields.Values['tn'].ToInteger;
-  for var i := 1 to pagecount do
-  begin
-    if i = id then
-      bglist.Add('<li class="page-item active">')
-    else
-      bglist.Add('<li class="page-item">');
-    bglist.Add
-      (Format('<a class="page-link" href="/%s?db=%d&tn=%d&page=%d">%d</a></li>',
-      [script, DB, tn, i, i]));
-  end;
-  bglist.Add
-    (Format('<li class="page-item%s"><a class="page-link" href="/%s?db=%d&tn=%d">Ç≥Ç¢Ç≤</a></li></ul></nav>',
-    [t, script, DB, tn]));
-  result := bglist.Text;
-end;
-
-procedure TWebModule1.topHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if TagString = 'main' then
-    ReplaceText := topJQuery.Content;
-end;
-
-procedure TWebModule1.adminHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  id: integer;
-begin
-  id := islastproc;
-  if TagString = 'table' then
-    ReplaceText := adminTable.Content
-  else if TagString = 'dbnumber' then
-    ReplaceText := Request.QueryFields.Values['db']
-  else if TagString = 'titlenum' then
-    ReplaceText := Request.QueryFields.Values['tn']
-  else if TagString = 'footer' then
-    ReplaceText := makeFooter('admin', id)
-  else if TagString = 'section' then
-  begin
-    id := StrToIntDef(Request.QueryFields.Values['link'], 0);
-    if FDTable2.Locate('cmnumber', id) then
-      ReplaceText := mainLoop.Content;
-  end;
-end;
-
-procedure TWebModule1.searchHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  Text, bbsname, jump: string;
-  bool: Boolean;
-begin
-  if TagString = 'adtext' then
-  begin
-    ReplaceText := '<p>' + FDMemTable1.FieldByName('adtext').AsString + '</p>';
-    if FDMemTable1.Eof then
-      FDMemTable1.First
-    else
-      FDMemTable1.Next;
-  end
-  else if (TagString = 'main') and (Request.MethodType = mtPost) then
-  begin
-    if Request.ContentFields.Values['filter'] = 'com' then
-    begin
-      commentoff := true;
-      bool := true;
-    end
-    else
-      bool := false;
-    FDQuery1.Open('select * from maintable order by datetime desc;');
-    mainLoop.DataSet := FDQuery1;
-    try
-      while not FDQuery1.Eof do
-      begin
-        if not nameTableLocate(bbsname, jump, Text) then
-        begin
-          FDQuery1.Next;
-          Continue;
-        end;
-        if bool then
-          ReplaceText := ReplaceText + txtForSearch(bbsname, jump, Text)
-        else
-          ReplaceText := ReplaceText + nameForSearch(bbsname, jump, Text);
-        FDQuery1.Next;
-      end;
-    finally
-      mainLoop.DataSet := FDTable2;
-      FDQuery1.Close;
-      commentoff := false;
-    end;
-    if ReplaceText = '' then
-      ReplaceText := 'å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩ';
-    ReplaceText := '<hr>' + ReplaceText;
-  end
-  else if TagString = 'word' then
-    ReplaceText := '"' + mysearch.WordList + '"';
-end;
-
-procedure TWebModule1.helpHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if TagString = 'code' then
-  begin
-    if Request.MethodType = mtGet then
-      ReplaceText := '<input type=submit value="ëóêM">'
-    else
-      ReplaceText := 'Ç†ÇËÇ™Ç∆Ç§Ç≤Ç¥Ç¢Ç‹ÇµÇΩ';
-  end;
-end;
-
-procedure TWebModule1.PageProducer6HTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if TagString = 'link' then
-    ReplaceText := '';
-end;
-
-procedure TWebModule1.topJQueryHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-const
-  conf = 7;
-var
-  s, t: string;
+  js, jsItem: TJSONObject;
+  jaItem: TJSONArray;
   num: integer;
 begin
-  FDQuery1.Open('select * from nametable where titlenum = 1;');
-  if TagString = 'first' then
+  FDQuery1.Open('select * from datatable;');
+  if not FDQuery1.Locate('dbnumber,tablenum',VarArrayOf([db,id])) then
+    Exit(nil);
+  num:=FDQuery1.RecordCount div count +1;
+  js:=TJSONObject.Create;
+  js.AddPair('path',Format('/%s/%d',[script,db]));
+  js.AddPair('count',TJSONNumber.Create(num));
+  jaItem:=TJSONArray.Create;
+  js.AddPair('items',jaItem);
+  for var i := 1 to pagecount do
   begin
-    for var i := 0 to (FDQuery1.RecordCount - 1) div conf do
-      if i = 0 then
-        ReplaceText :=
-          '<li data-target="#slide-1" data-slide-to="0" class="active"></li>'
-      else
-        ReplaceText := ReplaceText +
-          Format('<li data-target="#slide-1" data-slide-to=%d></li>', [i]);
-  end
-  else if TagString = 'second' then
-  begin
-    bglist.Clear;
-    for var i := 0 to (FDQuery1.RecordCount - 1) div conf do
-    begin
-      if i = 0 then
-        bglist.Add('<div class="carousel-item active">')
-      else
-        bglist.Add('<div class="carousel-item">');
-      bglist.Add
-        (Format('<img class="d-sm-block d-none" src="img/slide%d.jpg" style="float:right;height:465px">',
-        [i + 1]));
-      bglist.Add('<div style="height:465px"></div>');
-      bglist.Add
-        ('<div class="carousel-caption text-left" style="font-size:1.5rem;">');
-      for var j := 1 to conf do
-      begin
-        if FDQuery1.Eof then
-          break;
-        t := FDQuery1.FieldByName('dbname').AsString;
-        num := FDQuery1.FieldByName('dbnumber').AsInteger;
-        if ActiveRecordisNew then
-          s := ' style="background-color:aqua;"'
-        else
-          s := '';
-        FDQuery1.Next;
-        bglist.Add(Format('<p><a href="/list?db=%d"%s>%s</a></p>',
-          [num, s, t]));
-      end;
-      bglist.Add('</div></div>');
-    end;
-    ReplaceText := bglist.Text;
-    FDQuery1.Close;
+    jsItem:=TJSONObject.Create;
+    js.AddPair('index',TJSONNumber.Create(id));
+    jaItem.AddElement(jsItem);
   end;
+  result := js;
 end;
 
-function TWebModule1.txtForSearch(const bbsname, jump, Text: string): string;
-var
-  cnt: integer;
-  temp, code: string;
+procedure TWebModule1.PageIndex(AQuery: TFDQuery; page: integer);
 begin
-  cnt := FDQuery1.FieldByName('comcnt').AsInteger;
-  temp := mysearch.Execute(readComment(Text, 0, cnt));
-  if temp <> '' then
+  AQuery.Open('select count(*) as cnt from maintable;');
+  if (page = 0) or ((page - 1) * count >= AQuery.FieldByName('cnt').AsInteger) then
   begin
-    code := readComment(Text, cnt, -1);
-    if code <> '' then
-      code := '<pre><code>' + code + '</code></pre>';
-    result := bbsname + jump + mainLoop.Content + makeComment(temp) +
-      code + '<hr>';
+    AQuery.Last;
+    AQuery.MoveBy(-count + 1);
   end
   else
-    result := '';
-end;
-
-procedure TWebModule1.masterHTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-begin
-  if (TagString = 'checked') and mente then
-    ReplaceText := 'checked';
-end;
-
-function TWebModule1.nameForSearch(const bbsname, jump, Text: string): string;
-var
-  name: string;
-begin
-  name := Request.ContentFields.Values['word1'];
-  if name = '' then
-    Exit('')
-  else if Name = nobody then
-    name := '';
-  if name = FDQuery1.FieldByName('name').AsString then
-    result := bbsname + jump + mainLoop.Content + '<hr>'
-  else
-    result := '';
-end;
-
-function TWebModule1.nameTableLocate(var bbsname, jump, Text: string): Boolean;
-var
-  DB, tn, id, cn: integer;
-begin
-  DB := FDQuery1.FieldByName('dbnumber').AsInteger;
-  tn := FDQuery1.FieldByName('titlenum').AsInteger;
-  cn := FDQuery1.FieldByName('cmnumber').AsInteger;
-  if FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) and
-    FDTable2.Locate('cmnumber', cn) then
-    result := true
-  else
-    Exit(false);
-  id := FDTable2.RecNo div count + 1;
-  bbsname := Format('(%s:%s)', [FDTable1.FieldByName('dbname').AsString,
-    FDTable1.FieldByName('title').AsString]);
-  jump := Format(' <a href="/bbs?db=%d&tn=%d&page=%d#%d">jump</a>',
-    [DB, tn, id, cn]);
-  Text := FDQuery1.FieldByName('comment').AsString;
-end;
-
-procedure TWebModule1.PageProducer9HTMLTag(Sender: TObject; Tag: TTag;
-  const TagString: string; TagParams: TStrings; var ReplaceText: string);
-var
-  ls: TStringList;
-begin
-  ls := TStringList.Create;
-  try
-    ls.LoadFromFile('.\js\login.js');
-    ReplaceText := ls.Text;
-  finally
-    ls.Free;
+  begin
+    AQuery.First;
+    AQuery.MoveBy((page - 1) * count);
   end;
 end;
 
@@ -695,118 +231,146 @@ end;
 
 function TWebModule1.replaceRawData(Data: string): string;
 const
-  ng = 'éÄÇÀ,à¢ï€,îné≠,éEÇ∑,îöîj';
+  ng = 'Ê≠ª„Å≠,Èòø‰øù,È¶¨Èπø,ÊÆ∫„Åô,ÁàÜÁ†¥';
 var
   s: string;
 begin
   result := Data;
   for s in ng.Split([',']) do
-    result := String(ReplaceText(AnsiString(result), AnsiString(s),
-      AnsiString('*****')));
+    result.Replace(s,'*****');
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  DB, tn: integer;
+  DB, id: integer;
+  params: TArray<string>;
 begin
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  tn := Request.QueryFields.Values['tn'].ToInteger;
-  if not FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
+  params:=Request.PathInfo.Split(['/']);
+  try
+    db:=params[2].ToInteger;
+    id:=params[3].ToInteger;
+  except
+    Handled:=false;
+    Exit;
+  end;
+  FDQuery1.Open('select * from maintable;');
+  if not FDQuery1.Locate('dbnumber',db) then
   begin
-    Handled := false;
+    Handled:=false;
+    FDQuery1.Close;
     Exit;
   end;
   if Request.MethodType = mtPost then
-    for var i := 0 to Request.ContentFields.count - 1 do
-      if Request.ContentFields.Names[i] = 'check' then
-      begin
-        FDTable2.First;
-        while FDTable2.Locate('cmnumber',
-          Request.ContentFields.ValueFromIndex[i]) do
-          FDTable2.Delete;
-        if FDTable2.RecordCount = 0 then
-          FDTable1.Delete;
-      end;
+  begin
+    FDQuery1.Filtered:=true;
+    FDQuery1.EmptyView;
+    FDQuery1.Filtered:=false;
+    if FDQuery1.IsEmpty then
+    begin
+      FDQuery1.Close;
+      FDQuery1.SQL.Text:='select * from datatable where dbnumber = :db;';
+      FDQuery1.Params.ParamByName('db').AsInteger:=db;
+      FDQuery1.Open;
+      FDQuery1.EmptyView;
+    end;
+  end;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text:='select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber;';
+  FDQuery1.Open;
+  WebStencilsProcessor3.AddVar('Items',FDQuery1,false);
+  WebStencilsProcessor3.AddVar('Info',makeFooter('admin',db,id));
   Response.ContentType := 'text/html;charset=utf-8;';
-  Response.Content := admin.Content;
+  Response.Content:=WebStencilsProcessor3.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  raw, name: string;
-  j, cnt: integer;
-  DB, tid: integer;
+  raw, code, name, title: string;
+  id, DB, page, tid: integer;
+  params: TArray<string>;
 begin
-  tid := Request.QueryFields.Values['tn'].ToInteger;
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  if not FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tid])) then
+  params:=Request.PathInfo.Split(['/']);
+  try
+    db:=params[2].ToInteger;
+    page:=StrToIntDef(params[3],0);
+  except
+    Handled:=false;
+    Exit;
+  end;
+  FDQuery1.Open('''
+    select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
+    INNER JOIN datas ON dt.dbnumber = datas.dbnumber;
+    ''');
+  if not FDQuery1.Locate('dbnumber',db) then
   begin
-    Handled := false;
+    FDQuery1.Close;
+    Handled:=false;
     Exit;
   end;
   if Request.MethodType = mtPost then
   begin
-    raw := replaceRawData(Request.ContentFields.Values['comment']);
     name := Request.ContentFields.Values['name'];
-    FDTable2.Last;
-    j := FDTable2.FieldByName('cmnumber').AsInteger + 1;
-    bglist.Text := TNetEncoding.HTML.Encode(raw);
-    raw := Request.ContentFields.Values['code'];
-    cnt := -1;
-    if raw <> '' then
-    begin
-      cnt := bglist.count;
-      bglist.Add(raw);
-    end;
-    FDTable2.AppendRecord([DB, j, tid, name, bglist.Text, Now, cnt]);
+    title:=Request.ContentFields.Values['title'];
+    raw := replaceRawData(Request.ContentFields.Values['comment']);
+    raw := TNetEncoding.HTML.Encode(raw);
+    code := Request.ContentFields.Values['code'];
+
+    FDQuery1.Last;
+    id:=FDQuery1.FieldByName('id').AsInteger+1;
+    tid := FDQuery1.FieldByName('titlenum').AsInteger + 1;
+
+    FDQuery1.Append;
+    FDQuery1.FieldByName('id').AsInteger:=id;
+    FDQuery1.FieldByName('dbnumber').AsInteger:=db;
+    FDQuery1.FieldByName('titlenum').AsInteger:=tid;
+    FDQuery1.FieldByName('name').AsString:=name;
+    FDQuery1.FieldByName('comment').AsString:=raw;
+    FDQuery1.FieldByName('datetime').AsDateTime:=Now;
+    FDQuery1.FieldByName('code').AsString:=code;
+    FDQuery1.Post;
   end;
+  WebStencilsProcessor1.AddVar('Datas',FDQuery1,false);
+  WebStencilsProcessor1.AddVar('Info',makeFooter('bbs',db,page));
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := index.Content;
+  Response.Content := WebStencilsProcessor1.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1masterAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  cnt, id: integer;
-  s: string;
+  id,num: integer;
 begin
+  FDQuery1.Open('select * from datas;');
   if Request.MethodType = mtPost then
   begin
-    mente := Request.ContentFields.Values['switch'] = 'mente';
-    bglist.Text := Request.ContentFields.Values['subjects'];
-    FDQuery1.Open('select max(dbnumber) as large from nametable;');
-    cnt := FDQuery1.FieldByName('large').AsInteger + 1;
-    FDQuery1.Open('select max(id) as large from nametable;');
-    id := FDQuery1.FieldByName('large').AsInteger + 1;
-    FDQuery1.Close;
-    for var i := 0 to bglist.count - 1 do
+    FDQuery1.Last;
+    id:=FDQuery1.FieldByName('id').AsInteger+1;
+    num:=FDQuery1.FieldByName('dbnumber').AsInteger+1;
+    for var i := 1 to 5 do
     begin
-      s := bglist[i];
-      if (s <> '') and not FDTable1.Locate('dbname', s) then
-      begin
-        FDTable1.AppendRecord([id, cnt, s, 1, 'New Space!!']);
-        inc(id);
-        inc(cnt);
-      end;
+      FDQuery1.AppendRecord([id,num,'Êé≤Á§∫Êùø'+i.ToString]);
+      inc(id);
+      inc(num);
     end;
   end;
-  FDMemTable1.First;
-  Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := adTable.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   name, title, code: string;
-  j, k, cnt, DB: integer;
+  id, db, tb, cnt: integer;
+  params: TArray<string>;
 begin
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  FDTable1.Filter := Format('dbnumber = ''%d''', [DB]);
-  FDTable1.Filtered := true;
-  if FDTable1.RecordCount = 0 then
+  params:=Request.PathInfo.Split(['/']);
+  db:=params[2].ToInteger;
+  FDQuery1.SQL.Add('select * from datatable dt INNER JOIN datas ON dt.dbnumber = datas.dbnumber;');
+  if not FDQuery1.Locate('dbnumber',db) then
   begin
     Handled := false;
     Exit;
@@ -822,20 +386,18 @@ begin
       cnt := bglist.count;
       bglist.Add(Format('<pre><code>%s</code></pre>', [code]));
     end;
-    name := FDTable1.FieldByName('dbname').AsString;
-    FDQuery1.Open('select max(id) as large from nametable;');
-    FDQuery2.Open('select max(titlenum) as large from nametable;');
-    k := FDQuery1.FieldByName('large').AsInteger + 1;
-    j := FDQuery2.FieldByName('large').AsInteger + 1;
+    name := FDQuery1.FieldByName('name').AsString;
+    id:=FDQuery1.FieldByName('id').AsInteger+1;
+    tb:=FDQuery1.FieldByName('tablenum').AsInteger+1;
     FDQuery1.Close;
-    FDQuery2.Close;
-    FDTable1.AppendRecord([k, DB, name, j, title]);
-    name := FDTable2.FieldByName('name').AsString;
-    FDTable2.AppendRecord([DB, 1, j, name, bglist.Text, Now, cnt]);
+    FDQuery1.Open('select * from maintable;');
+    FDQuery1.AppendRecord([DB, tb, bglist.Text, Now, cnt]);
+    FDQuery1.Close;
+    FDQuery1.Open('select * from datatable;');
+    FDQuery1.AppendRecord([id,db,tb,title, name]);
   end;
-  FDTable1.First;
   Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := titleList.Content;
+//  Response.Content := titleList.Content;
 end;
 
 procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
@@ -844,8 +406,16 @@ begin
   mysearch := TPageSearch.Create;
   try
     mysearch.WordList := Request.ContentFields.Values['word1'];
+    FDQuery1.Open('''
+      select ds.dbname,dt.name,dt.titlenum,mt.title,mt.datetime from datas ds
+      INNER JOIN datatable dt ON ds.dbnumber = dt.dbnumber
+      INNER JOIN maintable mt ON ds.dbnumber = mt.dbnumber
+      order by mt.datetime desc;
+      ''');
+    WebStencilsProcessor6.AddVar('Users',FDQuery1,false);
     Response.ContentType := 'text/html;charset=utf8';
-    Response.Content := search.Content;
+    Response.Content := WebStencilsProcessor6.Content;
+    FDQuery1.Close;
   finally
     mysearch.Free;
   end;
@@ -854,113 +424,167 @@ end;
 procedure TWebModule1.WebModule1showTopAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  DB, tn: Variant;
+  jsItem, jsSlide, jsRoot: TJSONObject;
+  jaItem, jaSlide: TJSONArray;
+  sIndex, iIndex, i: integer;
 begin
-  if Request.MethodType = mtPost then
+  FDQuery1.Open('select * from datas');
+  jsRoot:=TJSONObject.Create;
+  jaSlide:=TJSONArray.Create;
+  jsRoot.AddPair('slides',jaSlide);
+  sIndex:=0;
+  iIndex:=1;
+  while not FDQuery1.Eof do
   begin
-    DB := Request.QueryFields.Values['db'];
-    tn := Request.QueryFields.Values['tn'];
-    if FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) then
+    jsSlide:=TJSONObject.Create;
+    jsSlide.AddPair('index',TJSONNumber.Create(sIndex));
+    jsSlide.AddPair('imgnum',TJSONNumber.Create(sIndex+1));
+    jsSlide.AddPair('activeClass',if sIndex = 0 then 'active' else '');
+    jaItem:=TJSONArray.Create;
+    i:=0;
+    while not FDQuery1.Eof and (i < count) do
     begin
-      FDTable2.First;
-      while not FDTable2.Eof do
-        FDTable2.Delete;
-      FDTable1.Delete;
+      jsItem:=TJSONObject.Create;
+      jsItem.AddPair('id',TJSONNumber.Create(iIndex));
+      jsItem.AddPair('name',FDQuery1.FieldByName('name').AsString);
+      jaItem.AddElement(jsItem);
+
+      FDQuery1.Next;
+      inc(i);
+      inc(iIndex);
     end;
+    jsSlide.AddPair('items',jaItem);
+    jaSlide.AddElement(jsSlide);
+    inc(sIndex);
   end;
+  WebStencilsProcessor2.AddVar('Data',jsRoot);
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := top.Content;
+  Response.Content := WebStencilsProcessor2.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  fs: TFileStream;
-  DB, tn, PG: integer;
-  str: string;
+  id, did, tn: integer;
+  log, time, name, title, text: string;
+  js: TJSONObject;
+  bool: Boolean;
 begin
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  tn := Request.QueryFields.Values['tn'].ToInteger;
-  PG := Request.QueryFields.Values['page'].ToInteger;
-  if not(FDTable1.Locate('dbnumber;titlenum', VarArrayOf([DB, tn])) and
-    FDTable2.Locate('cmnumber', PG)) then
+  if Request.MethodType = mtGet then
   begin
-    Handled := false;
-    Exit;
-  end;
-  if Request.MethodType = mtPost then
-  begin
-    if FileExists(fname) then
-      fs := TFileStream.Create(fname, fmOpenReadWrite)
-    else
-      fs := TFileStream.Create(fname, fmCreate);
-    try
-      fs.Position := fs.Size;
-      str := '(' + FDTable1.FieldByName('dbname').AsString + ':';
-      str := str + FDTable1.FieldByName('title').AsString + ')';
-      str := str + 'Åy' + FDTable2.FieldByName('cmnumber').AsString + 'Åz';
-      str := str + FDTable2.FieldByName('datetime').AsString;
-      bglist.Clear;
-      bglist.Add('');
-      bglist.Add('(*ÉÜÅ[ÉUÅ[ólÇ©ÇÁïÒçêÇ™Ç†ÇËÇ‹ÇµÇΩ*)');
-      bglist.Add('TODAY is ' + DateToStr(Now));
-      bglist.Add(str);
-      bglist.Add(FDTable2.FieldByName('comment').AsString);
-      bglist.Add('(*ïÒçêÇ±Ç±Ç‹Ç≈*)');
-      bglist.Add('');
-      bglist.SaveToStream(fs);
-    finally
-      fs.Free;
+    id:=Request.ContentFields.Values['id'].ToInteger;
+    log:=Request.ContentFields.Values['com'];
+    FDQuery1.Open('''
+      select * from datatable dt INNER JOIN maintable mt ON
+      dt.dbnumber = mt.dbnumber and dt.tbnumber = mt.tbnumber
+      INNER JOIN datas ON dt.dbnumber = datas.dbnumber;
+      ''');
+    if not FDQuery1.Locate('id',id) then
+    begin
+      FDQuery1.Close;
+      Handled:=false;
+      Exit;
     end;
-  end;
+    did:=FDQuery1.FieldByName('id').AsInteger;
+    tn:=FDQuery1.FieldByName('titlenum').AsInteger;
+    time := FDQuery1.FieldByName('datetime').AsString;
+    title:=FDQuery1.FieldByName('title').AsString;
+    name:=FDQuery1.FieldByName('name').AsString;
+    text:=FDQuery1.FieldByName('com').AsString;
+    FDQuery1.Close;
+
+    bglist.Add('');
+    bglist.Add('(*„É¶„Éº„Ç∂„ÉºÊßò„Åã„ÇâÂ†±Âëä„Åå„ÅÇ„Çä„Åæ„Åó„Åü*)');
+    bglist.Add('TODAY is ' + DateToStr(Now));
+    bglist.Add(log);
+    bglist.Add(FDQuery1.FieldByName('comment').AsString);
+    bglist.Add('(*Â†±Âëä„Åì„Åì„Åæ„Åß*)');
+    bglist.Add('');
+    log:=bglist.Text;
+    bglist.Clear;
+
+    FDQuery1.Open('select max(id) as maxid from weblog;');
+    id:=FDQuery1.FieldByName('maxid').AsInteger+1;
+    FDQuery1.Close;
+
+    FDQuery1.Open('select * from proptable;');
+    FDQuery1.AppendRecord([id,time,log,did]);
+    FDQuery1.Close;
+    bool:=false;
+
+    js:=TJSONObject.Create;
+    js.AddPair('datetime',time);
+    js.AddPair('post',TJSONBool.Create(bool));
+    js.AddPair('tablenum',TJSONNumber.Create(tn));
+    js.AddPair('title',title);
+    js.AddPair('name',name);
+    js.AddPair('comment',text);
+  end
+  else
+    bool:=true;
+  WebStencilsProcessor8.AddVar('Json',js);
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := alertContent.Content;
+  Response.Content := WebStencilsProcessor8.Content;
 end;
 
 procedure TWebModule1.WebModule1helpAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  fs: TFileStream;
+  id: integer;
+  post: Boolean;
+  js: TJSONObject;
 begin
   if Request.MethodType = mtPost then
   begin
-    if FileExists(fname) then
-      fs := TFileStream.Create(fname, fmOpenReadWrite)
-    else
-      fs := TFileStream.Create(fname, fmCreate);
-    try
-      fs.Position := fs.Size;
-      bglist.Clear;
-      bglist.Add('');
-      bglist.Add('(*ÉÜÅ[ÉUÅ[ólÇ©ÇÁïÒçêÇ™Ç†ÇËÇ‹ÇµÇΩ*)');
-      bglist.Add(DateToStr(Now));
-      bglist.Add(Request.ContentFields.Values['help']);
-      bglist.Add('(*ïÒçêÇ±Ç±Ç‹Ç≈*)');
-      bglist.Add('');
-      bglist.SaveToStream(fs);
-    finally
-      fs.Free;
-    end;
-  end;
+    bglist.Clear;
+    bglist.Add('');
+    bglist.Add('(*„É¶„Éº„Ç∂„ÉºÊßò„Åã„ÇâÂ†±Âëä„Åå„ÅÇ„Çä„Åæ„Åó„Åü*)');
+    bglist.Add(DateToStr(Now));
+    bglist.Add(Request.ContentFields.Values['help']);
+    bglist.Add('(*Â†±Âëä„Åì„Åì„Åæ„Åß*)');
+    bglist.Add('');
+    FDQuery1.Open('select max(id) as maxid from weblog;');
+    id:=FDQuery1.FieldByName('maxid').AsInteger;
+    FDQuery1.Close;
+    FDQuery1.Open('select * from weblog;');
+    FDQuery1.AppendRecord([id,Now,bglist.Text,0]);
+    FDQuery1.Close;
+    post:=true;
+  end
+  else
+    post:=false;
+  js:=TJSONObject.Create;
+  js.AddPair('post',TJSONBool.Create(post));
+  WebStencilsProcessor7.AddVar('Data',js);
   Response.ContentType := 'text/html;charset=utf-8';
-  Response.Content := help.Content;
+  Response.Content := WebStencilsProcessor7.Content;
+end;
+
+procedure TWebModule1.WebModule1linkItemAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  Response.ContentType:='text/html;charset=utf-8';
+  Response.Content:=WebStencilsProcessor4.Content;
 end;
 
 procedure TWebModule1.WebModule1renameAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  DB: integer;
+  DB: string;
   name: string;
+  params: TArray<string>;
 begin
-  DB := Request.QueryFields.Values['db'].ToInteger;
-  if FDTable1.Locate('dbnumber', DB) then
-  begin
-    FDTable1.Edit;
-    name := Request.ContentFields.Values['text'];
-    FDTable1.FieldByName('dbname').AsString := name;
-    FDTable1.Post;
-  end;
-  Response.SendRedirect(Format('/admin?db=%d', [DB]));
+  params:=Request.PathInfo.Split(['/']);
+  db:=params[2];
+  FDQuery1.SQL.Add('select * from datas where dbnumber = :db;');
+  FDQuery1.Params.ParamByName('db').AsInteger:=DB.ToInteger;
+  FDQuery1.Open;
+  name:=Request.ContentFields.Values['text'];
+  FDQuery1.Edit;
+  FDQuery1.FieldByName('dbname').AsString:=name;
+  FDQuery1.Post;
+  Response.SendRedirect('/admin/'+DB);
 end;
 
 procedure TWebModule1.WebModuleBeforeDispatch(Sender: TObject;
@@ -975,37 +599,57 @@ begin
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
-var
-  ini: TIniFile;
 begin
-  ini := TIniFile.Create('data/setting.ini');
-  try
-    count := ini.ReadInteger('data', 'count', 10);
-    pagecount := ini.ReadInteger('data', 'pagecount', 10);
-    mente := ini.ReadBool('data', 'mentenance', false);
-  finally
-    ini.Free;
-  end;
-  adminTable.MaxRows := count;
-  bglist := TStringList.Create;
-  FDQuery1.Open('select * from adlist;');
-  FDMemTable1.Data := FDQuery1.Data;
+  FDQuery1.Open('select * from proptable;');
+  count:=FDQuery1.FieldByName('count').AsInteger;
+  pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
+  mente:=FDQuery1.FieldByName('mentenance').AsBoolean;
   FDQuery1.Close;
+
+  count := if count = 0 then 30 else count;
+  pagecount:=if pagecount = 0 then 10 else pagecount;
+
+  bglist := TStringList.Create;
+ // FDQuery1.Open('select * from adlist;');
+ // FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
-var
-  ini: TIniFile;
 begin
-  ini := TIniFile.Create('data/setting.ini');
-  try
-    ini.WriteInteger('data', 'count', count);
-    ini.WriteInteger('data', 'pagecount', pagecount);
-    ini.WriteBool('data', 'mentenance', mente);
-  finally
-    ini.Free;
-  end;
+  FDQuery1.Open('select * from datas;');
+  FDQuery1.Edit;
+  FDQuery1.FieldByName('count').AsInteger:=count;
+  FDQuery1.FieldByName('pagecount').AsInteger:=pagecount;
+  FDQuery1.FieldByName('mentenance').AsBoolean:=mente;
+  FDQuery1.Post;
+  FDQuery1.Close;
   bglist.Free;
+end;
+
+procedure TWebModule1.WebStencilsProcessor5Value(Sender: TObject;
+  const AObjectName, APropName: string; var AValue: string;
+  var AHandled: Boolean);
+begin
+  if AObjectName = 'Code' then
+  begin
+    if Request.MethodType = mtGet then
+      AValue := '<input type=submit value="ÈÄÅ‰ø°">'
+    else
+      AValue := '„ÅÇ„Çä„Åå„Å®„ÅÜ„Åî„Åñ„ÅÑ„Åæ„Åó„Åü';
+  end;
+end;
+
+procedure TWebModule1.WebStencilsProcessor6Value(Sender: TObject;
+  const AObjectName, APropName: string; var AValue: string;
+  var AHandled: Boolean);
+begin
+  if AObjectName = 'adtext' then
+  begin
+    AValue:=FDQuery1.FieldByName('adtext').AsString;
+    FDQuery1.Next;
+  end;
+  if AObjectName = 'word' then
+    AValue := '"' + mysearch.WordList + '"';
 end;
 
 { TPageSearch }
@@ -1017,19 +661,19 @@ function TPageSearch.checkState(var st: integer; var bool: Boolean;
   word, line: string): TFindState;
 begin
   result := fdNone;
-  for var id := st to Length(line) do
+  for var id := st to High(line) do
   begin
     if line[id] <> word[1] then
       Continue;
-    FText := FText + Copy(line, st, id - st);
+    FStBuild.Append(line.Substring(st, id - st));
     st := id;
-    if Copy(line, id, Length(word)) = word then
+    if line.Substring(id, Length(word)) = word then
     begin
       result := fdNormal;
       bool := true;
       break;
     end
-    else if Pos(Copy(line, id, Length(line)), word) > 0 then
+    else if Pos(line.Substring(id, Length(line)), word) > 0 then
       result := fdShort;
   end;
 end;
@@ -1049,7 +693,7 @@ end;
 
 procedure TPageSearch.processNormal(var id: integer; word, line: string);
 begin
-  FText := FText + Format(str, [word]);
+  FStBuild.Append(Format(str,[word]));
   inc(id, Length(word));
 end;
 
@@ -1062,13 +706,13 @@ var
 begin
   state := fdShort;
   cnt := Length(word);
-  wrd := Copy(line, id, Length(word));
-  FText := FText + Format(str, [wrd]);
+  wrd := line.Substring(id, Length(word));
+  FStBuild.Append(Format(str,[wrd]));
   dec(cnt, Length(wrd));
   while state = fdShort do
   begin
     wrd := Copy(word, Length(wrd) + 1, Length(line));
-    FText := FText + #13#10 + Format(str, [wrd]);
+    FStBuild.Append(#13#10 + Format(str, [wrd]));
     dec(cnt, Length(wrd));
     inc(ln);
     if FList.count = ln then
@@ -1097,15 +741,15 @@ var
   s: string;
   bool: Boolean;
 begin
+  var stbuild:=TStringBuilder.Create;
   FList.Text := Text;
   bool := false;
   for var str in FBlindStr.Split([' ']) do
   begin
     if str = '' then
       Continue;
-    FText := '';
     i := 0;
-    id := 1;
+    id := 0;
     while i < FList.count do
     begin
       s := FList[i];
@@ -1117,14 +761,14 @@ begin
           processNormal(id, str, s);
         fdNone:
           begin
-            FText := FText + Copy(s, id, Length(s)) + #13#10;
-            id := 1;
+            stbuild.Append(s.Substring(id, Length(s)));
+            id := 0;
             inc(i);
           end;
       end;
     end;
     if bool then
-      Exit(FText);
+      Exit(FStBuild.ToString);
   end;
   result := '';
 end;
@@ -1137,7 +781,7 @@ var
 begin
   lst := TDictionary<string, integer>.Create;
   try
-    for var str in FWordList.Split([' ', 'Å@']) do
+    for var str in FWordList.Split([' ', '„ÄÄ']) do
       if str <> '' then
         lst.Add(str, Length(str));
     FBlindStr := '';

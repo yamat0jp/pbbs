@@ -11,16 +11,17 @@
   </head>
 
   <body>
-    <#form>
+    @Import ./templates/form.html {Data = Info}
     <p><br></p>
-    <p style=text-align:center><#dbname></p>
-    <p style=text-align:center><#title></p>
-    <p style=text-align:center><a href=/list?db=<#dbnumber>>戻る</a></p>
-    <#footer>
-    <#main>
+    <p style=text-align:center>@Page.database</p>
+    <p style=text-align:center><a href=/list/@Page.page>戻る</a></p>
+    @Import .\templates\footer.html {Data = Info}
+    @ForEach (var Data in Datas.articles) {
+        @Import ./templates/main.html {Data = loop}
+    }
     <a id=bottom></a>
-    <#footer>
-    <p style=text-align:center><a href=/list?db=<#dbnumber>>戻る</a></p>
-    <p style=text-align:center><a href=/admin?db=<#dbnumber>&tn=<#titlenum>>管理者</a></p>
+    @Import .\templates\footer.html {Data = Info}
+    <p style=text-align:center><a href=/list/@Page.database>戻る</a></p>
+    <p style=text-align:center><a href=/admin/@Page.database/@Page.page>管理者</a></p>
   </body>
 </html>

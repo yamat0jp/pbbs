@@ -10,12 +10,21 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
         <form method=post>
-        <#table><br>
-        <p align=center><input type="submit" formaction="/admin?db=<#dbnumber>&tn=<#titlenum>" value="削除">
+        @ForEach (Item in Items) {
+            <table>
+                <tr>
+                    <td>@Item.titlenum</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        }
+        <br>
+        <p align=center><input type="submit" formaction="/admin/@Page.database" value="削除">
             <input type=reset value="取り消し"></p>
         </form>
-        <#footer>
-        <#section>
-        <p style=text-align:center><a href="/bbs?db=<#dbnumber>&tn=<#titlenum>">もどる</a></p>
+        @Import ./templates/footer.html {Data = Info}
+        <section>
+        <p style=text-align:center><a href="/bbs/@Page.database>">もどる</a></p>
 </body>
 </html>

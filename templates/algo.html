@@ -4,7 +4,17 @@
         <#first>
         </ol>
 	<div class="carousel-inner bg-dark">
-        <#second>
+      @ForEach (var Data in Datas) {
+
+      @if (@Page.page = 0) {
+        <div class="carousel-item active">
+      } else {
+        <div class="carousel-item">
+      }
+        <img class="d-sm-block d-none" src="img/slide@Data.id.jpg" style="float:right;height:465px">
+        <div style="height:465px"></div>
+        <div class="carousel-caption text-left" style="font-size:1.5rem;">
+      }
 	</div>
 	<a class="carousel-control-prev" href="#slide-1" role="button" data-slide="prev">
 		<span class="carousel-control-prev-icon" aria-hidden="true"></span>

@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html class="no-js" lang="ja">
+<head>
+    <!-- メタタグは用途ごとに分ける -->
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="5KOTJTKv1HgTtIt0zVGzuyAkADCwXRme-RiiKJ03l3s">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- スマホ対応に必須 -->
+    <title>Top Page</title>
+    <link rel="shortcut icon" href="img/favicon64.ico">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Facebook SDK -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.8";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <header>
+        <h1 class="text-center my-4">無料電子掲示板へようこそ</h1>
+    </header>
+
+    <!-- カルーセル全体を囲むコンテナ -->
+    <div id="slide-1" class="carousel slide" data-ride="carousel">
+
+    <!-- スライドのインジケーター（下のドット） -->
+    <ol class="carousel-indicators">
+    @ForEach (Data.slides) {
+        <li data-target="#slide-1" data-slide-to="{@loop.index}" class="{@loop.activeClass}"></li>
+    }
+    </ol>
+
+    <!-- カルーセルの中身 -->
+    <div class="carousel-inner">
+    @ForEach (Data.slides) {
+    <div class="carousel-item {@loop.activeClass}">
+      <img class="d-sm-block d-none" src="img/slide{@loop.imgnum}.jpg" style="float:right; height:465px;" alt="Slide">
+      <div style="height:465px;"></div>
+      <div class="carousel-caption text-left" style="font-size:1.5rem;">
+        <!-- スライド内の個別アイテムループ -->
+        @ForEach (var item is loop.items) {
+          <p><a href="/bbs/{@item.id}">{@item.name}</a></p>
+        }
+      </div>
+    </div>
+    }
+    </div>
+
+        <!-- コントロールボタン -->
+        <a class="carousel-control-prev" href="#slide-1" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#slide-1" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+
+    <!-- お知らせ・管理者リンク -->
+    <div class="container mt-4">
+        <p>[ <a href="/admin" class="info">admin</a> ] =お知らせ</p>
+        <p>[ <a href="/master">master</a> ] =管理人</p>
+
+        <div class="fb-like" data-href="https://pybbs.herokuapp.com" data-layout="box_count" data-action="like" data-size="small" data-show-faces="true" data-share="false"></div>
+    </div>
+
+    <footer>
+        <div class="container mt-4">
+            <p><a href="/search">検索</a></p>
+            <p><a href="/help">使い方案内</a></p>
+            <p>PR リンク</p>
+            <p><a href="https://www.amazon.co.jp/%E9%AB%98%E6%A0%A1%E5%8D%92%E6%A5%AD%E3%81%BE%E3%81%A7%E3%81%AE%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%E6%88%A6%E8%A1%93-sanuki_kainushi-ebook/dp/B00AXBM08Q" target="_blank" rel="noopener">高校卒業までのサッカー戦術</a><br>amazon kindle</p>
+            <p><a href="https://www.amazon.co.jp/%E4%B8%AD%E5%AD%A6%E5%8D%92%E6%A5%AD%E3%81%BE%E3%81%A7%E3%81%AE%E3%82%B5%E3%83%83%E3%82%AB%E3%83%BC%E6%88%A6%E8%A1%93-sanuki_kainushi-ebook/dp/B014X0S874" target="_blank" rel="noopener">中学卒業までのサッカー戦術</a><br>amazon kindle</p>
+        </div>
+    </footer>
+
+    <!-- スクリプト類 -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+</body>
+</html>

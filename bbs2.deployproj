@@ -1,0 +1,1011 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Condition="Exists('$(BDS)\bin\CodeGear.Deployment.targets')" Project="$(BDS)\bin\CodeGear.Deployment.targets"/>
+    <ProjectExtensions>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <PropertyGroup/>
+    <ItemGroup Condition="'$(Platform)'=='OSX64'"/>
+    <ItemGroup Condition="'$(Platform)'=='Win32'">
+        <DeployFile Include="data\setting.ini" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\data\</RemoteDir>
+            <RemoteName>setting.ini</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\admin.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>admin.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\top.js" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>top.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\mentenance.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>mentenance.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\smart.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>smart.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\algo.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>algo.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\top.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>top.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\main.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>main.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\search.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>search.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\sprites.png" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>sprites.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide4.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide4.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\tables.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>tables.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide11.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide11.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\form.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>form.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide12.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide12.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\index.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>index.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\sub.js" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>sub.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\tablet.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>tablet.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide10.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide10.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide6.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide6.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide1.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide1.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\master.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>master.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide5.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide5.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\alert.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>alert.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\login.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>login.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\BBS_bn.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>BBS_bn.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\normalize.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>normalize.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\header.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>header.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide3.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide3.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Win32\Debug\bbs2.exe" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>bbs2.exe</RemoteName>
+            <DeployClass>ProjectOutput</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+            <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="templates\link.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>link.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\main.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>main.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\help.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>help.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide9.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide9.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide7.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide7.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\modernizr.custom.min.js" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>modernizr.custom.min.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\favicon64.ico" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>favicon64.ico</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide2.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide2.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\main.js" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>main.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide8.jpg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide8.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\members.htm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>members.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="data\voice.txt" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\data\</RemoteDir>
+            <RemoteName>voice.txt</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\top.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>top.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+    </ItemGroup>
+    <ItemGroup Condition="'$(Platform)'=='Android64'"/>
+    <ItemGroup Condition="'$(Platform)'=='Android'"/>
+    <ItemGroup Condition="'$(Platform)'=='OSXARM64'"/>
+    <ItemGroup Condition="'$(Platform)'=='Win64'">
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ib_util64.dll" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ib_util64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ib_util64.dll" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ib_util64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\mentenance.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>mentenance.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="data\voice.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\data\</RemoteDir>
+            <RemoteName>voice.txt</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\smart.css" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>smart.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\tablet.css" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>tablet.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\sub.js" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>sub.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\top.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>top.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\reg_ibtogo.txt" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\license\</RemoteDir>
+            <RemoteName>reg_ibtogo.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\reg_ibtogo.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\license\</RemoteDir>
+            <RemoteName>reg_ibtogo.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide9.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide9.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\BBS_bn.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>BBS_bn.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide1.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide1.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide6.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide6.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\intl\gdsintl.dll" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\intl\</RemoteDir>
+            <RemoteName>gdsintl.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\intl\gdsintl.dll" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\intl\</RemoteDir>
+            <RemoteName>gdsintl.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide3.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide3.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64\ibclient64.dll" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibclient64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64\ibclient64.dll" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibclient64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ibxml64.dll" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibxml64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ibxml64.dll" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibxml64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64\interbase.msg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>interbase.msg</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64\interbase.msg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>interbase.msg</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\main.css" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>main.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\admin.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>admin.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide7.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide7.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\search.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>search.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide4.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide4.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\tables.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>tables.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\top.js" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>top.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="data\setting.ini" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\data\</RemoteDir>
+            <RemoteName>setting.ini</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ibtogo64.dll" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibtogo64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\ibtogo64.dll" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>ibtogo64.dll</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\normalize.css" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>normalize.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide8.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide8.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\alert.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>alert.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\master.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>master.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\modernizr.custom.min.js" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>modernizr.custom.min.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\login.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>login.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\index.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>index.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="css\top.css" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\css\</RemoteDir>
+            <RemoteName>top.css</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide2.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide2.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\license.txt" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>license.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\license.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>license.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\sprites.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>sprites.png</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\interbase.msg" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>interbase.msg</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\reg_iblite.txt" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\license\</RemoteDir>
+            <RemoteName>reg_iblite.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\reg_iblite.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\license\</RemoteDir>
+            <RemoteName>reg_iblite.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\interbase.msg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>interbase.msg</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\favicon64.ico" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>favicon64.ico</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\help.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>help.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\link.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>link.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\ADMIN.IB" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>ADMIN.IB</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\ADMIN.IB" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>ADMIN.IB</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="js\main.js" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\js\</RemoteDir>
+            <RemoteName>main.js</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\header.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>header.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\members.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>members.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="Win64\Release\bbs2.exe" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\</RemoteDir>
+            <RemoteName>bbs2.exe</RemoteName>
+            <DeployClass>ProjectOutput</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+            <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="templates\algo.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>algo.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide5.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide5.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\oss_license_notice.txt" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>oss_license_notice.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="$(IBREDISTDIR)\win64_togo\interbase\oss_license_notice.txt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\interbase\</RemoteDir>
+            <RemoteName>oss_license_notice.txt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide10.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide10.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\main.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>main.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide12.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide12.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="templates\form.htm" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\templates\</RemoteDir>
+            <RemoteName>form.htm</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="img\slide11.jpg" Condition="'$(Config)'=='Release'">
+            <RemoteDir>bbs2\img\</RemoteDir>
+            <RemoteName>slide11.jpg</RemoteName>
+            <DeployClass>ProjectFile</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+    </ItemGroup>
+    <ItemGroup Condition="'$(Platform)'=='iOSDevice64'"/>
+    <ItemGroup Condition="'$(Platform)'=='iOSSimARM64'"/>
+    <ItemGroup Condition="'$(Platform)'=='Win64x'"/>
+    <ItemGroup Condition="'$(Platform)'=='Linux64'"/>
+</Project>

@@ -1,0 +1,18 @@
+﻿<!doctype html>
+<html>
+<head><meta charset=utf-8><title>報告申請画面</title>
+<link rel=stylesheet href=css/main.css></head>
+
+<body>
+@Import .\templates\main.html {Data = Json}
+@if @Json.post {
+    <p>ご協力ありがとうございました</p>
+} @else {
+    <p>宜しければ何かお書き添えください</p>
+    <form action="/alert" method="post">
+    <textarea name=com></textarea><p style=text-align:center><input name=admit type=submit value="送信">
+    <input type="HIDDEN" name="id" value="{id}">
+}
+</form>
+<a href="/bbs/{id}>">もどる</a>
+</body></html>
