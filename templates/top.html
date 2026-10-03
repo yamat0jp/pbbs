@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- スマホ対応に必須 -->
     <title>Top Page</title>
-    <link rel="shortcut icon" href="img/favicon64.ico">
+    <link rel="shortcut icon" href="/img/favicon64.ico">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 </head>
 <body>
@@ -44,7 +44,12 @@
       <div class="carousel-caption text-left" style="font-size:1.5rem;">
         <!-- スライド内の個別アイテムループ -->
         @ForEach (var item in loop.Items) {
+          @if (item.id = 0) {
+          <p>@item.name</p>
+          }
+          @else {
           <p><a href="/bbs/@item.id">@item.name</a></p>
+          }
         }
       </div>
     </div>

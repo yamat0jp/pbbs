@@ -106,6 +106,8 @@ type
     WebStencilsProcessor7: TWebStencilsProcessor;
     FDQuery2: TFDQuery;
     WebStencilsProcessor8: TWebStencilsProcessor;
+    FDCommand1: TFDCommand;
+    FDTransaction1: TFDTransaction;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -188,8 +190,12 @@ const
 procedure TWebModule1.FDQuery1FilterRecord(DataSet: TDataSet;
   var Accept: Boolean);
 begin
-  for var i := 0 to Request.ContentFields.Count-1 do
-    Accept := Request.ContentFields.Names[i] = 'check';
+  for var i := 1 to Request.ContentFields.Count do
+    if (Request.ContentFields.Names[i] = 'check')and
+      (DataSet.FieldByName('dbnumber').AsInteger = i) then
+      Accept:=true
+    else
+      Accept:=false;
 end;
 
 function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
@@ -298,25 +304,19 @@ end;
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  DB, id: integer;
+  db, id: integer;
   params: TArray<string>;
   item: TLink;
 begin
-  params:=Request.PathInfo.Split(['/']);
+  params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
     db:=params[2].ToInteger;
-    id:=params[3].ToInteger;
+    id:=if High(params) = 3 then params[3].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
   FDQuery1.Open('select * from maintable;');
-  if not FDQuery1.Locate('dbnumber',db) then
-  begin
-    Handled:=false;
-    FDQuery1.Close;
-    Exit;
-  end;
   if Request.MethodType = mtPost then
   begin
     FDQuery1.Filtered:=true;
@@ -325,10 +325,9 @@ begin
     if FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
-      FDQuery1.SQL.Text:='select * from datatable where dbnumber = :db;';
-      FDQuery1.Params.ParamByName('db').AsInteger:=db;
-      FDQuery1.Open;
-      FDQuery1.EmptyView;
+      FDQuery1.Open('select * from datatable;');
+      if FDQuery1.Locate('dbnumber',db) then
+        FDQuery1.Delete;
     end;
   end;
   FDQuery1.Close;
@@ -350,7 +349,7 @@ var
   params: TArray<string>;
   item: TLink;
 begin
-  params:=Request.PathInfo.Split(['/']);
+  params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
     db:=params[2].ToInteger;
     page:=if High(params) = 3 then params[3].ToInteger else 0;
@@ -358,42 +357,56 @@ begin
     Handled:=false;
     Exit;
   end;
-  FDQuery1.Open('''
+  FDQuery1.SQL.Text:='''
     select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
-    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;
-    ''');
-  if not FDQuery1.Locate('dbnumber',db) then
-  begin
-    FDQuery1.Close;
-    Handled:=false;
-    Exit;
-  end;
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber where dt.dbnumber = :db;
+    ''';
+  FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.Open;
   if Request.MethodType = mtPost then
   begin
+    FDQuery1.Last;
+    id:=FDQuery1.FieldByName('id').AsInteger+1;
+    tid := FDQuery1.FieldByName('titlenum').AsInteger + 1;
     name := Request.ContentFields.Values['name'];
     title:=Request.ContentFields.Values['title'];
     raw := replaceRawData(Request.ContentFields.Values['comment']);
     raw := TNetEncoding.HTML.Encode(raw);
     code := Request.ContentFields.Values['code'];
 
-    FDQuery1.Last;
-    id:=FDQuery1.FieldByName('id').AsInteger+1;
-    tid := FDQuery1.FieldByName('titlenum').AsInteger + 1;
+    FDTransaction1.StartTransaction;
+    try
+      FDCommand1.CommandText.Text :='''
+        INSERT INTO DATATABLE (id, dbnumber, titlenum, title, name)
+        VALUES (:id, :db, :tid, :title, :name)
+        ''';
+      FDCommand1.ParamByName('id').AsInteger:=id;
+      FDCommand1.ParamByName('db').AsInteger:=db;
+      FDCommand1.ParamByName('tid').AsInteger:=tid;
+      FDCommand1.ParamByName('title').AsString:=title;
+      FDCommand1.ParamByName('name').AsString:=name;
+      FDCommand1.Execute;
 
-    FDQuery1.Append;
-    FDQuery1.FieldByName('id').AsInteger:=id;
-    FDQuery1.FieldByName('dbnumber').AsInteger:=db;
-    FDQuery1.FieldByName('titlenum').AsInteger:=tid;
-    FDQuery1.FieldByName('name').AsString:=name;
-    FDQuery1.FieldByName('comment').AsString:=raw;
-    FDQuery1.FieldByName('datetime').AsDateTime:=Now;
-    FDQuery1.FieldByName('code').AsString:=code;
-    FDQuery1.Post;
+      FDCommand1.CommandText.Text:='''
+        INSERT INTO MAINTABLE (dbnumber, titlenum, comment, datetime, code)
+        VALUES (:db, :tid, :comment, :dt, :code)
+        ''';
+      FDCommand1.ParamByName('db').AsInteger:=db;
+      FDCommand1.ParamByName('tid').AsInteger:=tid;
+      FDCommand1.ParamByName('comment').AsString:=raw;
+      FDCommand1.ParamByName('dt').AsDateTime:=Now;
+      FDCommand1.ParamByName('code').AsString:=code;
+      FDCommand1.Execute;
+
+      FDTransaction1.Commit;
+    except
+      FDTransaction1.Rollback;
+      raise;
+    end;
   end;
   makeFooter(page,item);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Footer',item);
-  FDQuery1.Close;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
@@ -402,7 +415,7 @@ end;
 procedure TWebModule1.WebModule1masterAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  id,num: integer;
+  num: integer;
 begin
   FDQuery1.Open('select * from database;');
   if Request.MethodType = mtPost then
@@ -412,7 +425,6 @@ begin
     for var i := 1 to 5 do
     begin
       FDQuery1.AppendRecord([num,'掲示板'+i.ToString]);
-      inc(id);
       inc(num);
     end;
   end;
@@ -495,17 +507,23 @@ begin
     slide:=TSlide.Create;
     ls.Add(slide);
     slide.index:=i;
-    slide.imgname:=String.Format('img/slide%d.jpg',[i+1]);
+    slide.imgname:=String.Format('/img/slide%d.jpg',[i+1]);
     slide.activeClass:=if i = 0 then 'active' else '';
-    var j:=1;
-    while not FDQuery1.Eof and (j <= cnt) do
+    for var j := 1 to cnt do
     begin
       BBSName:=TData.Create;
-      BBSName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
-      BBSName.name:=FDQuery1.FieldByName('dbname').AsString;
+      if not FDQuery1.Eof then
+      begin
+        BBSName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+        BBSName.name:=FDQuery1.FieldByName('dbname').AsString;
+        FDQuery1.Next;
+      end
+      else
+      begin
+        BBSName.id:=0;
+        BBSName.name:='未開放';
+      end;
       slide.Items.Add(BBSName);
-      FDQuery1.Next;
-      inc(j);
     end;
   end;
   WebStencilsProcessor2.AddVar('Slides',ls);

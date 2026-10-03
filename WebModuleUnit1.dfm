@@ -216,4 +216,15 @@ object WebModule1: TWebModule1
     Left = 416
     Top = 472
   end
+  object FDCommand1: TFDCommand
+    Connection = FDConnection1
+    Transaction = FDTransaction1
+    Left = 272
+    Top = 256
+  end
+  object FDTransaction1: TFDTransaction
+    Connection = FDConnection1
+    Left = 272
+    Top = 320
+  end
 end
