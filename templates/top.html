@@ -30,21 +30,21 @@
 
     <!-- スライドのインジケーター（下のドット） -->
     <ol class="carousel-indicators">
-    @ForEach (Data.slides) {
-        <li data-target="#slide-1" data-slide-to="{@loop.index}" class="{@loop.activeClass}"></li>
+    @ForEach Slides {
+        <li data-target="#slide-1" data-slide-to="@loop.index" class="@loop.activeClass"></li>
     }
     </ol>
 
     <!-- カルーセルの中身 -->
     <div class="carousel-inner">
-    @ForEach (Data.slides) {
-    <div class="carousel-item {@loop.activeClass}">
-      <img class="d-sm-block d-none" src="img/slide{@loop.imgnum}.jpg" style="float:right; height:465px;" alt="Slide">
+    @ForEach Slides {
+    <div class="carousel-item @loop.activeClass">
+      <img class="d-sm-block d-none" src="@loop.imgname" style="float:right; height:465px;" alt="Slide">
       <div style="height:465px;"></div>
       <div class="carousel-caption text-left" style="font-size:1.5rem;">
         <!-- スライド内の個別アイテムループ -->
-        @ForEach (var item is loop.items) {
-          <p><a href="/bbs/{@item.id}">{@item.name}</a></p>
+        @ForEach (var item in loop.Items) {
+          <p><a href="/bbs/@item.id">@item.name</a></p>
         }
       </div>
     </div>

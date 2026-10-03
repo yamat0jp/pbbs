@@ -199,7 +199,6 @@
         </RcItem>
         <None Include="templates\admin.html"/>
         <None Include="templates\alert.html"/>
-        <None Include="templates\form.html"/>
         <None Include="templates\header.html"/>
         <None Include="templates\help.html"/>
         <None Include="templates\index.html"/>
@@ -610,12 +609,6 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\form.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\form.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\form.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="templates\header.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\header.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\header.html" Configuration="Debug" Class="ProjectFile">

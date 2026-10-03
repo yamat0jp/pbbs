@@ -18,21 +18,21 @@ uses System.SysUtils, System.Classes, Web.HTTPApp, FireDAC.Stan.Intf,
   Data.Bind.ObjectScope,
   REST.Authenticator.OAuth, FireDAC.Comp.UI,
   FireDAC.ConsoleUI.Wait, REST.Authenticator.OAuth.WebForm.Win, Web.Stencils,
-  System.JSON;
+  System.Generics.Collections;
 
 type
   TFindState = (fdShort, fdNormal, fdNone);
 
   TPageSearch = class
   private
-    FWordList, FBlindStr: string;
+    FWordList: string;
+    FBlindStr: TArray<string>;
     FList, FResultLST: TStringList;
     FStBuild: TStringBuilder;
-    function checkState(var st: integer; var bool: Boolean; word, line: string)
+    function checkState(var st: integer; var bool: Boolean; const word, line: string)
       : TFindState;
-    procedure processNormal(var id: integer; word, line: string);
-    procedure processShort(var id, ln: integer; var bool: Boolean; word: string;
-      var line: string);
+    function processNormal(id, ln: integer; word: string): integer;
+    function processShort(id, ln: integer; const word: string): Boolean;
     procedure initWordList;
     procedure SetWordList(const Value: string);
   public
@@ -40,6 +40,52 @@ type
     destructor Destroy; override;
     function Execute(const Text: string): string; virtual;
     property WordList: string read FWordList write SetWordList;
+  end;
+
+  TData = class
+  private
+    FId: integer;
+    FName: string;
+  public
+    property id: integer read FId write FId;
+    property name: string read FName write FName;
+  end;
+
+  TLink = class
+  private
+    FCount: integer;
+    FItems: TObjectList<TData>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property count: integer read FCount write FCount;
+    property Items: TObjectList<TData> read FItems;
+  end;
+
+  TInfo = class
+  private
+    FId: integer;
+    FAd: string;
+    FUsername: string;
+  public
+    property id: integer read FId write FId;
+    property username: string read FUsername write FUsername;
+    property ad: string read FAd write FAd;
+  end;
+
+  TMain = class
+  private
+    FComment: string;
+    FName: string;
+    FTitle: string;
+    FDatetime: TDatetime;
+    FTitlenum: integer;
+  public
+    property titlenum: integer read FTitlenum write FTitlenum;
+    property title: string read FTitle write FTitle;
+    property name: string read FName write FName;
+    property datetime: TDatetime read FDatetime write FDatetime;
+    property comment: string read FComment write FComment;
   end;
 
   TWebModule1 = class(TWebModule)
@@ -89,6 +135,10 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
+    procedure WebStencilsProcessor1Error(Sender: TObject;
+      const AMessage: string);
+    procedure WebStencilsProcessor1Value(Sender: TObject; const AObjectName,
+      APropName: string; var AValue: string; var AHandled: Boolean);
   private
     { private 宣言 }
     count: integer;
@@ -99,11 +149,26 @@ type
     bglist: TStringList;
     function readComment(const Text: string; st, cnt: integer): string;
     function makeComment(const Text: string; cnt: integer = -1): string;
-    function makeFooter(script: string; db, id: integer): TJSONObject;
+    procedure makeFooter(id: integer; out link: TLink);
     function replaceRawData(Data: string): string;
     procedure PageIndex(AQuery: TFDQuery; page: integer);
   public
     { public 宣言 }
+  end;
+
+  TSlide = class
+  private
+    FActiveClass: string;
+    FIndex: integer;
+    FImgname: string;
+    FItems: TObjectList<TData>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property index: integer read FIndex write FIndex;
+    property imgname: string read FImgname write FImgname;
+    property activeClass: string read FActiveClass write FActiveClass;
+    property Items: TObjectList<TData> read FItems;
   end;
 
 var
@@ -115,10 +180,9 @@ implementation
 
 {$R *.dfm}
 
-uses System.Generics.Collections;
+uses System.JSON, System.IOUtils;
 
 const
-  fname = 'data/voice.txt';
   nobody = 'no name';
 
 procedure TWebModule1.FDQuery1FilterRecord(DataSet: TDataSet;
@@ -166,28 +230,19 @@ begin
   end;
 end;
 
-function TWebModule1.makeFooter(script: string; db, id: integer): TJSONObject;
+procedure TWebModule1.makeFooter(id: integer;out link: TLink);
 var
-  js, jsItem: TJSONObject;
-  jaItem: TJSONArray;
-  num: integer;
+  url: TData;
 begin
-  FDQuery1.Open('select * from datatable;');
-  if not FDQuery1.Locate('dbnumber,tablenum',VarArrayOf([db,id])) then
-    Exit(nil);
-  num:=FDQuery1.RecordCount div count +1;
-  js:=TJSONObject.Create;
-  js.AddPair('path',Format('/%s/%d',[script,db]));
-  js.AddPair('count',TJSONNumber.Create(num));
-  jaItem:=TJSONArray.Create;
-  js.AddPair('items',jaItem);
+  link:=TLink.Create;
+  link.Count:=FDQuery1.RecordCount div count +1;
+
   for var i := 1 to pagecount do
   begin
-    jsItem:=TJSONObject.Create;
-    js.AddPair('index',TJSONNumber.Create(id));
-    jaItem.AddElement(jsItem);
+    url:=TData.Create;
+    url.id:=i;
+    link.Items.Add(url);
   end;
-  result := js;
 end;
 
 procedure TWebModule1.PageIndex(AQuery: TFDQuery; page: integer);
@@ -245,6 +300,7 @@ procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
 var
   DB, id: integer;
   params: TArray<string>;
+  item: TLink;
 begin
   params:=Request.PathInfo.Split(['/']);
   try
@@ -278,8 +334,9 @@ begin
   FDQuery1.Close;
   FDQuery1.SQL.Text:='select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber;';
   FDQuery1.Open;
+  makeFooter(id,item);
   WebStencilsProcessor3.AddVar('Items',FDQuery1,false);
-  WebStencilsProcessor3.AddVar('Info',makeFooter('admin',db,id));
+  WebStencilsProcessor3.AddVar('Info',item);
   Response.ContentType := 'text/html;charset=utf-8;';
   Response.Content:=WebStencilsProcessor3.Content;
   FDQuery1.Close;
@@ -291,18 +348,19 @@ var
   raw, code, name, title: string;
   id, DB, page, tid: integer;
   params: TArray<string>;
+  item: TLink;
 begin
   params:=Request.PathInfo.Split(['/']);
   try
     db:=params[2].ToInteger;
-    page:=StrToIntDef(params[3],0);
+    page:=if High(params) = 3 then params[3].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
   FDQuery1.Open('''
     select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
-    INNER JOIN datas ON dt.dbnumber = datas.dbnumber;
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;
     ''');
   if not FDQuery1.Locate('dbnumber',db) then
   begin
@@ -332,8 +390,10 @@ begin
     FDQuery1.FieldByName('code').AsString:=code;
     FDQuery1.Post;
   end;
-  WebStencilsProcessor1.AddVar('Datas',FDQuery1,false);
-  WebStencilsProcessor1.AddVar('Info',makeFooter('bbs',db,page));
+  makeFooter(page,item);
+  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
+  WebStencilsProcessor1.AddVar('Footer',item);
+  FDQuery1.Close;
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
@@ -344,15 +404,14 @@ procedure TWebModule1.WebModule1masterAction(Sender: TObject;
 var
   id,num: integer;
 begin
-  FDQuery1.Open('select * from datas;');
+  FDQuery1.Open('select * from database;');
   if Request.MethodType = mtPost then
   begin
     FDQuery1.Last;
-    id:=FDQuery1.FieldByName('id').AsInteger+1;
     num:=FDQuery1.FieldByName('dbnumber').AsInteger+1;
     for var i := 1 to 5 do
     begin
-      FDQuery1.AppendRecord([id,num,'掲示板'+i.ToString]);
+      FDQuery1.AppendRecord([num,'掲示板'+i.ToString]);
       inc(id);
       inc(num);
     end;
@@ -369,7 +428,7 @@ var
 begin
   params:=Request.PathInfo.Split(['/']);
   db:=params[2].ToInteger;
-  FDQuery1.SQL.Add('select * from datatable dt INNER JOIN datas ON dt.dbnumber = datas.dbnumber;');
+  FDQuery1.SQL.Add('select * from datatable dt INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;');
   if not FDQuery1.Locate('dbnumber',db) then
   begin
     Handled := false;
@@ -407,9 +466,9 @@ begin
   try
     mysearch.WordList := Request.ContentFields.Values['word1'];
     FDQuery1.Open('''
-      select ds.dbname,dt.name,dt.titlenum,mt.title,mt.datetime from datas ds
-      INNER JOIN datatable dt ON ds.dbnumber = dt.dbnumber
-      INNER JOIN maintable mt ON ds.dbnumber = mt.dbnumber
+      select ds.dbname,dt.name,dt.titlenum,mt.title,mt.datetime from database ds
+      INNER JOIN datatable dt ON ds.number = dt.dbnumber
+      INNER JOIN maintable mt ON ds.number = mt.dbnumber
       order by mt.datetime desc;
       ''');
     WebStencilsProcessor6.AddVar('Users',FDQuery1,false);
@@ -423,41 +482,33 @@ end;
 
 procedure TWebModule1.WebModule1showTopAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+const
+  cnt = 7;
 var
-  jsItem, jsSlide, jsRoot: TJSONObject;
-  jaItem, jaSlide: TJSONArray;
-  sIndex, iIndex, i: integer;
+  slide: TSlide;
+  BBSName: TData;
 begin
-  FDQuery1.Open('select * from datas');
-  jsRoot:=TJSONObject.Create;
-  jaSlide:=TJSONArray.Create;
-  jsRoot.AddPair('slides',jaSlide);
-  sIndex:=0;
-  iIndex:=1;
-  while not FDQuery1.Eof do
+  FDQuery1.Open('select * from database;');
+  var ls:=TObjectList<TSlide>.Create;
+  for var i := 0 to FDQuery1.RecordCount div cnt do
   begin
-    jsSlide:=TJSONObject.Create;
-    jsSlide.AddPair('index',TJSONNumber.Create(sIndex));
-    jsSlide.AddPair('imgnum',TJSONNumber.Create(sIndex+1));
-    jsSlide.AddPair('activeClass',if sIndex = 0 then 'active' else '');
-    jaItem:=TJSONArray.Create;
-    i:=0;
-    while not FDQuery1.Eof and (i < count) do
+    slide:=TSlide.Create;
+    ls.Add(slide);
+    slide.index:=i;
+    slide.imgname:=String.Format('img/slide%d.jpg',[i+1]);
+    slide.activeClass:=if i = 0 then 'active' else '';
+    var j:=1;
+    while not FDQuery1.Eof and (j <= cnt) do
     begin
-      jsItem:=TJSONObject.Create;
-      jsItem.AddPair('id',TJSONNumber.Create(iIndex));
-      jsItem.AddPair('name',FDQuery1.FieldByName('name').AsString);
-      jaItem.AddElement(jsItem);
-
+      BBSName:=TData.Create;
+      BBSName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+      BBSName.name:=FDQuery1.FieldByName('dbname').AsString;
+      slide.Items.Add(BBSName);
       FDQuery1.Next;
-      inc(i);
-      inc(iIndex);
+      inc(j);
     end;
-    jsSlide.AddPair('items',jaItem);
-    jaSlide.AddElement(jsSlide);
-    inc(sIndex);
   end;
-  WebStencilsProcessor2.AddVar('Data',jsRoot);
+  WebStencilsProcessor2.AddVar('Slides',ls);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor2.Content;
   FDQuery1.Close;
@@ -467,9 +518,10 @@ procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id, did, tn: integer;
-  log, time, name, title, text: string;
+  log, name, title, text: string;
+  time: TDatetime;
+  post: Boolean;
   js: TJSONObject;
-  bool: Boolean;
 begin
   if Request.MethodType = mtGet then
   begin
@@ -478,7 +530,7 @@ begin
     FDQuery1.Open('''
       select * from datatable dt INNER JOIN maintable mt ON
       dt.dbnumber = mt.dbnumber and dt.tbnumber = mt.tbnumber
-      INNER JOIN datas ON dt.dbnumber = datas.dbnumber;
+      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;
       ''');
     if not FDQuery1.Locate('id',id) then
     begin
@@ -488,7 +540,7 @@ begin
     end;
     did:=FDQuery1.FieldByName('id').AsInteger;
     tn:=FDQuery1.FieldByName('titlenum').AsInteger;
-    time := FDQuery1.FieldByName('datetime').AsString;
+    time := FDQuery1.FieldByName('datetime').AsDateTime;
     title:=FDQuery1.FieldByName('title').AsString;
     name:=FDQuery1.FieldByName('name').AsString;
     text:=FDQuery1.FieldByName('com').AsString;
@@ -511,19 +563,22 @@ begin
     FDQuery1.Open('select * from proptable;');
     FDQuery1.AppendRecord([id,time,log,did]);
     FDQuery1.Close;
-    bool:=false;
 
-    js:=TJSONObject.Create;
-    js.AddPair('datetime',time);
-    js.AddPair('post',TJSONBool.Create(bool));
-    js.AddPair('tablenum',TJSONNumber.Create(tn));
-    js.AddPair('title',title);
-    js.AddPair('name',name);
-    js.AddPair('comment',text);
+
+    var main:=TMain.Create;
+    main.title:=title;
+    main.name:=name;
+    main.datetime:=time;
+    main.titlenum:=tn;
+    main.comment:=text;
+    WebStencilsProcessor8.AddVar('main',main);
+    post:=false;
   end
   else
-    bool:=true;
-  WebStencilsProcessor8.AddVar('Json',js);
+    post:=true;
+  js:=TJSONObject.Create;
+  js.AddPair('post',post);
+  WebStencilsProcessor8.AddVar('Data',js);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor8.Content;
 end;
@@ -577,7 +632,7 @@ var
 begin
   params:=Request.PathInfo.Split(['/']);
   db:=params[2];
-  FDQuery1.SQL.Add('select * from datas where dbnumber = :db;');
+  FDQuery1.SQL.Add('select * from database where dbnumber = :db;');
   FDQuery1.Params.ParamByName('db').AsInteger:=DB.ToInteger;
   FDQuery1.Open;
   name:=Request.ContentFields.Values['text'];
@@ -616,7 +671,7 @@ end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
-  FDQuery1.Open('select * from datas;');
+  FDQuery1.Open('select * from database;');
   FDQuery1.Edit;
   FDQuery1.FieldByName('count').AsInteger:=count;
   FDQuery1.FieldByName('pagecount').AsInteger:=pagecount;
@@ -624,6 +679,20 @@ begin
   FDQuery1.Post;
   FDQuery1.Close;
   bglist.Free;
+end;
+
+procedure TWebModule1.WebStencilsProcessor1Error(Sender: TObject;
+  const AMessage: string);
+begin
+  TFile.AppendAllText('log.txt',AMessage);
+end;
+
+procedure TWebModule1.WebStencilsProcessor1Value(Sender: TObject;
+  const AObjectName, APropName: string; var AValue: string;
+  var AHandled: Boolean);
+begin
+  if AObjectName = 'Ad' then
+    AValue:='sanuki_kainushi BBS';
 end;
 
 procedure TWebModule1.WebStencilsProcessor5Value(Sender: TObject;
@@ -658,23 +727,20 @@ const
   str = '<span style=background-color:yellow>%s</span>';
 
 function TPageSearch.checkState(var st: integer; var bool: Boolean;
-  word, line: string): TFindState;
+  const word, line: string): TFindState;
 begin
-  result := fdNone;
-  for var id := st to High(line) do
+  if line.Contains(word) then
   begin
-    if line[id] <> word[1] then
-      Continue;
-    FStBuild.Append(line.Substring(st, id - st));
-    st := id;
-    if line.Substring(id, Length(word)) = word then
-    begin
-      result := fdNormal;
-      bool := true;
-      break;
-    end
-    else if Pos(line.Substring(id, Length(line)), word) > 0 then
-      result := fdShort;
+    st:=line.IndexOf(word,st);
+    result:=fdNormal;
+  end
+  else
+  begin
+    st:=line.LastIndexOf(word[1]);
+    if (st > -1)and word.StartsWith(line.Substring(st),true) then
+      result:=fdShort
+    else
+      result:=fdNone;
   end;
 end;
 
@@ -691,41 +757,58 @@ begin
   inherited;
 end;
 
-procedure TPageSearch.processNormal(var id: integer; word, line: string);
+function TPageSearch.processNormal(id, ln: integer; word: string): integer;
+var
+  s, t: string;
 begin
-  FStBuild.Append(Format(str,[word]));
-  inc(id, Length(word));
+  s:=FList[ln];
+  t:=String.Format(str,[word])+s.Remove(id+word.Length);
+  FList[ln]:=s.Substring(id)+t;
+  result:=id+word.Length;
 end;
 
-procedure TPageSearch.processShort(var id, ln: integer; var bool: Boolean;
-  word: string; var line: string);
+function TPageSearch.processShort(id, ln: integer; const word: string): Boolean;
 var
-  wrd: string;
-  cnt: integer;
-  state: TFindState;
+  wrd, line: string;
+  index: integer;
+  strings: TArray<string>;
 begin
-  state := fdShort;
-  cnt := Length(word);
-  wrd := line.Substring(id, Length(word));
-  FStBuild.Append(Format(str,[wrd]));
-  dec(cnt, Length(wrd));
-  while state = fdShort do
+  index:=ln;
+  line:=FList[index];
+  wrd:=line.Remove(id);
+  strings:=[line.Substring(id)+String.Format(str,[wrd])];
+
+  //checking
+  if not word.StartsWith(wrd,true) then
+    Exit(false);
+
+  while FList.Count > ln do
   begin
-    wrd := Copy(word, Length(wrd) + 1, Length(line));
-    FStBuild.Append(#13#10 + Format(str, [wrd]));
-    dec(cnt, Length(wrd));
+    line:=FList[ln];
+    if line.Length+wrd.Length < word.Length then
+      strings:=strings+[String.Format(str,[line])]
+    else
+      break;
     inc(ln);
-    if FList.count = ln then
-    begin
-      bool := false;
-      Exit;
-    end;
-    line := FList[ln];
-    id := 1;
-    state := checkState(id, bool, wrd, line);
-    inc(id, Length(wrd));
   end;
-  bool := cnt = 0;
+
+  if line.StartsWith(word.Substring(wrd.Length),true) then
+  begin
+    var i:=word.Length-wrd.Length;
+    strings:=strings+[String.Format(str,[line.Substring(i)])+line.Remove(i)];
+  end;
+
+  if word = wrd then
+  begin
+    for var s in strings do
+    begin
+      FList.Insert(ln,s);
+      FList.Delete(Index);
+    end;
+    result:=true;
+  end
+  else
+    result:=false;
 end;
 
 procedure TPageSearch.SetWordList(const Value: string);
@@ -738,30 +821,24 @@ function TPageSearch.Execute(const Text: string): string;
 var
   i, id: integer;
   state: TFindState;
-  s: string;
   bool: Boolean;
 begin
-  var stbuild:=TStringBuilder.Create;
   FList.Text := Text;
   bool := false;
-  for var str in FBlindStr.Split([' ']) do
+  for var word in FBlindStr do
   begin
-    if str = '' then
-      Continue;
     i := 0;
     id := 0;
     while i < FList.count do
     begin
-      s := FList[i];
-      state := checkState(id, bool, str, s);
+      state := checkState(id, bool, word, FList[i]);
       case state of
         fdShort:
-          processShort(id, i, bool, str, s);
+          processShort(id, i, word);
         fdNormal:
-          processNormal(id, str, s);
+          id:=processNormal(id, i, word);
         fdNone:
           begin
-            stbuild.Append(s.Substring(id, Length(s)));
             id := 0;
             inc(i);
           end;
@@ -781,10 +858,10 @@ var
 begin
   lst := TDictionary<string, integer>.Create;
   try
-    for var str in FWordList.Split([' ', '　']) do
-      if str <> '' then
-        lst.Add(str, Length(str));
-    FBlindStr := '';
+    for var s in FWordList.Split([' ', '　']) do
+      if s <> '' then
+        lst.Add(s, s.Length);
+    FBlindStr:=[];
     while lst.count > 0 do
     begin
       max := 0;
@@ -795,11 +872,37 @@ begin
           max := pair.Value;
         end;
       lst.Remove(tmp);
-      FBlindStr := FBlindStr + ' ' + tmp;
+      FBlindStr:=FBlindStr+[tmp];
     end;
   finally
     lst.Free;
   end;
+end;
+
+{ TLink }
+
+constructor TLink.Create;
+begin
+  FItems:=TObjectList<TData>.Create;
+end;
+
+destructor TLink.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+
+{ TSlide }
+
+constructor TSlide.Create;
+begin
+  FItems:=TObjectList<TData>.Create;
+end;
+
+destructor TSlide.Destroy;
+begin
+  FItems.Free;
+  inherited;
 end;
 
 end.

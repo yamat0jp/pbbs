@@ -4,8 +4,8 @@
 <link rel=stylesheet href=css/main.css></head>
 
 <body>
-@Import .\templates\main.html {Data = Json}
-@if @Json.post {
+@Import .\templates\main.html {Data = main}
+@if @Data.post {
     <p>ご協力ありがとうございました</p>
 } @else {
     <p>宜しければ何かお書き添えください</p>

@@ -101,7 +101,7 @@ object WebModule1: TWebModule1
       end
       item
         MimeType = 'image/jpeg'
-        Extensions = 'jpeg;jpg'
+        Extensions = 'jpg'
       end
       item
         MimeType = 'image/png'
@@ -149,6 +149,8 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\index.html'
     PathTemplate = '/bbs/{database}/{page}'
+    OnValue = WebStencilsProcessor1Value
+    OnError = WebStencilsProcessor1Error
     Left = 416
     Top = 24
   end
