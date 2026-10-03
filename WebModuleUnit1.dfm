@@ -130,7 +130,6 @@ object WebModule1: TWebModule1
     Top = 320
   end
   object FDQuery1: TFDQuery
-    OnFilterRecord = FDQuery1FilterRecord
     Connection = FDConnection1
     Left = 160
     Top = 104

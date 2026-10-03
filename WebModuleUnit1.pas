@@ -128,7 +128,6 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1membersAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure FDQuery1FilterRecord(DataSet: TDataSet; var Accept: Boolean);
     procedure WebStencilsProcessor5Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor6Value(Sender: TObject; const AObjectName,
@@ -186,17 +185,6 @@ uses System.JSON, System.IOUtils;
 
 const
   nobody = 'no name';
-
-procedure TWebModule1.FDQuery1FilterRecord(DataSet: TDataSet;
-  var Accept: Boolean);
-begin
-  for var i := 1 to Request.ContentFields.Count do
-    if (Request.ContentFields.Names[i] = 'check')and
-      (DataSet.FieldByName('dbnumber').AsInteger = i) then
-      Accept:=true
-    else
-      Accept:=false;
-end;
 
 function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
 var
@@ -307,6 +295,7 @@ var
   db, id: integer;
   params: TArray<string>;
   item: TLink;
+  nums: TArray<string>;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
@@ -316,22 +305,38 @@ begin
     Handled:=false;
     Exit;
   end;
-  FDQuery1.Open('select * from maintable;');
   if Request.MethodType = mtPost then
   begin
-    FDQuery1.Filtered:=true;
-    FDQuery1.EmptyView;
-    FDQuery1.Filtered:=false;
-    if FDQuery1.IsEmpty then
+    nums:=[];
+    for var i := 0 to Request.ContentFields.Count-1 do
+      if Request.ContentFields.Names[i] = 'datas[]' then
+        nums:=nums+[Request.ContentFields.ValueFromIndex[i]];
+    var numbers:=String.Join(',',nums);
+    if numbers <> '' then
     begin
-      FDQuery1.Close;
-      FDQuery1.Open('select * from datatable;');
-      if FDQuery1.Locate('dbnumber',db) then
-        FDQuery1.Delete;
+      FDTransaction1.StartTransaction;
+      try
+        FDCommand1.CommandText.Text:=
+          'DELETE FROM datatable where dbnumber = :db and titlenum IN (&tnums);';
+        FDCommand1.ParamByName('db').AsInteger:=db;
+        FDCommand1.MacroByName('tnums').AsRaw:=numbers;
+        FDCommand1.Execute;
+
+        FDCommand1.CommandText.Text:=
+          'DELETE FROM maintable where dbnumber = :db and titlenum IN (&tnums);';
+        FDCommand1.ParamByName('db').AsInteger:=db;
+        FDCommand1.MacroByName('tnums').AsRaw:=numbers;
+        FDCommand1.Execute;
+      except
+        FDTransaction1.Rollback;
+        raise;
+      end;
     end;
   end;
-  FDQuery1.Close;
-  FDQuery1.SQL.Text:='select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber;';
+  FDQuery1.SQL.Text:='''
+    select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
+    and dt.titlenum = mt.titlenum;
+    ''';
   FDQuery1.Open;
   makeFooter(id,item);
   WebStencilsProcessor3.AddVar('Items',FDQuery1,false);
@@ -359,6 +364,7 @@ begin
   end;
   FDQuery1.SQL.Text:='''
     select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
+    and dt.titlenum = mt.titlenum
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber where dt.dbnumber = :db;
     ''';
   FDQuery1.ParamByName('db').AsInteger:=db;
@@ -404,6 +410,7 @@ begin
       raise;
     end;
   end;
+  FDQuery1.Refresh;
   makeFooter(page,item);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Footer',item);
