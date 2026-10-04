@@ -162,6 +162,7 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\admin.html'
     PathTemplate = '/admin/{database}/{page}'
+    OnValue = WebStencilsProcessor3Value
     Left = 416
     Top = 152
   end

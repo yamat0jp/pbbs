@@ -51,19 +51,6 @@ type
     property name: string read FName write FName;
   end;
 
-  TLink = class
-  private
-    FCount: integer;
-    FItems: TObjectList<TData>;
-    FLast: string;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    property last: string read FLast write FLast;
-    property count: integer read FCount write FCount;
-    property Items: TObjectList<TData> read FItems;
-  end;
-
   TInfo = class
   private
     FId: integer;
@@ -140,6 +127,8 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebStencilsProcessor1Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
+    procedure WebStencilsProcessor3Value(Sender: TObject; const AObjectName,
+      APropName: string; var AValue: string; var AHandled: Boolean);
   private
     { private 宣言 }
     count: integer;
@@ -150,7 +139,7 @@ type
     bglist: TStringList;
     function readComment(const Text: string; st, cnt: integer): string;
     function makeComment(const Text: string; cnt: integer = -1): string;
-    procedure makeFooter(id: integer; out link: TLink);
+    procedure makeFooter(id: integer; out link: TObjectList<TData>);
     function replaceRawData(Data: string): string;
     procedure PageIndex(AQuery: TFDQuery; page: integer);
   public
@@ -224,21 +213,22 @@ begin
   end;
 end;
 
-procedure TWebModule1.makeFooter(id: integer;out link: TLink);
+procedure TWebModule1.makeFooter(id: integer;out link: TObjectList<TData>);
 var
   url: TData;
 begin
-  link:=TLink.Create;
-  link.last:=if id = 0 then 'active' else '';
-  link.Count:=FDQuery1.RecordCount div count +1;
-
+  link:=TObjectList<TData>.Create;
   for var i := 1 to pagecount do
   begin
     url:=TData.Create;
     url.id:=i;
     url.name:=if id = i then 'active' else '';
-    link.Items.Add(url);
+    link.Add(url);
   end;
+  url:=TData.Create;
+  url.id:=id;
+  url.name:=if id = 0 then 'active' else '';
+  link.Add(url);
 end;
 
 procedure TWebModule1.PageIndex(AQuery: TFDQuery; page: integer);
@@ -294,15 +284,16 @@ end;
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  db, id: integer;
+  db, index: integer;
   params: TArray<string>;
-  item: TLink;
+  items: TObjectList<TData>;
   nums: TArray<string>;
+  data: TData;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
     db:=params[2].ToInteger;
-    id:=if High(params) = 3 then params[3].ToInteger else 0;
+    index:=if High(params) = 3 then params[3].ToInteger else 0;
   except
     Handled:=false;
     Exit;
@@ -340,9 +331,17 @@ begin
     and dt.titlenum = mt.titlenum;
     ''';
   FDQuery1.Open;
-  makeFooter(id,item);
-  WebStencilsProcessor3.AddVar('Items',FDQuery1,false);
-  WebStencilsProcessor3.AddVar('Info',item);
+  makeFooter(index,items);
+  data:=TData.Create;
+  with items[items.Count-1] do
+  begin
+    data.id:=id;
+    data.name:=name;
+  end;
+  items.Delete(items.Count-1);
+  WebStencilsProcessor3.AddVar('articles',FDQuery1,false);
+  WebStencilsProcessor3.AddVar('Items',items);
+  WebStencilsProcessor3.AddVar('Info',data);
   Response.ContentType := 'text/html;charset=utf-8;';
   Response.Content:=WebStencilsProcessor3.Content;
   FDQuery1.Close;
@@ -352,9 +351,10 @@ procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   raw, code, name, title: string;
-  id, DB, page, tid: integer;
+  index, DB, page, temp, rec, tid: integer;
   params: TArray<string>;
-  data: TLink;
+  items: TObjectList<TData>;
+  data: TData;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
@@ -364,17 +364,34 @@ begin
     Handled:=false;
     Exit;
   end;
+  FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db;';
+  FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.Open;
+  rec:=FDQuery1.FieldByName('cnt').AsInteger;
+  FDQuery1.Close;
+
   FDQuery1.SQL.Text:='''
     select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
     and dt.titlenum = mt.titlenum
-    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber where dt.dbnumber = :db;
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber where dt.dbnumber = :db
+    ORDER BY id LIMIT :cnt OFFSET :st;
     ''';
+  if (page = 0)or(page > rec div count+1) then
+  begin
+    temp:=rec div count + 1;
+    if page > 0 then
+      page:=temp;
+  end
+  else
+    temp:=page;
   FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.ParamByName('cnt').AsInteger:=count;
+  FDQuery1.ParamByName('st').AsInteger:=(temp-1)*count;
   FDQuery1.Open;
   if Request.MethodType = mtPost then
   begin
     FDQuery1.Last;
-    id:=FDQuery1.FieldByName('id').AsInteger+1;
+    index:=FDQuery1.FieldByName('id').AsInteger+1;
     tid := FDQuery1.FieldByName('titlenum').AsInteger + 1;
     name := Request.ContentFields.Values['name'];
     title:=Request.ContentFields.Values['title'];
@@ -388,7 +405,7 @@ begin
         INSERT INTO DATATABLE (id, dbnumber, titlenum, title, name)
         VALUES (:id, :db, :tid, :title, :name)
         ''';
-      FDCommand1.ParamByName('id').AsInteger:=id;
+      FDCommand1.ParamByName('id').AsInteger:=index;
       FDCommand1.ParamByName('db').AsInteger:=db;
       FDCommand1.ParamByName('tid').AsInteger:=tid;
       FDCommand1.ParamByName('title').AsString:=title;
@@ -413,10 +430,17 @@ begin
     end;
   end;
   FDQuery1.Refresh;
-  makeFooter(page,data);
+  makeFooter(page,items);
+  data:=TData.Create;
+  with items[items.Count-1] do
+  begin
+    data.id:=id;
+    data.name:=name;
+  end;
+  items.Delete(items.Count-1);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
+  WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
-  WebStencilsProcessor1.AddVar('Items',data.Items);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
@@ -715,6 +739,16 @@ procedure TWebModule1.WebStencilsProcessor1Value(Sender: TObject;
 begin
   if AObjectName = 'Ad' then
     AValue:='sanuki_kainushi BBS';
+  if AObjectName = 'Script' then
+    AValue:='bbs';
+end;
+
+procedure TWebModule1.WebStencilsProcessor3Value(Sender: TObject;
+  const AObjectName, APropName: string; var AValue: string;
+  var AHandled: Boolean);
+begin
+  if AObjectName = 'Script' then
+    AValue:='admin';
 end;
 
 procedure TWebModule1.WebStencilsProcessor5Value(Sender: TObject;
@@ -899,19 +933,6 @@ begin
   finally
     lst.Free;
   end;
-end;
-
-{ TLink }
-
-constructor TLink.Create;
-begin
-  FItems:=TObjectList<TData>.Create;
-end;
-
-destructor TLink.Destroy;
-begin
-  FItems.Free;
-  inherited;
 end;
 
 { TSlide }
