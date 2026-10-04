@@ -55,9 +55,11 @@ type
   private
     FCount: integer;
     FItems: TObjectList<TData>;
+    FLast: string;
   public
     constructor Create;
     destructor Destroy; override;
+    property last: string read FLast write FLast;
     property count: integer read FCount write FCount;
     property Items: TObjectList<TData> read FItems;
   end;
@@ -136,8 +138,6 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure WebStencilsProcessor1Error(Sender: TObject;
-      const AMessage: string);
     procedure WebStencilsProcessor1Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
   private
@@ -229,12 +229,14 @@ var
   url: TData;
 begin
   link:=TLink.Create;
+  link.last:=if id = 0 then 'active' else '';
   link.Count:=FDQuery1.RecordCount div count +1;
 
   for var i := 1 to pagecount do
   begin
     url:=TData.Create;
     url.id:=i;
+    url.name:=if id = i then 'active' else '';
     link.Items.Add(url);
   end;
 end;
@@ -352,7 +354,7 @@ var
   raw, code, name, title: string;
   id, DB, page, tid: integer;
   params: TArray<string>;
-  item: TLink;
+  data: TLink;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
@@ -411,9 +413,10 @@ begin
     end;
   end;
   FDQuery1.Refresh;
-  makeFooter(page,item);
+  makeFooter(page,data);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
-  WebStencilsProcessor1.AddVar('Footer',item);
+  WebStencilsProcessor1.AddVar('Footer',data);
+  WebStencilsProcessor1.AddVar('Items',data.Items);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
@@ -704,12 +707,6 @@ begin
   FDQuery1.Post;
   FDQuery1.Close;
   bglist.Free;
-end;
-
-procedure TWebModule1.WebStencilsProcessor1Error(Sender: TObject;
-  const AMessage: string);
-begin
-  TFile.AppendAllText('log.txt',AMessage);
 end;
 
 procedure TWebModule1.WebStencilsProcessor1Value(Sender: TObject;

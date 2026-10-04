@@ -149,7 +149,6 @@ object WebModule1: TWebModule1
     InputFileName = '.\templates\index.html'
     PathTemplate = '/bbs/{database}/{page}'
     OnValue = WebStencilsProcessor1Value
-    OnError = WebStencilsProcessor1Error
     Left = 416
     Top = 24
   end
