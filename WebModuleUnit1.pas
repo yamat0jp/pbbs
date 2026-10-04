@@ -27,19 +27,16 @@ type
   private
     FWordList: string;
     FBlindStr: TArray<string>;
-    FList, FResultLST: TStringList;
-    FStBuild: TStringBuilder;
-    function checkState(var st: integer; const word, line: string)
-      : TFindState;
+    FList: TStringList;
+    function checkState(var st: integer; const word, line: string): TFindState;
     function processNormal(id, ln: integer; word: string): integer;
-    function processShort(id, ln: integer; const word: string): Boolean;
+    function processShort(var id, ln: integer; const word: string): Boolean;
     procedure initWordList;
-    procedure SetWordList(const Value: string);
   public
     constructor Create;
     destructor Destroy; override;
     function Execute(var Text: string): Boolean;
-    property WordList: string read FWordList write SetWordList;
+    property WordList: string read FWordList write FWordList;
   end;
 
   TData = class
@@ -138,12 +135,10 @@ type
     mente: Boolean;
     commentoff: Boolean;
     mysearch: TPageSearch;
-    bglist: TStringList;
-    function readComment(const Text: string; st, cnt: integer): string;
-    function makeComment(const Text: string; cnt: integer = -1): string;
+    bglist, adlist: TStringList;
+    function makeComment(const Text: string): string;
     procedure makeFooter(id: integer; out link: TObjectList<TData>);
     function replaceRawData(Data: string): string;
-    procedure PageIndex(AQuery: TFDQuery; page: integer);
   public
     { public 宣言 }
   end;
@@ -177,37 +172,29 @@ uses System.JSON, System.IOUtils;
 const
   nobody = 'no name';
 
-function TWebModule1.makeComment(const Text: string; cnt: integer = -1): string;
+function TWebModule1.makeComment(const Text: string): string;
 var
   s, t: string;
-  ls: TStringList;
 begin
-  ls := TStringList.Create;
+  var ls := TStringList.Create;
   try
     ls.Text := Text;
-    if cnt = -1 then
-      cnt := ls.count;
-    for var i := 0 to cnt - 1 do
+    for var i := 0 to ls.Count-1 do
     begin
       s := ls[i];
       t := '';
       if s = '' then
         s := '<br>'
       else
-        for var j := 1 to Length(s) do
-          if s[j] = ' ' then
+        for var j := 0 to High(s) do
+          if s.Chars[j] = ' ' then
             t := t + '&nbsp;'
           else
           begin
-            s := t + Copy(s, j - 1, Length(s));
+            s := t + s.Substring(j);
             break;
           end;
       ls[i] := '<p>' + s + '</p>';
-    end;
-    if cnt < ls.count then
-    begin
-      ls.Insert(cnt, '<pre><code>');
-      ls.Add('</code></pre>');
     end;
     result := ls.Text;
   finally
@@ -231,45 +218,6 @@ begin
   url.id:=id;
   url.name:=if id = 0 then 'active' else '';
   link.Add(url);
-end;
-
-procedure TWebModule1.PageIndex(AQuery: TFDQuery; page: integer);
-begin
-  AQuery.Open('select count(*) as cnt from maintable;');
-  if (page = 0) or ((page - 1) * count >= AQuery.FieldByName('cnt').AsInteger) then
-  begin
-    AQuery.Last;
-    AQuery.MoveBy(-count + 1);
-  end
-  else
-  begin
-    AQuery.First;
-    AQuery.MoveBy((page - 1) * count);
-  end;
-end;
-
-function TWebModule1.readComment(const Text: string; st, cnt: integer): string;
-var
-  ls1, ls2: TStringList;
-  num: integer;
-begin
-  if (st = -1) or (Text = '') then
-    Exit('');
-  ls1 := TStringList.Create;
-  ls2 := TStringList.Create;
-  try
-    ls1.Text := Text;
-    if cnt = -1 then
-      num := ls1.count - 1
-    else
-      num := st + cnt - 1;
-    for var i := st to num do
-      ls2.Add(ls1[i]);
-    result := ls2.Text;
-  finally
-    ls1.Free;
-    ls2.Free;
-  end;
 end;
 
 function TWebModule1.replaceRawData(Data: string): string;
@@ -448,7 +396,14 @@ begin
       raise;
     end;
   end;
+  var ls:=TStringList.Create;
   FDQuery1.Refresh;
+  while not FDQuery1.Eof do
+  begin
+    ls.Add(FDQuery1.FieldByName('comment').AsString);
+    FDQuery1.Next;
+  end;
+
   makeFooter(page,items);
   data:=TData.Create;
   with items[items.Count-1] do
@@ -457,6 +412,7 @@ begin
     data.name:=name;
   end;
   items.Delete(items.Count-1);
+  WebStencilsProcessor1.AddVar('comments',ls);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
@@ -535,9 +491,9 @@ begin
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
-    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum;
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+    ORDER BY datetime desc;
     ''';
-//  FDQuery1.ParamByName('words').AsString:=words;
   FDQuery1.Open;
 
   var ls:=TObjectList<TMain>.Create;
@@ -667,7 +623,7 @@ begin
     main.name:=name;
     main.datetime:=time;
     main.titlenum:=tn;
-    main.comment:=text;
+    main.comment:=makeComment(text);
     WebStencilsProcessor8.AddVar('main',main);
     post:=false;
   end
@@ -752,6 +708,7 @@ end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
 begin
+  Randomize;
   FDQuery1.Open('select * from proptable;');
   count:=FDQuery1.FieldByName('count').AsInteger;
   pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
@@ -761,6 +718,16 @@ begin
   count := if count = 0 then 30 else count;
   pagecount:=if pagecount = 0 then 10 else pagecount;
 
+  adlist:=TStringList.Create;
+  FDQuery1.Close;
+  FDQuery1.Open('select * from adsense;');
+  while not FDQuery1.Eof do
+  begin
+    adlist.Add(FDQuery1.FieldByName('ad').AsString);
+    FDQuery1.Next;
+  end;
+  FDQuery1.Close;
+
   bglist := TStringList.Create;
  // FDQuery1.Open('select * from adlist;');
  // FDQuery1.Close;
@@ -768,13 +735,14 @@ end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
-  FDQuery1.Open('select * from database;');
+  FDQuery1.Open('select * from proptable;');
   FDQuery1.Edit;
   FDQuery1.FieldByName('count').AsInteger:=count;
   FDQuery1.FieldByName('pagecount').AsInteger:=pagecount;
   FDQuery1.FieldByName('mentenance').AsBoolean:=mente;
   FDQuery1.Post;
   FDQuery1.Close;
+  adlist.Free;
   bglist.Free;
 end;
 
@@ -783,7 +751,7 @@ procedure TWebModule1.WebStencilsProcessor1Value(Sender: TObject;
   var AHandled: Boolean);
 begin
   if AObjectName = 'Ad' then
-    AValue:='sanuki_kainushi BBS';
+    AValue:=adlist[Random(adlist.Count)];
   if AObjectName = 'Script' then
     AValue:='bbs';
 end;
@@ -814,10 +782,7 @@ procedure TWebModule1.WebStencilsProcessor6Value(Sender: TObject;
   var AHandled: Boolean);
 begin
   if AObjectName = 'adtext' then
-  begin
-    AValue:=FDQuery1.FieldByName('adtext').AsString;
-    FDQuery1.Next;
-  end;
+    AValue:=adlist[Random(adlist.Count)];
   if AObjectName = 'word' then
     AValue := mysearch.WordList;
 end;
@@ -850,13 +815,11 @@ end;
 constructor TPageSearch.Create;
 begin
   FList := TStringList.Create;
-  FResultLST := TStringList.Create;
 end;
 
 destructor TPageSearch.Destroy;
 begin
   FList.Free;
-  FResultLST.Free;
   inherited;
 end;
 
@@ -870,7 +833,7 @@ begin
   result:=id+t.Length;
 end;
 
-function TPageSearch.processShort(id, ln: integer; const word: string): Boolean;
+function TPageSearch.processShort(var id, ln: integer; const word: string): Boolean;
 var
   wrd, line: string;
   index: integer;
@@ -900,9 +863,9 @@ begin
 
   if line.StartsWith(word.Substring(wrd.Length),true) then
   begin
-    var i:=word.Length-wrd.Length;
-    wrd:=wrd+line.Remove(i);
-    strings:=strings+[String.Format(str,[line.Remove(i)])+line.Substring(i)];
+    id:=word.Length-wrd.Length;
+    wrd:=wrd+line.Remove(id);
+    strings:=strings+[String.Format(str,[line.Remove(id)])+line.Substring(id)];
   end;
 
   if word = wrd then
@@ -914,13 +877,11 @@ begin
     result:=true;
   end
   else
+  begin
+    id:=0;
+    ln:=Index;
     result:=false;
-end;
-
-procedure TPageSearch.SetWordList(const Value: string);
-begin
-  FWordList := Value;
-  initWordList;
+  end;
 end;
 
 function TPageSearch.Execute(var Text: string): Boolean;
@@ -928,6 +889,7 @@ var
   i, id: integer;
   state: TFindState;
 begin
+  initWordList;
   FList.Text := Text;
   result:=false;
   for var word in FBlindStr do
