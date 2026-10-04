@@ -535,10 +535,9 @@ begin
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
-    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
-    WHERE comment &@~ :words;
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum;
     ''';
-  FDQuery1.ParamByName('words').AsString:=words;
+//  FDQuery1.ParamByName('words').AsString:=words;
   FDQuery1.Open;
 
   var ls:=TObjectList<TMain>.Create;
@@ -879,8 +878,8 @@ var
 begin
   index:=ln;
   line:=FList[index];
-  wrd:=line.Remove(id);
-  strings:=[line.Substring(id)+String.Format(str,[wrd])];
+  wrd:=line.Substring(id);
+  strings:=[line.Remove(id)+String.Format(str,[wrd])];
 
   //checking
   if not word.StartsWith(wrd,true) then
@@ -888,9 +887,12 @@ begin
 
   while FList.Count > ln do
   begin
-    line:=FList[ln];
+    line:=FList[ln+1];
     if line.Length+wrd.Length < word.Length then
-      strings:=strings+[String.Format(str,[line])]
+    begin
+      strings:=strings+[String.Format(str,[line])];
+      wrd:=wrd+line;
+    end
     else
       break;
     inc(ln);
@@ -899,16 +901,16 @@ begin
   if line.StartsWith(word.Substring(wrd.Length),true) then
   begin
     var i:=word.Length-wrd.Length;
-    strings:=strings+[String.Format(str,[line.Substring(i)])+line.Remove(i)];
+    wrd:=wrd+line.Remove(i);
+    strings:=strings+[String.Format(str,[line.Remove(i)])+line.Substring(i)];
   end;
 
   if word = wrd then
   begin
-    for var s in strings do
-    begin
-      FList.Insert(ln,s);
+    for var i := 1 to Length(strings) do
       FList.Delete(Index);
-    end;
+    for var i := High(strings) downto 0 do
+      FList.Insert(Index,strings[i]);
     result:=true;
   end
   else
@@ -937,7 +939,7 @@ begin
       state := checkState(id, word, FList[i]);
       case state of
         fdShort:
-          processShort(id, i, word);
+          result:=processShort(id, i, word);
         fdNormal:
           begin
             id:=processNormal(id, i, word);
