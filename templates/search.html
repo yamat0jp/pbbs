@@ -25,14 +25,9 @@
       <p>
     <input type="submit" value="検索"></p>
     </form>
-
-    @ForEach (var Data in Datas) {
-    <p><a id=@Data.dbname></a>
-    <span class=number>[ @Data.titlenum ]</span>
-    <span class=name>お名前:<span id=inner><@Data.name></span></span> | <span class=date>DATE:<span id=inner><@Data.datetime></span></span>
-    <span class=comment>@Data.comment</span>
+    @ForEach Datas {
+        @Import ./templates/main.html {Data = loop}
     }
     <a href=/>戻る</a>
-    @main
   </body>
 </html>

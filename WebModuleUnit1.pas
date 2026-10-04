@@ -29,7 +29,7 @@ type
     FBlindStr: TArray<string>;
     FList, FResultLST: TStringList;
     FStBuild: TStringBuilder;
-    function checkState(var st: integer; var bool: Boolean; const word, line: string)
+    function checkState(var st: integer; const word, line: string)
       : TFindState;
     function processNormal(id, ln: integer; word: string): integer;
     function processShort(id, ln: integer; const word: string): Boolean;
@@ -38,7 +38,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function Execute(const Text: string): string; virtual;
+    function Execute(var Text: string): Boolean;
     property WordList: string read FWordList write SetWordList;
   end;
 
@@ -69,7 +69,9 @@ type
     FTitle: string;
     FDatetime: TDatetime;
     FTitlenum: integer;
+    FDatabase: string;
   public
+    property database: string read FDatabase write FDatabase;
     property titlenum: integer read FTitlenum write FTitlenum;
     property title: string read FTitle write FTitle;
     property name: string read FName write FName;
@@ -284,7 +286,7 @@ end;
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  db, index: integer;
+  db, index, temp, rec: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
   nums: TArray<string>;
@@ -326,10 +328,26 @@ begin
       end;
     end;
   end;
+  FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db;';
+  FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.Open;
+  rec:=FDQuery1.FieldByName('cnt').AsInteger;
+
   FDQuery1.SQL.Text:='''
     select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
-    and dt.titlenum = mt.titlenum;
+    and dt.titlenum = mt.titlenum where dt.dbnumber = :db ORDER BY id LIMIT :cnt OFFSET :st;
     ''';
+  if (index = 0)or(index > rec div count+1) then
+  begin
+    temp:=rec div count + 1;
+    if index > 0 then
+      index:=temp;
+  end
+  else
+    temp:=index;
+  FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.ParamByName('cnt').AsInteger:=count;
+  FDQuery1.ParamByName('st').AsInteger:=(temp-1)*count;
   FDQuery1.Open;
   makeFooter(index,items);
   data:=TData.Create;
@@ -388,6 +406,7 @@ begin
   FDQuery1.ParamByName('cnt').AsInteger:=count;
   FDQuery1.ParamByName('st').AsInteger:=(temp-1)*count;
   FDQuery1.Open;
+
   if Request.MethodType = mtPost then
   begin
     FDQuery1.Last;
@@ -507,23 +526,50 @@ end;
 
 procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  s, words: string;
 begin
+  words:=Request.ContentFields.Values['word1'];
+  FDQuery1.ResourceOptions.MacroCreate:=false;
+  FDQuery1.ResourceOptions.MacroExpand:=false;
+  FDQuery1.SQL.Text:='''
+    select * from datatable dt
+    INNER JOIN database ON dt.dbnumber = database.dbnumber
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+    WHERE comment &@~ :words;
+    ''';
+  FDQuery1.ParamByName('words').AsString:=words;
+  FDQuery1.Open;
+
+  var ls:=TObjectList<TMain>.Create;
   mysearch := TPageSearch.Create;
   try
-    mysearch.WordList := Request.ContentFields.Values['word1'];
-    FDQuery1.Open('''
-      select ds.dbname,dt.name,dt.titlenum,mt.title,mt.datetime from database ds
-      INNER JOIN datatable dt ON ds.number = dt.dbnumber
-      INNER JOIN maintable mt ON ds.number = mt.dbnumber
-      order by mt.datetime desc;
-      ''');
-    WebStencilsProcessor6.AddVar('Users',FDQuery1,false);
-    Response.ContentType := 'text/html;charset=utf8';
-    Response.Content := WebStencilsProcessor6.Content;
-    FDQuery1.Close;
+    mysearch.WordList:=words;
+    while not FDQuery1.Eof do
+    begin
+      s:=FDQuery1.FieldByName('comment').AsString;
+      if not mysearch.Execute(s) then
+      begin
+        FDQuery1.Next;
+        continue;
+      end;
+      var main:=TMain.Create;
+      main.database:=FDQuery1.FieldByName('dbname').AsString;
+      main.titlenum:=FDQuery1.FieldByName('titlenum').AsInteger;
+      main.title:=FDQuery1.FieldByName('title').AsString;
+      main.comment:=s;
+      main.name:=FDQuery1.FieldByName('name').AsString;
+      main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
+      ls.Add(main);
+      FDQuery1.Next;
+    end;
+  WebStencilsProcessor6.AddVar('Datas',ls);
+  Response.ContentType := 'text/html;charset=utf8';
+  Response.Content := WebStencilsProcessor6.Content;
   finally
     mysearch.Free;
   end;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1showTopAction(Sender: TObject;
@@ -774,7 +820,7 @@ begin
     FDQuery1.Next;
   end;
   if AObjectName = 'word' then
-    AValue := '"' + mysearch.WordList + '"';
+    AValue := mysearch.WordList;
 end;
 
 { TPageSearch }
@@ -782,13 +828,15 @@ end;
 const
   str = '<span style=background-color:yellow>%s</span>';
 
-function TPageSearch.checkState(var st: integer; var bool: Boolean;
-  const word, line: string): TFindState;
+function TPageSearch.checkState(var st: integer; const word, line: string): TFindState;
+var
+  s: string;
 begin
-  if line.Contains(word) then
+  s:=line.Substring(st);
+  if s.Contains(word) then
   begin
-    st:=line.IndexOf(word,st);
-    result:=fdNormal;
+    inc(st,s.IndexOf(word,st)+word.Length);
+    Exit(fdNormal);
   end
   else
   begin
@@ -818,9 +866,9 @@ var
   s, t: string;
 begin
   s:=FList[ln];
-  t:=String.Format(str,[word])+s.Remove(id+word.Length);
+  t:=String.Format(str,[word])+s.Substring(id+word.Length);
   FList[ln]:=s.Substring(id)+t;
-  result:=id+word.Length;
+  result:=id+t.Length;
 end;
 
 function TPageSearch.processShort(id, ln: integer; const word: string): Boolean;
@@ -873,26 +921,28 @@ begin
   initWordList;
 end;
 
-function TPageSearch.Execute(const Text: string): string;
+function TPageSearch.Execute(var Text: string): Boolean;
 var
   i, id: integer;
   state: TFindState;
-  bool: Boolean;
 begin
   FList.Text := Text;
-  bool := false;
+  result:=false;
   for var word in FBlindStr do
   begin
     i := 0;
     id := 0;
     while i < FList.count do
     begin
-      state := checkState(id, bool, word, FList[i]);
+      state := checkState(id, word, FList[i]);
       case state of
         fdShort:
           processShort(id, i, word);
         fdNormal:
-          id:=processNormal(id, i, word);
+          begin
+            id:=processNormal(id, i, word);
+            result:=true;
+          end;
         fdNone:
           begin
             id := 0;
@@ -900,10 +950,9 @@ begin
           end;
       end;
     end;
-    if bool then
-      Exit(FStBuild.ToString);
   end;
-  result := '';
+  if result then
+    Text:=FList.Text;
 end;
 
 procedure TPageSearch.initWordList;
