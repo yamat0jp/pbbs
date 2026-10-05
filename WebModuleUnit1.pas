@@ -28,7 +28,7 @@ type
     FWordList: string;
     FBlindStr: TArray<string>;
     FList: TStringList;
-    function checkState(var st: integer; const word, line: string): TFindState;
+    function checkState(var st: integer; i: integer; const word: string): TFindState;
     function processNormal(id, ln: integer; word: string): integer;
     function processShort(var id, ln: integer; const word: string): Boolean;
     procedure initWordList;
@@ -792,21 +792,25 @@ end;
 const
   str = '<span style=background-color:yellow>%s</span>';
 
-function TPageSearch.checkState(var st: integer; const word, line: string): TFindState;
+function TPageSearch.checkState(var st: integer; i: integer; const word: string): TFindState;
 var
   s: string;
+  index: integer;
 begin
-  s:=line.Substring(st);
+  s:=FList[i].Substring(st);
   if s.Contains(word) then
   begin
-    inc(st,s.IndexOf(word,st)+word.Length);
+    inc(st,s.IndexOf(word));
     Exit(fdNormal);
   end
   else
   begin
-    st:=line.LastIndexOf(word[1]);
-    if (st > -1)and word.StartsWith(line.Substring(st),true) then
-      result:=fdShort
+    index:=s.LastIndexOf(word[1]);
+    if (index > -1)and word.StartsWith(s.Substring(index),true) then
+    begin
+      result:=fdShort;
+      inc(st,index);
+    end
     else
       result:=fdNone;
   end;
@@ -826,11 +830,13 @@ end;
 function TPageSearch.processNormal(id, ln: integer; word: string): integer;
 var
   s, t: string;
+  index: integer;
 begin
-  s:=FList[ln];
-  t:=String.Format(str,[word])+s.Substring(id+word.Length);
-  FList[ln]:=s.Substring(id)+t;
-  result:=id+t.Length;
+  s:=FList[ln].Substring(id);
+  index:=s.IndexOf(word);
+  t:=String.Format(str,[word])+s.Substring(index+word.Length);
+  FList[ln]:=FList[ln].Remove(id)+t;
+  result:=id+index+str.Length+word.Length;
 end;
 
 function TPageSearch.processShort(var id, ln: integer; const word: string): Boolean;
@@ -898,7 +904,7 @@ begin
     id := 0;
     while i < FList.count do
     begin
-      state := checkState(id, word, FList[i]);
+      state := checkState(id, i, word);
       case state of
         fdShort:
           result:=processShort(id, i, word);

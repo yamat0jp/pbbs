@@ -31,9 +31,11 @@
     <p><br></p>
     <p style=text-align:center>@Page.database</p>
     @Import ./templates/footer.html {Data = Footer, Items}
+    <pre>
     @ForEach articles {
         @Import ./templates/main.html {Data = loop}
     }
+    </pre>
     <a id=bottom></a>
     @Import ./templates/footer.html {Data = Footer}
     <p style=text-align:center><a href=/list/@Page.database>戻る</a></p>
