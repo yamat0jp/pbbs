@@ -797,7 +797,7 @@ var
   s: string;
   index: integer;
 begin
-  s:=FList[i].Substring(st);
+  s:=FList[i].Substring(st).ToLower;
   if s.Contains(word) then
   begin
     inc(st,s.IndexOf(word));
@@ -806,7 +806,7 @@ begin
   else
   begin
     index:=s.LastIndexOf(word[1]);
-    if (index > -1)and word.StartsWith(s.Substring(index),true) then
+    if (index > -1)and word.StartsWith(s.Substring(index)) then
     begin
       result:=fdShort;
       inc(st,index);
@@ -831,17 +831,19 @@ function TPageSearch.processNormal(id, ln: integer; word: string): integer;
 var
   s, t: string;
   index: integer;
+  wrd: string;
 begin
-  s:=FList[ln].Substring(id);
+  s:=FList[ln].Substring(id).ToLower;
   index:=s.IndexOf(word);
-  t:=String.Format(str,[word])+s.Substring(index+word.Length);
+  wrd:=FList[ln].Substring(id+index,word.Length);
+  t:=String.Format(str,[wrd])+FList[ln].Substring(id+index+word.Length);
   FList[ln]:=FList[ln].Remove(id)+t;
   result:=id+index+str.Length+word.Length;
 end;
 
 function TPageSearch.processShort(var id, ln: integer; const word: string): Boolean;
 var
-  wrd, line: string;
+  wrd, line, small: string;
   index: integer;
   strings: TArray<string>;
 begin
@@ -867,7 +869,8 @@ begin
     inc(ln);
   end;
 
-  if line.StartsWith(word.Substring(wrd.Length)) then
+  small:=line.ToLower;
+  if small.StartsWith(word.Substring(wrd.Length)) then
   begin
     id:=word.Length-wrd.Length;
     wrd:=wrd+line.Remove(id);
@@ -933,7 +936,7 @@ var
 begin
   lst := TDictionary<string, integer>.Create;
   try
-    for var s in FWordList.Split([' ', '　']) do
+    for var s in FWordList.ToLower.Split([' ', '　']) do
       if s <> '' then
         lst.Add(s, s.Length);
     FBlindStr:=[];
