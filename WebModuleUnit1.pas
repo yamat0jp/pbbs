@@ -851,7 +851,7 @@ begin
   strings:=[line.Remove(id)+String.Format(str,[wrd])];
 
   //checking
-  if not word.StartsWith(wrd,true) then
+  if not word.StartsWith(wrd) then
     Exit(false);
 
   while FList.Count > ln do
@@ -867,7 +867,7 @@ begin
     inc(ln);
   end;
 
-  if line.StartsWith(word.Substring(wrd.Length),true) then
+  if line.StartsWith(word.Substring(wrd.Length)) then
   begin
     id:=word.Length-wrd.Length;
     wrd:=wrd+line.Remove(id);
@@ -885,7 +885,7 @@ begin
   else
   begin
     id:=0;
-    ln:=Index;
+    ln:=Index+1;
     result:=false;
   end;
 end;
