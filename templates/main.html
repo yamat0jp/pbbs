@@ -1,6 +1,10 @@
-﻿<p><a id=@Data.titlenum></a>
-    <span class=title></span>
-    <span class=number>[ @Data.titlenum ]</span>
-    <span class=name>お名前:<span id=inner>@Data.name</span></span> | <span class=date>DATE:<span id=inner>@Data.datetime</span></span>
-    <span class=comment>@Data.comment</span>
-
+﻿<div id="comment-@Data.titlenum" class="comment-card">
+    <div class="comment-meta">
+      <span class="comment-number">#@Data.titlenum</span>
+      <span class="comment-author">@Data.name</span>
+      <time class="comment-time" datetime="@Data.datetime">@Data.datetime</time>
+    </div>
+  <pre class="comment-body">
+    @Data.comment
+  </pre>
+</div>
