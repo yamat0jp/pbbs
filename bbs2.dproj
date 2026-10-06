@@ -134,9 +134,7 @@
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
         <None Include="js\main.js"/>
-        <None Include="js\modernizr.custom.min.js"/>
         <None Include="js\sub.js"/>
-        <None Include="js\top.js"/>
         <RcItem Include="img\BBS_bn.jpg">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>JpgImage_1</ResourceId>
@@ -212,11 +210,9 @@
         <None Include="templates\tables.html"/>
         <None Include="templates\top.html"/>
         <None Include="css\main.css"/>
-        <None Include="css\normalize.css"/>
-        <None Include="css\smart.css"/>
         <None Include="css\tablet.css"/>
-        <None Include="css\top.css"/>
         <None Include="templates\footer.html"/>
+        <None Include="js\top.js"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -396,20 +392,8 @@
                 </DeployFile>
                 <DeployFile LocalName="css\main.css" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="css\normalize.css" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="css\normalize.css" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="css\normalize.css" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="css\smart.css" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="css\smart.css" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="css\smart.css" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="css\tablet.css" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="css\tablet.css" Configuration="Debug" Class="ProjectFile">
@@ -420,12 +404,6 @@
                 </DeployFile>
                 <DeployFile LocalName="css\tablet.css" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="css\top.css" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="css\top.css" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="css\top.css" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="data\setting.ini" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="data\setting.ini" Configuration="Release" Class="ProjectFile"/>
@@ -560,12 +538,6 @@
                 </DeployFile>
                 <DeployFile LocalName="js\main.js" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="js\modernizr.custom.min.js" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="js\modernizr.custom.min.js" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="js\modernizr.custom.min.js" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="js\sub.js" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="js\sub.js" Configuration="Debug" Class="ProjectFile">
