@@ -32,12 +32,6 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ホバー時の軽い浮き上がりエフェクト（お好みで） */
-.comment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-}
-
 /* ヘッダー部分（番号・名前・日付） */
 .comment-meta {
   display: flex;
