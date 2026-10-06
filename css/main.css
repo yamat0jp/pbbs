@@ -1,72 +1,78 @@
-
+ï»¿/* =========================================
+   å…¥åŠ›ãƒ˜ãƒƒãƒ€ãƒ¼
+========================================= */
 .input-header {
-    margin:auto;
-    border:solid 1px #aaaaaa;
-    box-shadow:0 2px 3px #cccccc,
-               0 0 #ff8800 inset;
-    padding:18px;
-    border-radius:5px;
-    background:-webkit-linear-gradient(#ffffff 0%,#014471 50%,
-        #014471 51%,#ffffff 100%);
-    overflow:hidden;
-    width:100%
+  margin: auto;
+  border: 1px solid var(--border-color, #f0eae1);
+  /* ã‚®ãƒ©ã‚®ãƒ©ã—ãŸã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã¨å¼·ã„å½±ã‚’ã‚„ã‚ã€ãµã‚“ã‚ã‚Šã¨ã—ãŸè³ªæ„Ÿã« */
+  box-shadow: 0 4px 12px rgba(139, 120, 107, 0.08);
+  padding: 20px;
+  border-radius: 16px; /* ä¸¸ã¿ã‚’å¼·ã */
+  background: linear-gradient(135deg, #ffffff 0%, #fdfbf7 100%);
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box; /* ã¯ã¿å‡ºã—é˜²æ­¢ */
 }
 
-/* ƒJ[ƒh‘S‘Ì‚ÌƒXƒ^ƒCƒ‹ */
+/* =========================================
+   ã‚³ãƒ¡ãƒ³ãƒˆã‚«ãƒ¼ãƒ‰å…¨ä½“ã®ã‚¹ã‚¿ã‚¤ãƒ«
+========================================= */
 .comment-card {
-  /* ƒJƒ‰[ƒpƒŒƒbƒgi•Ï”‰»‚µ‚Ä•ÏX‚µ‚â‚·‚­‚µ‚Ä‚¢‚Ü‚·j */
+  /* ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆï¼šå†·ãŸã„ãƒ–ãƒ«ãƒ¼ã‚„é»’ã‹ã‚‰ã€æ¸©ã‹ã¿ã®ã‚ã‚‹ã‚¢ãƒ¼ã‚¹ã‚«ãƒ©ãƒ¼ãƒ»ãƒ‘ã‚¹ãƒ†ãƒ«èª¿ã¸ */
   --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-  --text-main: #1a202c;
-  --text-sub: #718096;
-  --accent-color: #3b82f6;
-  --accent-bg: #eff6ff;
+  --border-color: #f0eae1; /* æ¸©ã‹ã„ãƒ™ãƒ¼ã‚¸ãƒ¥ç³» */
+  --text-main: #4a4440; /* çœŸã£é»’ã‚’é¿ã‘ã€ã‚„ã•ã—ã„ãƒ€ãƒ¼ã‚¯ãƒ–ãƒ©ã‚¦ãƒ³ã« */
+  --text-sub: #9c948e;
+  --accent-color: #d48a7b; /* å¼·ã„ãƒ–ãƒ«ãƒ¼ã‹ã‚‰ã€ã‚„ã•ã—ã„ã‚³ãƒ¼ãƒ©ãƒ«ï¼ˆã‚µãƒ³ã‚´è‰²ï¼‰ã¸ */
+  --accent-bg: #fdf5f3;
 
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px; /* è§’ã‚’ã•ã‚‰ã«ä¸¸ã */
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  /* å½±ã®è‰²ã«ã‚‚ã»ã‚“ã®ã‚Šæ¸©ã‹ã¿ã‚’ãƒ—ãƒ©ã‚¹ */
+  box-shadow: 0 4px 12px rgba(139, 120, 107, 0.06);
   font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ƒwƒbƒ_[•”•ªi”Ô†E–¼‘OE“ú•tj */
+/* ãƒ˜ãƒƒãƒ€ãƒ¼éƒ¨åˆ†ï¼ˆç•ªå·ãƒ»åå‰ãƒ»æ—¥ä»˜ï¼‰ */
 .comment-meta {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
+  /* å®Ÿç·šã‹ã‚‰ç ´ç·šï¼ˆdashedï¼‰ã«å¤‰æ›´ã—ã¦æŸ”ã‚‰ã‹ã„å°è±¡ã« */
+  border-bottom: 1px dashed var(--border-color);
 }
 
-/* ƒRƒƒ“ƒg”Ô†iƒoƒbƒW•—ƒfƒUƒCƒ“j */
+/* ã‚³ãƒ¡ãƒ³ãƒˆç•ªå·ï¼ˆãƒãƒƒã‚¸é¢¨ãƒ‡ã‚¶ã‚¤ãƒ³ï¼‰ */
 .comment-number {
   font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 600; /* boldã‚ˆã‚Šã‚‚å°‘ã—ã ã‘ç´°ãã—ã¦åœ§è¿«æ„Ÿã‚’è»½æ¸› */
   color: var(--accent-color);
   background-color: var(--accent-bg);
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
 }
 
-/* “ŠeÒ–¼ */
+/* æŠ•ç¨¿è€…å */
 .comment-author {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-main);
 }
 
-/* “Še“úi‰EŠñ‚¹j */
+/* æŠ•ç¨¿æ—¥æ™‚ï¼ˆå³å¯„ã›ï¼‰ */
 .comment-time {
-  margin-left: auto; /* Flexbox“à‚Åˆê”Ô‰E‚É‰Ÿ‚µ‚â‚é */
+  margin-left: auto;
   font-size: 0.85rem;
   color: var(--text-sub);
 }
 
-/* ƒRƒƒ“ƒg–{•¶ */
+/* ã‚³ãƒ¡ãƒ³ãƒˆæœ¬æ–‡ */
 .comment-body {
   margin: 0;
   padding: 0;
@@ -76,22 +82,14 @@
   background: transparent;
   border: none;
 
-  /* preƒ^ƒO“Á—L‚Ì“™•ƒtƒHƒ“ƒg‚ğƒŠƒZƒbƒg‚µAe‚ÌƒtƒHƒ“ƒg‚ğˆø‚«Œp‚® */
+  /* preï¿½^ï¿½Oï¿½ï¿½ï¿½Lï¿½Ì“ï¿½ï¿½ï¿½ï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½Aï¿½eï¿½Ìƒtï¿½Hï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ */
   font-family: inherit;
 
-  /* ’·‚¢•¶Í‚Å‚àƒJ[ƒh‚ğ‚Í‚İo‚³‚¸‚ÉÜ‚è•Ô‚·‚½‚ß‚Ì•K{İ’è */
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í‚Å‚ï¿½ï¿½Jï¿½[ï¿½hï¿½ï¿½ï¿½Í‚İoï¿½ï¿½ï¿½ï¿½ï¿½ÉÜ‚ï¿½Ô‚ï¿½ï¿½ï¿½ï¿½ß‚Ì•Kï¿½{ï¿½İ’ï¿½ */
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
-/* ƒ_[ƒNƒ‚[ƒh‘Î‰ */
-@media (prefers-color-scheme: dark) {
-  .comment-card {
-    --card-bg: #1e293b;
-    --border-color: #334155;
-    --text-main: #f1f5f9;
-    --text-sub: #94a3b8;
-    --accent-color: #60a5fa;
-    --accent-bg: #1e3a8a;
-  }
+body {
+    background-color:#fdf5f3;
 }
