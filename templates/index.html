@@ -35,19 +35,22 @@
     <div style=text-align:center>
         <p>@Page.database</p>
         @Import ./templates/footer.html {Data = Footer, Items}
-        <p><a href=/top>戻る</a></p>
+        <p><a href=/members/@Page.database>戻る</a></p>
     </div>
 
 
+    @Ad
     @ForEach articles {
+        @if (loop.RecNo = Count.id) {@Ad}
         @Import ./templates/main.html {Data = loop}
     }
+    @Ad
 
 
     <div style=text-align:center>
         <a id=bottom></a>
         @Import ./templates/footer.html {Data = Footer}
-        <p><a href=/top>戻る</a></p>
+        <p><a href=/members/@Page.database>戻る</a></p>
         <p><a href=/admin/@Page.database/@Page.page>管理者</a></p>
     </div>
 

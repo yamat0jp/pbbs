@@ -1,11 +1,19 @@
 ﻿    <div align="center">
         <h1>会員用ページ</h1>
-        <form action="/members/@Database>" method="post">
+        <p>ようこそ@username</p>
+        <form action="/members/@Page.Database" method="post">
            <p><label for="title">タイトル</label></p>
            <p><input id="title" name="title" type="TEXT"></p>
-           <p><label for="comment">内容</label></p>
-           <p><textarea name="comment"></textarea></p>
-           <p><label for="code">コード専用</label></p>
-           <p><textarea name="code" id="code"></textarea></p>
            <p><input type="submit" value="送信"></p>
-        </form></div>
+
+           <label for="cars">Choose Type:</label>
+            <select name="types" id="types">
+              <option value="bbs">BBS</option>
+              <option value="blog">Blog</option>
+            </select>
+
+      </form></div>
+    @ForEach Titles {
+        <p><a href="/bbs/@Page.DataBase/@loop.id">@loop.name</a></p>
+    }
+

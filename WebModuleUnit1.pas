@@ -43,9 +43,11 @@ type
   private
     FId: integer;
     FName: string;
+    FTag: string;
   public
     property id: integer read FId write FId;
     property name: string read FName write FName;
+    property tag: string read FTag write FTag;
   end;
 
   TInfo = class
@@ -96,6 +98,7 @@ type
     WebStencilsProcessor8: TWebStencilsProcessor;
     FDCommand1: TFDCommand;
     FDTransaction1: TFDTransaction;
+    WebStencilsProcessor9: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -128,6 +131,8 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor3Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
+    procedure WebStencilsProcessor9Value(Sender: TObject; const AObjectName,
+      APropName: string; var AValue: string; var AHandled: Boolean);
   private
     { private 宣言 }
     count: integer;
@@ -136,7 +141,6 @@ type
     commentoff: Boolean;
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
-    function makeComment(const Text: string): string;
     procedure makeFooter(id: integer; out link: TObjectList<TData>);
     function replaceRawData(Data: string): string;
   public
@@ -172,36 +176,6 @@ uses System.JSON, System.IOUtils;
 const
   nobody = 'no name';
 
-function TWebModule1.makeComment(const Text: string): string;
-var
-  s, t: string;
-begin
-  var ls := TStringList.Create;
-  try
-    ls.Text := Text;
-    for var i := 0 to ls.Count-1 do
-    begin
-      s := ls[i];
-      t := '';
-      if s = '' then
-        s := '<br>'
-      else
-        for var j := 0 to High(s) do
-          if s.Chars[j] = ' ' then
-            t := t + '&nbsp;'
-          else
-          begin
-            s := t + s.Substring(j);
-            break;
-          end;
-      ls[i] := '<p>' + s + '</p>';
-    end;
-    result := ls.Text;
-  finally
-    ls.Free;
-  end;
-end;
-
 procedure TWebModule1.makeFooter(id: integer;out link: TObjectList<TData>);
 var
   url: TData;
@@ -235,6 +209,7 @@ procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   db, index, temp, rec: integer;
+  user: string;
   params: TArray<string>;
   items: TObjectList<TData>;
   nums: TArray<string>;
@@ -242,12 +217,18 @@ var
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
-    db:=params[2].ToInteger;
+    user:=params[2];
     index:=if High(params) = 3 then params[3].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
+  FDQuery1.SQL.Text:='select * from database where nickname = :user;';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.Open;
+  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  FDQuery1.Close;
+
   if Request.MethodType = mtPost then
   begin
     nums:=[];
@@ -316,20 +297,25 @@ end;
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  raw, code, name, title: string;
-  index, DB, page, temp, rec, tid: integer;
+  user, raw, code, name, title: string;
+  index, db, page, temp, rec, tid: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
-    db:=params[2].ToInteger;
+    user:=params[2];
     page:=if High(params) = 3 then params[3].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
+  FDQuery1.SQL.Text:='select * from database where nickname = :user;';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.Open;
+  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+
   FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db;';
   FDQuery1.ParamByName('db').AsInteger:=db;
   FDQuery1.Open;
@@ -412,10 +398,12 @@ begin
     data.name:=name;
   end;
   items.Delete(items.Count-1);
-  WebStencilsProcessor1.AddVar('comments',ls);
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
+  data:=TData.Create;
+  data.id:=rec div 2;
+  WebStencilsProcessor1.AddVar('Count',data);
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
@@ -431,9 +419,9 @@ begin
   begin
     FDQuery1.Last;
     num:=FDQuery1.FieldByName('dbnumber').AsInteger+1;
-    for var i := 1 to 5 do
+    for var name in ['taro', 'jiro', 'saburo', 'siro', 'gorou'] do
     begin
-      FDQuery1.AppendRecord([num,'掲示板'+i.ToString]);
+      FDQuery1.AppendRecord([num,'メンバー'+num.ToString,name]);
       inc(num);
     end;
   end;
@@ -443,41 +431,49 @@ end;
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  name, title, code: string;
-  id, db, tb, cnt: integer;
+  name, title: string;
+  id, kind, db: integer;
   params: TArray<string>;
 begin
+  FDQuery1.Open('select MAX(id) as max from titles;');
+  id:=FDQuery1.FieldByName('max').AsInteger+1;
+  FDQuery1.Close;
+
   params:=Request.PathInfo.Split(['/']);
-  db:=params[2].ToInteger;
-  FDQuery1.SQL.Add('select * from datatable dt INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;');
-  if not FDQuery1.Locate('dbnumber',db) then
-  begin
-    Handled := false;
-    Exit;
-  end;
+  name:=params[2];
+  FDQuery1.SQL.Text:='select * from database where nickname = :name;';
+  FDQuery1.ParamByName('name').AsString:=name;
+  FDQuery1.Open;
+  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  name:=FDQuery1.FieldByName('dbname').AsString;
+  FDQuery1.Close;
   if Request.MethodType = mtPost then
   begin
     title := Request.ContentFields.Values['title'];
-    bglist.Text := Request.ContentFields.Values['comment'];
-    code := Request.ContentFields.Values['code'];
-    cnt := -1;
-    if code <> '' then
-    begin
-      cnt := bglist.count;
-      bglist.Add(Format('<pre><code>%s</code></pre>', [code]));
-    end;
-    name := FDQuery1.FieldByName('name').AsString;
-    id:=FDQuery1.FieldByName('id').AsInteger+1;
-    tb:=FDQuery1.FieldByName('tablenum').AsInteger+1;
-    FDQuery1.Close;
-    FDQuery1.Open('select * from maintable;');
-    FDQuery1.AppendRecord([DB, tb, bglist.Text, Now, cnt]);
-    FDQuery1.Close;
-    FDQuery1.Open('select * from datatable;');
-    FDQuery1.AppendRecord([id,db,tb,title, name]);
+    kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
+
+    FDCommand1.CommandText.Text :='''
+    INSERT INTO titles (id, usernum, name, pagecount, count, mentenance, pagetype)
+    VALUES (:id, :db, :title, :pagecount, :count, :mente, :kind)
+    ''';
+
+    FDCommand1.ParamByName('id').AsInteger:=id;
+    FDCommand1.ParamByName('db').AsInteger:=db;
+    FDCommand1.ParamByName('title').AsString:=title;
+    FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
+    FDCommand1.ParamByName('count').AsInteger:=count;
+    FDCommand1.ParamByName('mente').AsBoolean:=mente;
+    FDCommand1.ParamByName('kind').AsInteger:=kind;
+    FDCommand1.Execute;
   end;
+  FDQuery1.SQL.Text:='select * from titles where usernum = :num;';
+  FDQuery1.ParamByName('num').AsInteger:=db;
+  FDQuery1.Open;
+
   Response.ContentType := 'text/html;charset=utf8';
-//  Response.Content := titleList.Content;
+  WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
+  Response.Content:=WebStencilsProcessor9.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
@@ -533,7 +529,7 @@ const
   cnt = 7;
 var
   slide: TSlide;
-  BBSName: TData;
+  USERName: TData;
 begin
   FDQuery1.Open('select * from database;');
   var ls:=TObjectList<TSlide>.Create;
@@ -546,19 +542,20 @@ begin
     slide.activeClass:=if i = 0 then 'active' else '';
     for var j := 1 to cnt do
     begin
-      BBSName:=TData.Create;
+      USERName:=TData.Create;
       if not FDQuery1.Eof then
       begin
-        BBSName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
-        BBSName.name:=FDQuery1.FieldByName('dbname').AsString;
+        USERName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+        USERName.name:=FDQuery1.FieldByName('dbname').AsString;
+        USERName.tag:=FDQuery1.FieldByName('nickname').AsString;
         FDQuery1.Next;
       end
       else
       begin
-        BBSName.id:=0;
-        BBSName.name:='未開放';
+        USERName.id:=0;
+        USERName.name:='未開放';
       end;
-      slide.Items.Add(BBSName);
+      slide.Items.Add(USERName);
     end;
   end;
   WebStencilsProcessor2.AddVar('Slides',ls);
@@ -623,7 +620,7 @@ begin
     main.name:=name;
     main.datetime:=time;
     main.titlenum:=tn;
-    main.comment:=makeComment(text);
+    main.comment:=text;
     WebStencilsProcessor8.AddVar('main',main);
     post:=false;
   end
@@ -729,8 +726,6 @@ begin
   FDQuery1.Close;
 
   bglist := TStringList.Create;
- // FDQuery1.Open('select * from adlist;');
- // FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
@@ -754,6 +749,8 @@ begin
     AValue:=adlist[Random(adlist.Count)];
   if AObjectName = 'Script' then
     AValue:='bbs';
+  if (AObjectName = 'Count')and(APropName = 'half') then
+    AValue:=(FDQuery1.RecordCount div 2).ToString;
 end;
 
 procedure TWebModule1.WebStencilsProcessor3Value(Sender: TObject;
@@ -785,6 +782,12 @@ begin
     AValue:=adlist[Random(adlist.Count)];
   if AObjectName = 'word' then
     AValue := mysearch.WordList;
+end;
+
+procedure TWebModule1.WebStencilsProcessor9Value(Sender: TObject;
+  const AObjectName, APropName: string; var AValue: string;
+  var AHandled: Boolean);
+begin
 end;
 
 { TPageSearch }

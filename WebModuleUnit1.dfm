@@ -52,7 +52,7 @@ object WebModule1: TWebModule1
     end
     item
       Name = 'members'
-      PathInfo = '/members'
+      PathInfo = '/members/*'
       OnAction = WebModule1membersAction
     end
     item
@@ -225,5 +225,13 @@ object WebModule1: TWebModule1
     Connection = FDConnection1
     Left = 272
     Top = 320
+  end
+  object WebStencilsProcessor9: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\members.html'
+    PathTemplate = '/members/{Database}'
+    OnValue = WebStencilsProcessor9Value
+    Left = 576
+    Top = 112
   end
 end
