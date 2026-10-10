@@ -1,19 +1,91 @@
-﻿    <div align="center">
-        <h1>会員用ページ</h1>
-        <p>ようこそ@username</p>
-        <form action="/members/@Page.Database" method="post">
-           <p><label for="title">タイトル</label><input name=name type=text></p>
-           <p>url::/members/@Page.database/<input id="title" name="title" type="TEXT"></p>
-           <p><input type="submit" value="送信"></p>
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会員用ページ</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            /* モダンな薄いグレーの背景 */
+            background-color: #f8f9fa;
+        }
+        .modern-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            border: none;
+        }
+    </style>
+</head>
+<body class="py-5">
 
-           <label for="cars">Choose Type:</label>
-            <select name="types" id="types">
-              <option value="bbs">BBS</option>
-              <option value="blog">Blog</option>
-            </select>
+<div class="container">
+    <!-- ヘッダー部分 -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-dark mb-3">会員用ページ</h1>
+        <p class="text-muted fs-5">ようこそ、<span class="fw-semibold text-primary">@Data.name</span> さん</p>
+    </div>
 
-      </form></div>
-    @ForEach Titles {
-        <p><a href="/bbs/@Page.DataBase/@loop.url">@loop.name</a></p>
-    }
+    <!-- フォーム部分（カードUI） -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card modern-card p-4 p-md-5 mb-5">
+                <form action="/members/@Page.Database" method="post">
 
+                    <!-- 名前入力 (フローティングラベル) -->
+                    <div class="form-floating mb-4">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="タイトル">
+                        <label for="name" class="text-muted">タイトル</label>
+                    </div>
+
+                    <!-- タイトル入力 -->
+                    <div class="mb-4">
+                        <label for="title" class="form-label fw-medium text-secondary small">タイトル (URL)</label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-light text-muted border-end-0">/members/@Page.database/</span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="title" name="title" placeholder="URLを入力">
+                        </div>
+                    </div>
+
+                    <!-- タイプ選択 -->
+                    <div class="mb-5">
+                        <label for="types" class="form-label fw-medium text-secondary small">タイプを選択</label>
+                        <select name="types" id="types" class="form-select form-select-lg shadow-sm cursor-pointer">
+                            <option value="bbs">BBS (掲示板)</option>
+                            <option value="blog">Blog (ブログ)</option>
+                        </select>
+                    </div>
+
+                    <!-- 送信ボタン -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm fw-bold py-3">
+                            送信する
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- リンク一覧部分（カードスタイルのリストグループ） -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h4 class="fw-bold mb-3 text-secondary fs-6 ms-2">作成済みコンテンツ</h4>
+            <div class="list-group shadow-sm border-0 rounded-4 overflow-hidden">
+                @ForEach Titles {
+                    <a href="/bbs/@Page.DataBase/@loop.url" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-4 border-light">
+                        <span class="fw-medium text-dark fs-5">@loop.name</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">開く</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -141,7 +141,7 @@ type
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
     procedure makeFooter(id: integer; out link: TObjectList<TData>);
-    function replaceRawData(Data: string): string;
+    function replaceRawData(const Data: string): string;
   public
     { public 宣言 }
   end;
@@ -185,20 +185,18 @@ begin
     link.Add(url);
   end;
   url:=TData.Create;
-  url.id:=id;
+  url.id:=0;
   url.name:=if id = 0 then 'active' else '';
   link.Add(url);
 end;
 
-function TWebModule1.replaceRawData(Data: string): string;
+function TWebModule1.replaceRawData(const Data: string): string;
 const
   ng = '死ね,阿保,馬鹿,殺す,爆破';
-var
-  s: string;
 begin
-  result := Data;
-  for s in ng.Split([',']) do
-    result.Replace(s,'*****');
+  result:=Data.Replace(#0,'',[rfReplaceAll]);
+  for var s in ng.Split([',']) do
+    result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase])
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
@@ -311,7 +309,7 @@ procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   user, raw, code, name, title: string;
-  userid, page, temp, rec, tid, dbtitle: integer;
+  userid, page0, page, temp, rec, tid, dbtitle: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
@@ -322,6 +320,7 @@ begin
     user:=params[2];
     title:=params[3];
     page:=if High(params) = 4 then params[4].ToInteger else 0;
+    page0:=page;
   except
     Handled:=false;
     Exit;
@@ -358,12 +357,10 @@ begin
   end;
   if (page = 0)or(page > rec div count+1) then
   begin
-    temp:=rec div count;
+    temp:=rec div count+1;
     if page > 0 then
       page:=temp;
-  end
-  else
-    dec(page);
+  end;
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
@@ -378,7 +375,10 @@ begin
   FDQuery1.ParamByName('userid').AsInteger:=userid;
   FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
-  FDQuery1.ParamByName('st').AsInteger:=page*count;
+  if page = 0 then
+    FDQuery1.ParamByName('st').AsInteger:=rec-count+1
+  else
+    FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
 
   if Request.MethodType = mtPost then
@@ -400,7 +400,10 @@ begin
       FDQuery1.ParamByName('title').AsString:=title;
       FDQuery1.Open;
       if FDQuery1.IsEmpty then
-        Exit;
+      begin
+        FDQuery1.Close;
+        Response.SendRedirect(Request.PathInfo);
+      end;
       userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
       dbtitle:=FDQuery1.FieldByName('id').AsInteger;
       tid:=1;
@@ -497,16 +500,27 @@ begin
   FDQuery1.ParamByName('name').AsString:=user;
   FDQuery1.Open;
   db:=FDQuery1.FieldByName('dbnumber').AsInteger;
-  FDQuery1.Close;
+  user:=FDQuery1.FieldByName('dbname').AsString;
   if Request.MethodType = mtPost then
   begin
-    FDQuery1.Open('select MAX(id) max from titles;');
-    id:=FDQuery1.FieldByName('max').AsInteger+1;
-    FDQuery1.Close;
-
     name:=Request.ContentFields.Values['name'];
     title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
+
+    FDQuery1.Open('select MAX(id) OVER() max from titles;');
+    id:=FDQuery1.FieldByName('max').AsInteger+1;
+    FDQuery1.Close;
+
+    FDQuery1.SQL.Text:='select * from titles where usernum = :id and url = :title;';
+    FDQuery1.ParamByName('id').AsInteger:=db;
+    FDQuery1.ParamByName('title').AsString:=title;
+    FDQuery1.Open;
+    if (name = '') or not FDQuery1.IsEmpty then
+    begin
+      FDQuery1.Close;
+      Response.SendRedirect(Request.PathInfo);
+    end;
+    FDQuery1.Close;
 
     FDCommand1.CommandText.Text :='''
     INSERT INTO titles (usernum, name, pagecount, count, mentenance, pagetype, url, id)
@@ -526,9 +540,12 @@ begin
   FDQuery1.SQL.Text:='select * from titles where usernum = :num;';
   FDQuery1.ParamByName('num').AsInteger:=db;
   FDQuery1.Open;
+  var data:=TData.Create;
+  data.name:=user;
 
   Response.ContentType := 'text/html;charset=utf8';
   WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
+  WebStencilsProcessor9.AddVar('Data',data);
   Response.Content:=WebStencilsProcessor9.Content;
   FDQuery1.Close;
 end;
@@ -670,7 +687,6 @@ begin
     FDQuery1.Open('select * from proptable;');
     FDQuery1.AppendRecord([id,time,log,did]);
     FDQuery1.Close;
-
 
     var main:=TMain.Create;
     main.title:=title;
