@@ -140,7 +140,7 @@ type
     commentoff: Boolean;
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
-    procedure makeFooter(id: integer; out link: TObjectList<TData>);
+    procedure makeFooterNumber(id: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
   public
     { public 宣言 }
@@ -172,7 +172,7 @@ implementation
 
 uses System.JSON, System.IOUtils, System.Math;
 
-procedure TWebModule1.makeFooter(id: integer;out link: TObjectList<TData>);
+procedure TWebModule1.makeFooterNumber(id: integer;out link: TObjectList<TData>);
 var
   url: TData;
 begin
@@ -184,10 +184,6 @@ begin
     url.name:=if id = i then 'active' else '';
     link.Add(url);
   end;
-  url:=TData.Create;
-  url.id:=0;
-  url.name:=if id = 0 then 'active' else '';
-  link.Add(url);
 end;
 
 function TWebModule1.replaceRawData(const Data: string): string;
@@ -290,17 +286,15 @@ begin
   else
     FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
-  makeFooter(index,items);
-  data:=TData.Create;
-  with items[items.Count-1] do
-  begin
-    data.id:=id;
-    data.name:=name;
-  end;
-  items.Delete(items.Count-1);
   WebStencilsProcessor3.AddVar('articles',FDQuery1,false);
+
+  makeFooterNumber(page,items);
+  data:=TData.Create;
+  data.id:=0;
+  data.name:=if page = 0 then 'active' else '';
   WebStencilsProcessor3.AddVar('Items',items);
   WebStencilsProcessor3.AddVar('Info',data);
+
   Response.ContentType := 'text/html;charset=utf-8;';
   Response.Content:=WebStencilsProcessor3.Content;
   FDQuery1.Close;
@@ -452,14 +446,10 @@ begin
 
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
 
-  makeFooter(page,items);
-  with items[items.Count-1] do
-  begin
-    data:=TData.Create;
-    data.id:=id;
-    data.name:=name;
-  end;
-  items.Delete(items.Count-1);
+  makeFooterNumber(page,items);
+  data:=TData.Create;
+  data.id:=0;
+  data.name:=if page = 0 then 'active' else '';
   WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
 
