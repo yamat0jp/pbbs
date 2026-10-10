@@ -229,9 +229,4 @@ object WebModule1: TWebModule1
     Left = 576
     Top = 112
   end
-  object FDQuery2: TFDQuery
-    Connection = FDConnection1
-    Left = 160
-    Top = 176
-  end
 end

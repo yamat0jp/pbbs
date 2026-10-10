@@ -98,7 +98,6 @@ type
     FDCommand1: TFDCommand;
     FDTransaction1: TFDTransaction;
     WebStencilsProcessor9: TWebStencilsProcessor;
-    FDQuery2: TFDQuery;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -319,6 +318,7 @@ var
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
+  redirect: Boolean;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
@@ -342,8 +342,7 @@ begin
   begin
     FDQuery1.Close;
     FDQuery1.SQL.Text:='''
-      select * from datatable dt INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
-      INNER JOIN titles t ON dt.dbtitle = t.id
+      select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
       where ds.nickname = :user and t.name = :title;
       ''';
     FDQuery1.ParamByName('user').AsString:=user;
@@ -394,18 +393,20 @@ begin
     code := Request.ContentFields.Values['code'];
     if FDQuery1.IsEmpty then
     begin
-     FDQuery2.SQL.Text:='''
+      FDQuery1.Close;
+      var tempText:=FDQuery1.SQL.Text;
+      FDQuery1.SQL.Text:='''
         select dbnumber,id from database
         INNER JOIN titles ON database.dbnumber = titles.usernum
         where nickname = :user and titles.name = :title;
         ''';
-      FDQuery2.ParamByName('user').AsString:=user;
-      FDQuery2.ParamByName('title').AsString:=title;
-      FDQuery2.Open;
-      userid:=FDQuery2.FieldByName('dbnumber').AsInteger;
-      dbtitle:=FDQuery2.FieldByName('id').AsInteger;
+      FDQuery1.ParamByName('user').AsString:=user;
+      FDQuery1.ParamByName('title').AsString:=title;
+      FDQuery1.Open;
+      userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+      dbtitle:=FDQuery1.FieldByName('id').AsInteger;
       tid:=1;
-      FDQuery2.Close;
+      redirect:=true;
     end;
 
     FDTransaction1.StartTransaction;
@@ -438,7 +439,13 @@ begin
       FDTransaction1.Rollback;
       raise;
     end;
-    FDQuery1.Refresh;
+    if redirect then
+    begin
+      FDQuery1.Close;
+      Response.SendRedirect(Request.PathInfo);
+    end
+    else
+      FDQuery1.Refresh;
   end;
 
   makeFooter(page,items);
