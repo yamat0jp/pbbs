@@ -137,7 +137,7 @@ object WebModule1: TWebModule1
   object master: TPageProducer
     HTMLFile = '.\templates\master.html'
     Left = 272
-    Top = 456
+    Top = 448
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Console'
@@ -147,7 +147,7 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor1: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\index.html'
-    PathTemplate = '/bbs/{database}/{page}'
+    PathTemplate = '/bbs/{database}/{title}/{page}'
     OnValue = WebStencilsProcessor1Value
     Left = 416
     Top = 24
@@ -161,7 +161,7 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor3: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\admin.html'
-    PathTemplate = '/admin/{database}/{page}'
+    PathTemplate = '/admin/{database}/{title}/{page}'
     OnValue = WebStencilsProcessor3Value
     Left = 416
     Top = 152
@@ -188,7 +188,7 @@ object WebModule1: TWebModule1
   object FDPhysPgDriverLink1: TFDPhysPgDriverLink
     VendorLib = 'C:\Program Files\PostgreSQL\18\bin\libpq.dll'
     Left = 160
-    Top = 240
+    Top = 248
   end
   object WebStencilsProcessor6: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -202,11 +202,6 @@ object WebModule1: TWebModule1
     InputFileName = '.\templates\help.html'
     Left = 416
     Top = 408
-  end
-  object FDQuery2: TFDQuery
-    Connection = FDConnection1
-    Left = 160
-    Top = 176
   end
   object WebStencilsProcessor8: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -233,5 +228,10 @@ object WebModule1: TWebModule1
     OnValue = WebStencilsProcessor9Value
     Left = 576
     Top = 112
+  end
+  object FDQuery2: TFDQuery
+    Connection = FDConnection1
+    Left = 160
+    Top = 176
   end
 end

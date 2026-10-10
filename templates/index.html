@@ -15,7 +15,7 @@
 
     <div class="input-header" style="width:80%;align:center">
     <a name=top></a>
-    <form action=/bbs/@Page.database method="post">
+    <form action=/bbs/@Page.database/@Page.title method="post">
       <p><br></p>
           <label for=text1>本文<span style=color:red>必須</span></label>
           <textarea style="font-size:1.75em;width:100%" name="comment" rows=4
@@ -51,7 +51,7 @@
         <a id=bottom></a>
         @Import ./templates/footer.html {Data = Footer}
         <p><a href=/members/@Page.database>戻る</a></p>
-        <p><a href=/admin/@Page.database/@Page.page>管理者</a></p>
+        <p><a href=/admin/@Page.database/@Page.title/@Page.page>管理者</a></p>
     </div>
 
 

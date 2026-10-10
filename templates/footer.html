@@ -2,9 +2,9 @@
   <ul class="pagination pagination-sm justify-content-center">
     <!-- page item -->
     @ForEach Items {
-      <li class="page-item @loop.name"><a class="page-link" href="/@Script/@Page.database/@loop.id">@loop.id</a></li>
+      <li class="page-item @loop.name"><a class="page-link" href="/@Script/@Page.database/@Page.title/@loop.id">@loop.id</a></li>
     }
-    <li class="page-item @Data.name"><a class="page-link" href="/@Script/@Page.database/@Data.id">さいご</a></li>
+    <li class="page-item @Data.name"><a class="page-link" href="/@Script/@Page.database/@Page.title/@Data.id">さいご</a></li>
   </ul>
 </nav>
 

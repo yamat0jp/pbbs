@@ -94,11 +94,11 @@ type
     FDPhysPgDriverLink1: TFDPhysPgDriverLink;
     WebStencilsProcessor6: TWebStencilsProcessor;
     WebStencilsProcessor7: TWebStencilsProcessor;
-    FDQuery2: TFDQuery;
     WebStencilsProcessor8: TWebStencilsProcessor;
     FDCommand1: TFDCommand;
     FDTransaction1: TFDTransaction;
     WebStencilsProcessor9: TWebStencilsProcessor;
+    FDQuery2: TFDQuery;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -208,8 +208,8 @@ end;
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  db, index, temp, rec: integer;
-  user: string;
+  db, index, page, temp, rec: integer;
+  user, title: string;
   params: TArray<string>;
   items: TObjectList<TData>;
   nums: TArray<string>;
@@ -218,15 +218,21 @@ begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
     user:=params[2];
-    index:=if High(params) = 3 then params[3].ToInteger else 0;
+    title:=params[3];
+    page:=if High(params) = 4 then params[4].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
-  FDQuery1.SQL.Text:='select * from database where nickname = :user;';
+  FDQuery1.SQL.Text:='''
+    select dbnumber,id from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
+    where nickname = :user and name = :title;
+    ''';
   FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('title').AsString:=title;
   FDQuery1.Open;
   db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  index:=FDQuery1.FieldByName('id').AsInteger;
   FDQuery1.Close;
 
   if Request.MethodType = mtPost then
@@ -241,42 +247,53 @@ begin
       FDTransaction1.StartTransaction;
       try
         FDCommand1.CommandText.Text:=
-          'DELETE FROM datatable where dbnumber = :db and titlenum IN (&tnums);';
+          'DELETE FROM datatable where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
         FDCommand1.ParamByName('db').AsInteger:=db;
+        FDCommand1.ParamByName('id').AsInteger:=index;
         FDCommand1.MacroByName('tnums').AsRaw:=numbers;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:=
-          'DELETE FROM maintable where dbnumber = :db and titlenum IN (&tnums);';
+          'DELETE FROM maintable where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
         FDCommand1.ParamByName('db').AsInteger:=db;
+        FDCommand1.ParamByName('id').AsInteger:=index;
         FDCommand1.MacroByName('tnums').AsRaw:=numbers;
         FDCommand1.Execute;
+
+        FDTransaction1.Commit;
       except
         FDTransaction1.Rollback;
         raise;
       end;
     end;
   end;
-  FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db;';
+  FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db and dbtitle = :id;';
   FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.ParamByName('id').AsInteger:=index;
   FDQuery1.Open;
   rec:=FDQuery1.FieldByName('cnt').AsInteger;
+  FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select * from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
-    and dt.titlenum = mt.titlenum where dt.dbnumber = :db ORDER BY id LIMIT :cnt OFFSET :st;
+    select t.name as pagetitle,dt.titlenum,dt.title,dt.name,mt.comment
+    from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
+    and dt.dbtitle = mt.dbtitle and dt.titlenum = mt.titlenum
+    INNER JOIN titles t ON dt.dbtitle = t.id
+    where dt.dbnumber = :db and t.id = :id
+    ORDER BY dt.titlenum LIMIT :cnt OFFSET :st;
     ''';
-  if (index = 0)or(index > rec div count+1) then
+  if (page = 0)or(page > rec div count+1) then
   begin
-    temp:=rec div count + 1;
-    if index > 0 then
-      index:=temp;
+    temp:=rec div count;
+    if page > 0 then
+      page:=temp;
   end
   else
-    temp:=index;
+    dec(page);
   FDQuery1.ParamByName('db').AsInteger:=db;
+  FDQuery1.ParamByName('id').AsInteger:=index;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
-  FDQuery1.ParamByName('st').AsInteger:=(temp-1)*count;
+  FDQuery1.ParamByName('st').AsInteger:=page*count;
   FDQuery1.Open;
   makeFooter(index,items);
   data:=TData.Create;
@@ -298,7 +315,7 @@ procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   user, raw, code, name, title: string;
-  index, db, page, temp, rec, tid: integer;
+  userid, page, temp, rec, tid, dbtitle: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
@@ -306,74 +323,114 @@ begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
     user:=params[2];
-    page:=if High(params) = 3 then params[3].ToInteger else 0;
+    title:=params[3];
+    page:=if High(params) = 4 then params[4].ToInteger else 0;
   except
     Handled:=false;
     Exit;
   end;
-  FDQuery1.SQL.Text:='select * from database where nickname = :user;';
-  FDQuery1.ParamByName('user').AsString:=user;
-  FDQuery1.Open;
-  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
-
-  FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db;';
-  FDQuery1.ParamByName('db').AsInteger:=db;
-  FDQuery1.Open;
-  rec:=FDQuery1.FieldByName('cnt').AsInteger;
-  FDQuery1.Close;
-
   FDQuery1.SQL.Text:='''
-    select * from DATATABLE dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
-    and dt.titlenum = mt.titlenum
-    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber where dt.dbnumber = :db
-    ORDER BY id LIMIT :cnt OFFSET :st;
+    select COUNT(*) OVER() AS cnt,dt.dbnumber,dt.dbtitle from datatable dt
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+    INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
+    where nickname = :user and url = :title;
     ''';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('title').AsString:=title;
+  FDQuery1.Open;
+  if FDQuery1.IsEmpty then
+  begin
+    FDQuery1.Close;
+    FDQuery1.SQL.Text:='''
+      select * from datatable dt INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+      INNER JOIN titles t ON dt.dbtitle = t.id
+      where ds.nickname = :user and t.name = :title;
+      ''';
+    FDQuery1.ParamByName('user').AsString:=user;
+    FDQuery1.ParamByName('title').AsString:=title;
+    FDQuery1.Open;
+
+    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+    dbtitle:=FDQuery1.FieldByName('id').AsInteger;
+    rec:=0;
+  end
+  else
+  begin
+    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+    dbtitle:=FDQuery1.FieldByName('dbtitle').AsInteger;
+    rec:=FDQuery1.FieldByName('cnt').AsInteger;
+  end;
   if (page = 0)or(page > rec div count+1) then
   begin
-    temp:=rec div count + 1;
+    temp:=rec div count;
     if page > 0 then
       page:=temp;
   end
   else
-    temp:=page;
-  FDQuery1.ParamByName('db').AsInteger:=db;
+    dec(page);
+  FDQuery1.Close;
+
+  FDQuery1.SQL.Text:='''
+    select t.name as pagetitle,dt.titlenum,comment,code,datetime,dt.name,
+    MAX(dt.titlenum) OVER() AS max from datatable dt
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+    INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
+    where dt.dbnumber = :userid and t.id = :dbtitle
+    ORDER BY dt.titlenum LIMIT :cnt OFFSET :st;
+    ''';
+  FDQuery1.ParamByName('userid').AsInteger:=userid;
+  FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
-  FDQuery1.ParamByName('st').AsInteger:=(temp-1)*count;
+  FDQuery1.ParamByName('st').AsInteger:=page*count;
   FDQuery1.Open;
 
   if Request.MethodType = mtPost then
   begin
-    FDQuery1.Last;
-    index:=FDQuery1.FieldByName('id').AsInteger+1;
-    tid := FDQuery1.FieldByName('titlenum').AsInteger + 1;
+    tid:=FDQuery1.FieldByName('max').AsInteger+1;
     name := Request.ContentFields.Values['name'];
-    title:=Request.ContentFields.Values['title'];
     raw := replaceRawData(Request.ContentFields.Values['comment']);
     raw := TNetEncoding.HTML.Encode(raw);
     code := Request.ContentFields.Values['code'];
+    if FDQuery1.IsEmpty then
+    begin
+     FDQuery2.SQL.Text:='''
+        select dbnumber,id from database
+        INNER JOIN titles ON database.dbnumber = titles.usernum
+        where nickname = :user and titles.name = :title;
+        ''';
+      FDQuery2.ParamByName('user').AsString:=user;
+      FDQuery2.ParamByName('title').AsString:=title;
+      FDQuery2.Open;
+      userid:=FDQuery2.FieldByName('dbnumber').AsInteger;
+      dbtitle:=FDQuery2.FieldByName('id').AsInteger;
+      tid:=1;
+      FDQuery2.Close;
+    end;
 
     FDTransaction1.StartTransaction;
     try
       FDCommand1.CommandText.Text :='''
-        INSERT INTO DATATABLE (id, dbnumber, titlenum, title, name)
-        VALUES (:id, :db, :tid, :title, :name)
+        INSERT INTO DATATABLE (dbnumber, titlenum, title, name, dbtitle)
+        VALUES (:db, :tid, :title, :name, :dbtitle)
         ''';
-      FDCommand1.ParamByName('id').AsInteger:=index;
-      FDCommand1.ParamByName('db').AsInteger:=db;
+      FDCommand1.ParamByName('db').AsInteger:=userid;
       FDCommand1.ParamByName('tid').AsInteger:=tid;
       FDCommand1.ParamByName('title').AsString:=title;
       FDCommand1.ParamByName('name').AsString:=name;
+      FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
       FDCommand1.Execute;
 
       FDCommand1.CommandText.Text:='''
-        INSERT INTO MAINTABLE (dbnumber, titlenum, comment, datetime, code)
-        VALUES (:db, :tid, :comment, :dt, :code)
+        INSERT INTO MAINTABLE (dbnumber, titlenum, comment, datetime, code, dbtitle)
+        VALUES (:db, :tid, :comment, :dt, :code, :dbtitle)
         ''';
-      FDCommand1.ParamByName('db').AsInteger:=db;
+      FDCommand1.ParamByName('db').AsInteger:=userid;
       FDCommand1.ParamByName('tid').AsInteger:=tid;
       FDCommand1.ParamByName('comment').AsString:=raw;
       FDCommand1.ParamByName('dt').AsDateTime:=Now;
       FDCommand1.ParamByName('code').AsString:=code;
+      FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
       FDCommand1.Execute;
 
       FDTransaction1.Commit;
@@ -381,13 +438,7 @@ begin
       FDTransaction1.Rollback;
       raise;
     end;
-  end;
-  var ls:=TStringList.Create;
-  FDQuery1.Refresh;
-  while not FDQuery1.Eof do
-  begin
-    ls.Add(FDQuery1.FieldByName('comment').AsString);
-    FDQuery1.Next;
+    FDQuery1.Refresh;
   end;
 
   makeFooter(page,items);
@@ -435,10 +486,6 @@ var
   id, kind, db: integer;
   params: TArray<string>;
 begin
-  FDQuery1.Open('select MAX(id) as max from titles;');
-  id:=FDQuery1.FieldByName('max').AsInteger+1;
-  FDQuery1.Close;
-
   params:=Request.PathInfo.Split(['/']);
   name:=params[2];
   FDQuery1.SQL.Text:='select * from database where nickname = :name;';
@@ -449,21 +496,26 @@ begin
   FDQuery1.Close;
   if Request.MethodType = mtPost then
   begin
+    FDQuery1.Open('select MAX(id) max from titles;');
+    id:=FDQuery1.FieldByName('max').AsInteger+1;
+    FDQuery1.Close;
+
     title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
 
     FDCommand1.CommandText.Text :='''
-    INSERT INTO titles (id, usernum, name, pagecount, count, mentenance, pagetype)
-    VALUES (:id, :db, :title, :pagecount, :count, :mente, :kind)
+    INSERT INTO titles (usernum, name, pagecount, count, mentenance, pagetype, url, id)
+    VALUES (:db, :title, :pagecount, :count, :mente, :kind, :url, :id)
     ''';
 
-    FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.ParamByName('db').AsInteger:=db;
     FDCommand1.ParamByName('title').AsString:=title;
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mente').AsBoolean:=mente;
     FDCommand1.ParamByName('kind').AsInteger:=kind;
+    FDCommand1.ParamByName('url').AsString:=title;
+    FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
   end;
   FDQuery1.SQL.Text:='select * from titles where usernum = :num;';
