@@ -2,8 +2,8 @@
         <h1>会員用ページ</h1>
         <p>ようこそ@username</p>
         <form action="/members/@Page.Database" method="post">
-           <p><label for="title">タイトル</label></p>
-           <p><input id="title" name="title" type="TEXT"></p>
+           <p><label for="title">タイトル</label><input name=name type=text></p>
+           <p>url::/members/@Page.database/<input id="title" name="title" type="TEXT"></p>
            <p><input type="submit" value="送信"></p>
 
            <label for="cars">Choose Type:</label>
@@ -14,6 +14,6 @@
 
       </form></div>
     @ForEach Titles {
-        <p><a href="/bbs/@Page.DataBase/@loop.name">@loop.name</a></p>
+        <p><a href="/bbs/@Page.DataBase/@loop.url">@loop.name</a></p>
     }
 

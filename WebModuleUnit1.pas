@@ -172,9 +172,6 @@ implementation
 
 uses System.JSON, System.IOUtils;
 
-const
-  nobody = 'no name';
-
 procedure TWebModule1.makeFooter(id: integer;out link: TObjectList<TData>);
 var
   url: TData;
@@ -225,7 +222,7 @@ begin
   end;
   FDQuery1.SQL.Text:='''
     select dbnumber,id from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
-    where nickname = :user and name = :title;
+    where nickname = :user and url = :title;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
   FDQuery1.ParamByName('title').AsString:=title;
@@ -394,15 +391,16 @@ begin
     if FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
-      var tempText:=FDQuery1.SQL.Text;
       FDQuery1.SQL.Text:='''
         select dbnumber,id from database
         INNER JOIN titles ON database.dbnumber = titles.usernum
-        where nickname = :user and titles.name = :title;
+        where nickname = :user and titles.url = :title;
         ''';
       FDQuery1.ParamByName('user').AsString:=user;
       FDQuery1.ParamByName('title').AsString:=title;
       FDQuery1.Open;
+      if FDQuery1.IsEmpty then
+        Exit;
       userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
       dbtitle:=FDQuery1.FieldByName('id').AsInteger;
       tid:=1;
@@ -489,17 +487,16 @@ end;
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  name, title: string;
+  user, name, title: string;
   id, kind, db: integer;
   params: TArray<string>;
 begin
   params:=Request.PathInfo.Split(['/']);
-  name:=params[2];
+  user:=params[2];
   FDQuery1.SQL.Text:='select * from database where nickname = :name;';
-  FDQuery1.ParamByName('name').AsString:=name;
+  FDQuery1.ParamByName('name').AsString:=user;
   FDQuery1.Open;
   db:=FDQuery1.FieldByName('dbnumber').AsInteger;
-  name:=FDQuery1.FieldByName('dbname').AsString;
   FDQuery1.Close;
   if Request.MethodType = mtPost then
   begin
@@ -507,6 +504,7 @@ begin
     id:=FDQuery1.FieldByName('max').AsInteger+1;
     FDQuery1.Close;
 
+    name:=Request.ContentFields.Values['name'];
     title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
 
@@ -516,7 +514,7 @@ begin
     ''';
 
     FDCommand1.ParamByName('db').AsInteger:=db;
-    FDCommand1.ParamByName('title').AsString:=title;
+    FDCommand1.ParamByName('title').AsString:=name;
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mente').AsBoolean:=mente;
