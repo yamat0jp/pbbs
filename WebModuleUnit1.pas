@@ -170,7 +170,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.JSON, System.IOUtils;
+uses System.JSON, System.IOUtils, System.Math;
 
 procedure TWebModule1.makeFooter(id: integer;out link: TObjectList<TData>);
 var
@@ -286,7 +286,7 @@ begin
   FDQuery1.ParamByName('id').AsInteger:=index;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
   if page = 0 then
-    FDQuery1.ParamByName('st').AsInteger:=rec-count+1
+    FDQuery1.ParamByName('st').AsInteger:=Max(0,rec-count+1)
   else
     FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
@@ -377,7 +377,7 @@ begin
   FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
   if page = 0 then
-    FDQuery1.ParamByName('st').AsInteger:=rec-count+1
+    FDQuery1.ParamByName('st').AsInteger:=Max(0,rec-count+1)
   else
     FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
@@ -450,20 +450,23 @@ begin
       FDQuery1.Refresh;
   end;
 
+  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
+
   makeFooter(page,items);
-  data:=TData.Create;
   with items[items.Count-1] do
   begin
+    data:=TData.Create;
     data.id:=id;
     data.name:=name;
   end;
   items.Delete(items.Count-1);
-  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
+
   data:=TData.Create;
   data.id:=rec div 2;
   WebStencilsProcessor1.AddVar('Count',data);
+
   Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
