@@ -196,7 +196,7 @@ const
 begin
   result:=Data.Replace(#0,'',[rfReplaceAll]);
   for var s in ng.Split([',']) do
-    result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase])
+    result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
@@ -278,16 +278,17 @@ begin
     ''';
   if (page = 0)or(page > rec div count+1) then
   begin
-    temp:=rec div count;
+    temp:=rec div count+1;
     if page > 0 then
       page:=temp;
-  end
-  else
-    dec(page);
+  end;
   FDQuery1.ParamByName('db').AsInteger:=db;
   FDQuery1.ParamByName('id').AsInteger:=index;
   FDQuery1.ParamByName('cnt').AsInteger:=count;
-  FDQuery1.ParamByName('st').AsInteger:=page*count;
+  if page = 0 then
+    FDQuery1.ParamByName('st').AsInteger:=rec-count+1
+  else
+    FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
   makeFooter(index,items);
   data:=TData.Create;
