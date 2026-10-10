@@ -9,7 +9,7 @@ object WebModule1: TWebModule1
     end
     item
       Name = 'alertItem'
-      PathInfo = '/alert/{id}'
+      PathInfo = '/alert/*'
       OnAction = WebModule1alertAction
     end
     item
@@ -208,7 +208,7 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor8: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = './templates/alert.html'
-    PathTemplate = '/alert/{id}'
+    PathTemplate = '/alert/{Database}'
     Left = 416
     Top = 472
   end
@@ -230,5 +230,10 @@ object WebModule1: TWebModule1
     OnValue = WebStencilsProcessor9Value
     Left = 576
     Top = 112
+  end
+  object FDQuery2: TFDQuery
+    Connection = FDConnection1
+    Left = 160
+    Top = 176
   end
 end

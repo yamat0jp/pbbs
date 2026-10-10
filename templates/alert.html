@@ -9,7 +9,7 @@
     <p>ご協力ありがとうございました</p>
 } @else {
     <p>宜しければ何かお書き添えください</p>
-    <form action="/alert" method="post">
+    <form action="/alert/@Page.database" method="post">
     <textarea name=com></textarea><p style=text-align:center><input name=admit type=submit value="送信">
     <input type="HIDDEN" name="id" value="{id}">
 }

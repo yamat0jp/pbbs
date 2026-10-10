@@ -98,6 +98,7 @@ type
     FDCommand1: TFDCommand;
     FDTransaction1: TFDTransaction;
     WebStencilsProcessor9: TWebStencilsProcessor;
+    FDQuery2: TFDQuery;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -359,7 +360,7 @@ begin
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select t.name as pagetitle,dt.titlenum,comment,code,datetime,dt.name,
+    select t.name as pagetitle,ds.dbname,dt.titlenum,comment,code,datetime,dt.name,t.url,
     MAX(dt.titlenum) OVER() AS max from datatable dt
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
@@ -534,14 +535,20 @@ begin
   FDQuery1.SQL.Text:='select * from titles where usernum = :num;';
   FDQuery1.ParamByName('num').AsInteger:=db;
   FDQuery1.Open;
+  FDQuery2.SQL.Text:='select * from weblog where dbid = :id;';
+  FDQuery2.ParamByName('id').AsInteger:=db;
+  FDQuery2.Open;
+
   var data:=TData.Create;
   data.name:=user;
 
-  Response.ContentType := 'text/html;charset=utf8';
   WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
+  WebStencilsProcessor9.AddVar('Items',FDQuery2,false);
   WebStencilsProcessor9.AddVar('Data',data);
+  Response.ContentType := 'text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor9.Content;
   FDQuery1.Close;
+  FDQuery2.Close;
 end;
 
 procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
@@ -637,58 +644,78 @@ procedure TWebModule1.WebModule1alertAction(Sender: TObject;
 var
   id, did, tn: integer;
   log, name, title, text: string;
-  time: TDatetime;
+  time: TDate;
   post: Boolean;
   js: TJSONObject;
+  params: TArray<string>;
 begin
   if Request.MethodType = mtGet then
   begin
-    id:=Request.ContentFields.Values['id'].ToInteger;
-    log:=Request.ContentFields.Values['com'];
-    FDQuery1.Open('''
-      select * from datatable dt INNER JOIN maintable mt ON
-      dt.dbnumber = mt.dbnumber and dt.tbnumber = mt.tbnumber
-      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber;
-      ''');
-    if not FDQuery1.Locate('id',id) then
-    begin
-      FDQuery1.Close;
-      Handled:=false;
+    params:=Request.PathInfo.Split(['/']);
+    try
+      name:=params[1];
+      title:=params[2];
+    except
+      raise;
       Exit;
     end;
-    did:=FDQuery1.FieldByName('id').AsInteger;
-    tn:=FDQuery1.FieldByName('titlenum').AsInteger;
-    time := FDQuery1.FieldByName('datetime').AsDateTime;
-    title:=FDQuery1.FieldByName('title').AsString;
-    name:=FDQuery1.FieldByName('name').AsString;
-    text:=FDQuery1.FieldByName('com').AsString;
+    FDQuery1.SQL.Text:='''
+      select * from datatable dt
+      INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
+      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+      where ds.dbname = :id and t.url = :title;
+      ''';
+    FDQuery1.ParamByName('id').AsString:=name;
+    FDQuery1.ParamByName('title').AsString:=title;
+    FDQuery1.Open;
+    id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+    tn:=FDQuery1.FieldByName('dbtitle').AsInteger;
     FDQuery1.Close;
 
+    FDQuery1.SQL.Text:='''
+      select * from datatable dt
+      INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+      where dt.dbnumber = :id and dt.titlenum = :tn;
+      ''';
+    FDQuery1.ParamByName('id').AsInteger:=id;
+    FDQuery1.ParamByName('tn').AsInteger:=tn;
+    FDQuery1.Open;
+    did:=FDQuery1.FieldByName('dbtitle').AsInteger;
+    time := FDQuery1.FieldByName('datetime').AsDateTime;
+    //title:=FDQuery1.FieldByName('title').AsString;
+    name:=FDQuery1.FieldByName('name').AsString;
+    text:=FDQuery1.FieldByName('comment').AsString;
+    WebStencilsProcessor8.AddVar('main',FDQuery1,false);
+    FDQuery1.Close;
+
+    {
     bglist.Add('');
     bglist.Add('(*ユーザー様から報告がありました*)');
     bglist.Add('TODAY is ' + DateToStr(Now));
     bglist.Add(log);
-    bglist.Add(FDQuery1.FieldByName('comment').AsString);
+    bglist.Add(text);
     bglist.Add('(*報告ここまで*)');
     bglist.Add('');
     log:=bglist.Text;
-    bglist.Clear;
+    bglist.Clear;}
 
     FDQuery1.Open('select max(id) as maxid from weblog;');
-    id:=FDQuery1.FieldByName('maxid').AsInteger+1;
+    if FDQuery1.IsEmpty then
+      id:=1
+    else
+      id:=FDQuery1.FieldByName('maxid').AsInteger+1;
     FDQuery1.Close;
 
-    FDQuery1.Open('select * from proptable;');
-    FDQuery1.AppendRecord([id,time,log,did]);
-    FDQuery1.Close;
+    FDCommand1.CommandText.Text:='''
+      INSERT INTO weblog (id,time,log,dbid) VALUES (:id,:time,:log,:dbid);
+      ''';
+    FDCommand1.ParamByName('id').AsInteger:=id;
+    FDCommand1.ParamByName('time').AsDate:=time;
+    FDCommand1.ParamByName('log').AsString:=log;
+    FDCommand1.ParamByName('dbid').AsInteger:=did;
+    FDCommand1.Execute;
 
-    var main:=TMain.Create;
-    main.title:=title;
-    main.name:=name;
-    main.datetime:=time;
-    main.titlenum:=tn;
-    main.comment:=text;
-    WebStencilsProcessor8.AddVar('main',main);
     post:=false;
   end
   else

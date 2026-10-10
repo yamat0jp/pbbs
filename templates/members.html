@@ -44,7 +44,7 @@
                     <div class="mb-4">
                         <label for="title" class="form-label fw-medium text-secondary small">タイトル (URL)</label>
                         <div class="input-group input-group-lg shadow-sm">
-                            <span class="input-group-text bg-light text-muted border-end-0">/members/@Page.database/</span>
+                            <span class="input-group-text bg-light text-muted border-end-0">/bbs/@Page.database/</span>
                             <input type="text" class="form-control border-start-0 ps-0" id="title" name="title" placeholder="URLを入力">
                         </div>
                     </div>
@@ -83,6 +83,11 @@
             </div>
         </div>
     </div>
+    <p>お知らせ</p>
+    @ForEach Items {
+        <p>ok</p>
+        @loop.id<p>@loop.log</p>@loop.time
+    }
 </div>
 
 <!-- Bootstrap JS -->
