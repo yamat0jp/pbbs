@@ -64,8 +64,13 @@ object WebModule1: TWebModule1
       MethodType = mtGet
       Name = 'login'
       PathInfo = '/login'
+    end
+    item
+      Name = 'WebActionItem1'
+      PathInfo = '/params/*'
+      Producer = WebStencilsProcessor10
+      OnAction = WebModule1WebActionItem1Action
     end>
-  BeforeDispatch = WebModuleBeforeDispatch
   Height = 556
   Width = 779
   object FDConnection1: TFDConnection
@@ -79,11 +84,6 @@ object WebModule1: TWebModule1
     LoginPrompt = False
     Left = 160
     Top = 32
-  end
-  object mentenance: TPageProducer
-    HTMLFile = '.\templates\mentenance.htm'
-    Left = 272
-    Top = 384
   end
   object WebFileDispatcher1: TWebFileDispatcher
     WebFileExtensions = <
@@ -235,5 +235,19 @@ object WebModule1: TWebModule1
     Connection = FDConnection1
     Left = 160
     Top = 176
+  end
+  object WebStencilsProcessor10: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\params.html'
+    PathTemplate = '/params/{user}/{title}'
+    Left = 576
+    Top = 176
+  end
+  object WebStencilsProcessor11: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\maintenance.html'
+    PathTemplate = '/bbs/{user}/{title}'
+    Left = 576
+    Top = 240
   end
 end

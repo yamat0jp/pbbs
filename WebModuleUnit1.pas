@@ -80,7 +80,6 @@ type
 
   TWebModule1 = class(TWebModule)
     FDConnection1: TFDConnection;
-    mentenance: TPageProducer;
     WebFileDispatcher1: TWebFileDispatcher;
     FDQuery1: TFDQuery;
     master: TPageProducer;
@@ -99,10 +98,10 @@ type
     FDTransaction1: TFDTransaction;
     WebStencilsProcessor9: TWebStencilsProcessor;
     FDQuery2: TFDQuery;
+    WebStencilsProcessor10: TWebStencilsProcessor;
+    WebStencilsProcessor11: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
-    procedure WebModuleBeforeDispatch(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1helpAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -133,11 +132,13 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor9Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
+    procedure WebModule1WebActionItem1Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     count: integer;
     pagecount: integer;
-    mente: Boolean;
+    mainte: Boolean;
     commentoff: Boolean;
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
@@ -165,6 +166,8 @@ type
 var
   WebModuleClass: TComponentClass = TWebModule1;
 
+function GetSafePostValue(Request: TWebRequest; const FieldName: string): string;
+
 implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
@@ -172,6 +175,55 @@ implementation
 {$R *.dfm}
 
 uses System.JSON, System.IOUtils, System.Math;
+
+// Request.ContentFields の代わりに使用する安全な関数
+function GetSafePostValue(Request: TWebRequest; const FieldName: string): string;
+var
+  RawBytes: TBytes;
+  RawStr: string;
+  Params, Pair: TArray<string>;
+  P: string;
+begin
+  Result := '';
+
+  // 1. 生のバイトデータを取得（OSの文字コード干渉を完全に防ぐ）
+  RawBytes := Request.RawContent;
+
+  // ※もしISAPIなどで長文が切れる（RawContentが空、またはサイズ不足）場合のフェイルセーフ
+  if (Length(RawBytes) = 0) and (Request.ContentLength > 0) then
+  begin
+    RawStr := Request.ReadString(Request.ContentLength);
+  end
+  else
+  begin
+    // URLエンコードされたデータはASCIIのみで構成されるため、ASCIIとして文字列化
+    RawStr := TEncoding.ASCII.GetString(RawBytes);
+  end;
+
+  if RawStr = '' then Exit;
+
+  // 2. TStringList のバグを避けるため、String.Split で安全に '&' を分割
+  Params := RawStr.Split(['&']);
+
+  for P in Params do
+  begin
+    // 3. '=' で名前と値に分割
+    Pair := P.Split(['=']);
+    if (Length(Pair) = 2) and SameText(Pair[0], FieldName) then
+    begin
+      try
+        // 4. 空白の処理と、UTF-8としてのURLデコード
+        Result := TNetEncoding.URL.Decode(Pair[1].Replace('+', ' '))
+          .Replace(#0,'',[rfReplaceAll]).Replace(#1,#2,[rfReplaceAll]);
+      except
+        // 万が一、ユーザーが不正なパーセントエンコードを送ってきた場合のエラー回避
+        on E: Exception do
+          Result := ''; // またはエラーログを出力
+      end;
+      Break;
+    end;
+  end;
+end;
 
 procedure TWebModule1.makeFooterNumber(id: integer;out link: TObjectList<TData>);
 var
@@ -224,6 +276,8 @@ begin
   FDQuery1.Open;
   db:=FDQuery1.FieldByName('dbnumber').AsInteger;
   index:=FDQuery1.FieldByName('id').AsInteger;
+  pagecount:=10;
+  count:=30;
   FDQuery1.Close;
 
   if Request.MethodType = mtPost then
@@ -296,7 +350,7 @@ begin
   WebStencilsProcessor3.AddVar('Items',items);
   WebStencilsProcessor3.AddVar('Info',data);
 
-  Response.ContentType := 'text/html;charset=utf-8;';
+  Response.ContentType := 'text/html;charset=utf8;';
   Response.Content:=WebStencilsProcessor3.Content;
   FDQuery1.Close;
 end;
@@ -322,7 +376,7 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select COUNT(*) OVER() AS cnt,dt.dbnumber,dt.dbtitle from datatable dt
+    select COUNT(*) OVER() AS cnt,dt.dbnumber,dt.dbtitle,pagetype,pagecount,count,maintenance from datatable dt
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
     where nickname = :user and url = :title;
@@ -335,21 +389,42 @@ begin
     FDQuery1.Close;
     FDQuery1.SQL.Text:='''
       select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
-      where ds.nickname = :user and t.name = :title;
+      where nickname = :user and t.url = :title;
       ''';
     FDQuery1.ParamByName('user').AsString:=user;
     FDQuery1.ParamByName('title').AsString:=title;
     FDQuery1.Open;
-
-    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+    userid:=FDQuery1.FieldByName('usernum').AsInteger;
     dbtitle:=FDQuery1.FieldByName('id').AsInteger;
     rec:=0;
+    case FDQuery1.FieldByName('PageType').AsInteger of
+      0:
+        begin
+          pagecount:=10;
+          count:=30;
+        end;
+      1:
+        begin
+          pagecount:=10;
+          count:=8;
+        end;
+    end;
+    mainte:=false;
   end
   else
   begin
     userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
     dbtitle:=FDQuery1.FieldByName('dbtitle').AsInteger;
     rec:=FDQuery1.FieldByName('cnt').AsInteger;
+    pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
+    count:=FDQuery1.FieldByName('count').AsInteger;
+    mainte:=FDQuery1.FieldByName('maintenance').AsBoolean;
+    if mainte then
+    begin
+      Response.ContentType := 'text/html;charset=utf8';
+      Response.Content := WebStencilsProcessor11.Content;
+      Exit;
+    end;
   end;
   if (page = 0)or(page > rec div count+1) then
   begin
@@ -380,10 +455,9 @@ begin
   if Request.MethodType = mtPost then
   begin
     tid:=FDQuery1.FieldByName('max').AsInteger+1;
-    name := Request.ContentFields.Values['name'];
-    raw := replaceRawData(Request.ContentFields.Values['comment']);
-    raw := TNetEncoding.HTML.Encode(raw);
-    code := Request.ContentFields.Values['code'];
+    name:=GetSafePostValue(Request,'name');
+    raw := replaceRawData(GetSafePostValue(Request,'comment'));
+    code := GetSafePostValue(Request,'code');
     if FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
@@ -458,7 +532,7 @@ begin
   data.id:=rec div 2;
   WebStencilsProcessor1.AddVar('Count',data);
 
-  Response.ContentType := 'text/html;charset=utf-8';
+  Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
 end;
@@ -498,8 +572,8 @@ begin
   user:=FDQuery1.FieldByName('dbname').AsString;
   if Request.MethodType = mtPost then
   begin
-    name:=Request.ContentFields.Values['name'];
-    title := Request.ContentFields.Values['title'];
+    name:=GetSafePostValue(Request,'name');
+    title := GetSafePostValue(Request,'title');
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
 
     FDQuery1.Open('select MAX(id) OVER() max from titles;');
@@ -518,7 +592,7 @@ begin
     FDQuery1.Close;
 
     FDCommand1.CommandText.Text :='''
-    INSERT INTO titles (usernum, name, pagecount, count, mentenance, pagetype, url, id)
+    INSERT INTO titles (usernum, name, pagecount, count, maintenance, pagetype, url, id)
     VALUES (:db, :title, :pagecount, :count, :mente, :kind, :url, :id)
     ''';
 
@@ -526,13 +600,13 @@ begin
     FDCommand1.ParamByName('title').AsString:=name;
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
-    FDCommand1.ParamByName('mente').AsBoolean:=mente;
+    FDCommand1.ParamByName('mainte').AsBoolean:=mainte;
     FDCommand1.ParamByName('kind').AsInteger:=kind;
     FDCommand1.ParamByName('url').AsString:=title;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
   end;
-  FDQuery1.SQL.Text:='select * from titles where usernum = :num;';
+  FDQuery1.SQL.Text:='select * from titles where usernum = :num ORDER BY id;';
   FDQuery1.ParamByName('num').AsInteger:=db;
   FDQuery1.Open;
   FDQuery2.SQL.Text:='select * from weblog where dbid = :id;';
@@ -556,7 +630,7 @@ procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
 var
   s, words: string;
 begin
-  words:=Request.ContentFields.Values['word1'];
+  words:=GetSafePostValue(Request,'word1');
   FDQuery1.ResourceOptions.MacroCreate:=false;
   FDQuery1.ResourceOptions.MacroExpand:=false;
   FDQuery1.SQL.Text:='''
@@ -628,14 +702,52 @@ begin
       else
       begin
         USERName.id:=0;
-        USERName.name:='未開放';
+        USERName.name:='未加入';
       end;
       slide.Items.Add(USERName);
     end;
   end;
   WebStencilsProcessor2.AddVar('Slides',ls);
-  Response.ContentType := 'text/html;charset=utf-8';
+  Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor2.Content;
+  FDQuery1.Close;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem1Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  params: TArray<string>;
+  user, title: string;
+begin
+  params:=Request.PathInfo.Split(['/']);
+  if High(params) < 3 then
+    Exit;
+  user:=params[2];
+  title:=params[3];
+  FDQuery1.SQL.Text:='''
+    select * from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
+    where t.url = :title and ds.nickname = :user;
+    ''';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('title').AsString:=title;
+  FDQuery1.Open;
+  if Request.MethodType = mtPost then
+  begin
+    FDCommand1.CommandText.Text:='''
+      UPDATE titles SET pagecount = :pcnt,count = :cnt,maintenance = :mainte
+      where id = :id and usernum = :userid;
+      ''';
+    FDCommand1.ParamByName('pcnt').AsInteger:=Request.ContentFields.Values['pagecount'].ToInteger;
+    FDCommand1.ParamByName('cnt').AsInteger:=Request.ContentFields.Values['count'].ToInteger;
+    FDCommand1.ParamByName('mainte').AsBoolean:=Request.ContentFields.Values['maintenance'] = 'on';
+    FDCommand1.ParamByName('id').AsInteger:=FDQuery1.FieldByName('id').AsInteger;
+    FDCommand1.ParamByName('userid').AsInteger:=FDQuery1.FieldByName('usernum').AsInteger;
+    FDCommand1.Execute;
+    FDQuery1.Refresh;
+  end;
+  WebStencilsProcessor10.AddVar('Datas',FDQuery1,false);
+  Response.ContentType:='text/html;charset=utf-8';
+  Response.Content:=WebStencilsProcessor10.Content;
   FDQuery1.Close;
 end;
 
@@ -723,7 +835,7 @@ begin
   js:=TJSONObject.Create;
   js.AddPair('post',post);
   WebStencilsProcessor8.AddVar('Data',js);
-  Response.ContentType := 'text/html;charset=utf-8';
+  Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor8.Content;
 end;
 
@@ -740,7 +852,7 @@ begin
     bglist.Add('');
     bglist.Add('(*ユーザー様から報告がありました*)');
     bglist.Add(DateToStr(Now));
-    bglist.Add(Request.ContentFields.Values['help']);
+    bglist.Add(GetSafePostValue(Request,'help'));
     bglist.Add('(*報告ここまで*)');
     bglist.Add('');
     FDQuery1.Open('select max(id) as maxid from weblog;');
@@ -756,14 +868,14 @@ begin
   js:=TJSONObject.Create;
   js.AddPair('post',TJSONBool.Create(post));
   WebStencilsProcessor7.AddVar('Data',js);
-  Response.ContentType := 'text/html;charset=utf-8';
+  Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
 end;
 
 procedure TWebModule1.WebModule1linkItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
-  Response.ContentType:='text/html;charset=utf-8';
+  Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor4.Content;
 end;
 
@@ -779,38 +891,17 @@ begin
   FDQuery1.SQL.Add('select * from database where dbnumber = :db;');
   FDQuery1.Params.ParamByName('db').AsInteger:=DB.ToInteger;
   FDQuery1.Open;
-  name:=Request.ContentFields.Values['text'];
+  name:=GetSafePostValue(Request,'text');
   FDQuery1.Edit;
   FDQuery1.FieldByName('dbname').AsString:=name;
   FDQuery1.Post;
   Response.SendRedirect('/admin/'+DB);
 end;
 
-procedure TWebModule1.WebModuleBeforeDispatch(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-begin
-  if mente and (Request.PathInfo <> '/master') then
-  begin
-    Response.ContentType := 'text/html;charset=utf-8';
-    Response.Content := mentenance.Content;
-    Handled := true;
-  end;
-end;
-
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
 begin
   Randomize;
-  FDQuery1.Open('select * from proptable;');
-  count:=FDQuery1.FieldByName('count').AsInteger;
-  pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
-  mente:=FDQuery1.FieldByName('mentenance').AsBoolean;
-  FDQuery1.Close;
-
-  count := if count = 0 then 30 else count;
-  pagecount:=if pagecount = 0 then 10 else pagecount;
-
   adlist:=TStringList.Create;
-  FDQuery1.Close;
   FDQuery1.Open('select * from adsense;');
   while not FDQuery1.Eof do
   begin
@@ -824,13 +915,6 @@ end;
 
 procedure TWebModule1.WebModuleDestroy(Sender: TObject);
 begin
-  FDQuery1.Open('select * from proptable;');
-  FDQuery1.Edit;
-  FDQuery1.FieldByName('count').AsInteger:=count;
-  FDQuery1.FieldByName('pagecount').AsInteger:=pagecount;
-  FDQuery1.FieldByName('mentenance').AsBoolean:=mente;
-  FDQuery1.Post;
-  FDQuery1.Close;
   adlist.Free;
   bglist.Free;
 end;

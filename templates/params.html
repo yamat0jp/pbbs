@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記事の削除 - 管理画面</title>
+    <style>
+        /* 全体のリセットとベーススタイル */
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: #f3f4f6; /* 薄いグレーの背景 */
+            color: #374151;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 管理画面のパネル（カード型デザイン） */
+        .admin-panel {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* 見出し */
+        h1 {
+            font-size: 1.25rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #111827;
+        }
+
+        /* フォームグループ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* ラベル */
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #4b5563;
+        }
+
+        /* テキスト・数値入力欄 */
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* フォーカス時の青いリング */
+        }
+
+        /* チェックボックス周辺 */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            display: inline;
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        /* アクションエリア（ボタンとリンク） */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 15px;
+        }
+
+        /* 戻るリンク */
+        .btn-back {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: #111827;
+            text-decoration: underline;
+        }
+
+        /* 送信（削除・実行）ボタン */
+        .btn-submit {
+            background-color: #ef4444; /* 削除・警告を意味する赤系 */
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <main class="admin-panel">
+        <h1>設定の変更 / 記事の削除</h1>
+
+        <form action="#" method="POST">
+            <div class="form-group">
+                <label for="pagecount">項目数 (pagecount)</label>
+                <!-- placeholderとrequiredを追加 -->
+                <input type="number" id="pagecount" name="pagecount" min="10" max="30" placeholder="10〜30の数値を入力" required value="@Datas.pagecount">
+            </div>
+
+            <div class="form-group">
+                <label for="count">表示数 (count)</label>
+                <input type="number" id="count" name="count" min="3" max="50" placeholder="3〜50の数値を入力" required value="@Datas.count">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="maintenance" name="maintenance" @if Datas.maintenance {checked}>
+                <label for="maintenance">メンテナンスモードを有効にする</label>
+            </div>
+
+            <div class="form-actions">
+                <!-- テンプレートエンジンの構文 -->
+                <a href="/admin/@Page.user/@Page.title" class="btn-back">← もどる</a>
+                <button type="submit" class="btn-submit">実行する</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

@@ -205,7 +205,7 @@
         <None Include="templates\main.html"/>
         <None Include="templates\master.html"/>
         <None Include="templates\members.html"/>
-        <None Include="templates\mentenance.html"/>
+        <None Include="templates\maintenance.html"/>
         <None Include="templates\search.html"/>
         <None Include="templates\tables.html"/>
         <None Include="templates\top.html"/>
@@ -213,6 +213,7 @@
         <None Include="css\tablet.css"/>
         <None Include="templates\footer.html"/>
         <None Include="js\top.js"/>
+        <None Include="templates\params.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -672,6 +673,12 @@
                 <DeployFile LocalName="templates\top.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.html" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="新規1.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
