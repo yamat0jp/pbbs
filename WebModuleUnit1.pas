@@ -136,13 +136,9 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
-    count: integer;
-    pagecount: integer;
-    mainte: Boolean;
-    commentoff: Boolean;
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
-    procedure makeFooterNumber(id: integer; out link: TObjectList<TData>);
+    procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
   public
@@ -224,12 +220,12 @@ begin
   end;
 end;
 
-procedure TWebModule1.makeFooterNumber(id: integer;out link: TObjectList<TData>);
+procedure TWebModule1.makeFooterNumber(id, max: integer;out link: TObjectList<TData>);
 var
   url: TData;
 begin
   link:=TObjectList<TData>.Create;
-  for var i := 1 to pagecount do
+  for var i := 1 to max do
   begin
     url:=TData.Create;
     url.id:=i;
@@ -267,6 +263,7 @@ procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   db, index, page, temp, rec: integer;
+  count, pagecount: integer;
   user, title: string;
   params: TArray<string>;
   items: TObjectList<TData>;
@@ -358,7 +355,7 @@ begin
   FDQuery1.Open;
   WebStencilsProcessor3.AddVar('articles',FDQuery1,false);
 
-  makeFooterNumber(page,items);
+  makeFooterNumber(page,pagecount,items);
   data:=TData.Create;
   data.id:=0;
   data.name:=if page = 0 then 'active' else '';
@@ -375,6 +372,7 @@ procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
 var
   user, raw, code, name, title: string;
   userid, page0, page, temp, rec, tid, dbtitle: integer;
+  count, pagecount: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
@@ -424,7 +422,6 @@ begin
           count:=8;
         end;
     end;
-    mainte:=false;
   end
   else
   begin
@@ -433,8 +430,7 @@ begin
     rec:=FDQuery1.FieldByName('cnt').AsInteger;
     pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
     count:=FDQuery1.FieldByName('count').AsInteger;
-    mainte:=FDQuery1.FieldByName('maintenance').AsBoolean;
-    if mainte then
+    if FDQuery1.FieldByName('maintenance').AsBoolean then
     begin
       Response.ContentType := 'text/html;charset=utf8';
       Response.Content := WebStencilsProcessor11.Content;
@@ -541,7 +537,7 @@ begin
 
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
 
-  makeFooterNumber(page,items);
+  makeFooterNumber(page,pagecount,items);
   data:=TData.Create;
   data.id:=0;
   data.name:=if page = 0 then 'active' else '';
@@ -581,6 +577,8 @@ procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   user, name, title: string;
+  count, pagecount: integer;
+  mainte: Boolean;
   id, kind, db: integer;
   params: TArray<string>;
 begin
@@ -596,6 +594,9 @@ begin
     name:=Request.ContentFields.Values['name'];
     title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
+    pagecount:=10;
+    count:=30;
+    mainte:=false;
 
     FDQuery1.Open('select MAX(id) OVER() max from titles;');
     id:=FDQuery1.FieldByName('max').AsInteger+1;
@@ -614,7 +615,7 @@ begin
 
     FDCommand1.CommandText.Text :='''
     INSERT INTO titles (usernum, name, pagecount, count, maintenance, pagetype, url, id)
-    VALUES (:db, :title, :pagecount, :count, :mente, :kind, :url, :id)
+    VALUES (:db, :title, :pagecount, :count, :mainte, :kind, :url, :id)
     ''';
 
     FDCommand1.ParamByName('db').AsInteger:=db;
@@ -776,7 +777,7 @@ procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id, did, tn: integer;
-  log, name, title, username, dbtitle, text: string;
+  log, name, title, username, dbtitle, text, msg: string;
   time: TDate;
   data: TData;
   params: TArray<string>;
@@ -813,16 +814,19 @@ begin
     title:=FDQuery1.FieldByName('title').AsString;
     name:=FDQuery1.FieldByName('name').AsString;
     text:=FDQuery1.FieldByName('comment').AsString;
+    msg:=Request.ContentFields.Values['com'];
     log:=String.Format('''
       <pre>
 
       (*ユーザー様から報告がありました*)
       TODAY is %s
-      <a href="/bbs/%s/%s/%d">[%s - %d]</a>
+      <a href="/bbs/%s/%s?recno=%d">[%s - %d]</a>
+      %s
+
       %s
       </pre>
-      ''',[DateToStr(Now),username,dbtitle,tn,dbtitle,tn,text]);
-    did:=FDQuery1.FieldByName('dbtitle').AsInteger;
+      ''',[DateToStr(Now),username,dbtitle,tn,dbtitle,tn,text,msg]);
+    did:=FDQuery1.FieldByName('dbnumber').AsInteger;
 
     FDQuery1.Open('select max(id) as maxid from weblog;');
     if FDQuery1.IsEmpty then
