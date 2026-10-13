@@ -208,7 +208,8 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor8: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = './templates/alert.html'
-    PathTemplate = '/alert/{Database}'
+    PathTemplate = '/alert/{user}/{title}/{id}'
+    DataVarDuplicates = ddReplace
     Left = 416
     Top = 472
   end
@@ -227,7 +228,6 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\members.html'
     PathTemplate = '/members/{Database}'
-    OnValue = WebStencilsProcessor9Value
     Left = 576
     Top = 112
   end

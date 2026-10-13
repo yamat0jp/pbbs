@@ -42,7 +42,7 @@
     @Ad
     @ForEach articles {
         @if (loop.RecNo = Count.id) {@Ad}
-        @Import ./templates/main.html {Data = loop}
+        @Import ./templates/main.html {Data = loop,Bool = Footer}
     }
     @Ad
 

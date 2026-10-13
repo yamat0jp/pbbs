@@ -44,10 +44,12 @@ type
     FId: integer;
     FName: string;
     FTag: string;
+    FBool: Boolean;
   public
     property id: integer read FId write FId;
     property name: string read FName write FName;
     property tag: string read FTag write FTag;
+    property bool: Boolean read FBool write FBool;
   end;
 
   TInfo = class
@@ -130,8 +132,6 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor3Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
-    procedure WebStencilsProcessor9Value(Sender: TObject; const AObjectName,
-      APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebModule1WebActionItem1Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
@@ -144,6 +144,7 @@ type
     bglist, adlist: TStringList;
     procedure makeFooterNumber(id: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
+    function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
   public
     { public 宣言 }
   end;
@@ -174,7 +175,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.JSON, System.IOUtils, System.Math;
+uses System.IOUtils, System.Math;
 
 // Request.ContentFields の代わりに使用する安全な関数
 function GetSafePostValue(Request: TWebRequest; const FieldName: string): string;
@@ -239,11 +240,27 @@ begin
   end;
 end;
 
+function TWebModule1.readRecNo(index, userid, titleid: integer;
+  Query: TFDQuery): integer;
+begin
+  Query.SQL.Text:='''
+    select titlenum from datatable where dbnumber = :userid and dbtitle = :dbtitle
+    ORDER BY titlenum;
+    ''';
+  Query.ParamByName('userid').AsInteger:=userid;
+  Query.ParamByName('dbtitle').AsInteger:=titleid;
+  Query.Open;
+  if Query.Locate('titlenum',index) then
+    result:=Query.RecNo
+  else
+    result:=0;
+  Query.Close;
+end;
+
 function TWebModule1.replaceRawData(const Data: string): string;
 const
   ng = '死ね,阿保,馬鹿,殺す,爆破';
 begin
-  result:=Data.Replace(#0,'',[rfReplaceAll]);
   for var s in ng.Split([',']) do
     result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
 end;
@@ -426,6 +443,11 @@ begin
       Exit;
     end;
   end;
+  if (page = 0)and(Request.QueryFields.Values['recno'] <> '') then
+  begin
+    temp:=Request.QueryFields.Values['recno'].ToInteger;
+    rec:=readRecNo(temp,userid,dbtitle,FDQuery2);
+  end;
   if (page = 0)or(page > rec div count+1) then
   begin
     temp:=rec div count+1;
@@ -435,8 +457,8 @@ begin
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select t.name as pagetitle,ds.dbname,dt.titlenum,comment,code,datetime,dt.name,t.url,
-    MAX(dt.titlenum) OVER() AS max from datatable dt
+    select t.name as pagetitle,ds.dbname,ds.nickname,dt.titlenum,
+    comment,code,datetime,dt.name,t.url,MAX(dt.titlenum) OVER() AS max from datatable dt
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
@@ -525,6 +547,7 @@ begin
   data:=TData.Create;
   data.id:=0;
   data.name:=if page = 0 then 'active' else '';
+  data.bool:=true;
   WebStencilsProcessor1.AddVar('Items',items);
   WebStencilsProcessor1.AddVar('Footer',data);
 
@@ -755,62 +778,53 @@ procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id, did, tn: integer;
-  log, name, title, text: string;
+  log, name, title, username, dbtitle, text: string;
   time: TDate;
-  post: Boolean;
-  js: TJSONObject;
+  data: TData;
   params: TArray<string>;
 begin
+  data:=TData.Create;
+  params:=Request.PathInfo.Split(['/']);
+  try
+    username:=params[2];
+    dbtitle:=params[3];
+    tn:=params[4].ToInteger;
+  except
+    raise;
+    Exit;
+  end;
+  FDQuery1.SQL.Text:='''
+    select * from datatable dt
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
+    INNER JOIN titles t ON dt.dbtitle = t.id
+    where dt.titlenum = :tn and ds.nickname = :user and t.url = :title;
+    ''';
+  FDQuery1.ParamByName('user').AsString:=username;
+  FDQuery1.ParamByName('title').AsString:=dbtitle;
+  FDQuery1.ParamByName('tn').AsInteger:=tn;
+  FDQuery1.Open;
   if Request.MethodType = mtGet then
   begin
-    params:=Request.PathInfo.Split(['/']);
-    try
-      name:=params[1];
-      title:=params[2];
-    except
-      raise;
-      Exit;
-    end;
-    FDQuery1.SQL.Text:='''
-      select * from datatable dt
-      INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
-      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
-      where ds.dbname = :id and t.url = :title;
-      ''';
-    FDQuery1.ParamByName('id').AsString:=name;
-    FDQuery1.ParamByName('title').AsString:=title;
-    FDQuery1.Open;
-    id:=FDQuery1.FieldByName('dbnumber').AsInteger;
-    tn:=FDQuery1.FieldByName('dbtitle').AsInteger;
-    FDQuery1.Close;
-
-    FDQuery1.SQL.Text:='''
-      select * from datatable dt
-      INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
-      INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
-      where dt.dbnumber = :id and dt.titlenum = :tn;
-      ''';
-    FDQuery1.ParamByName('id').AsInteger:=id;
-    FDQuery1.ParamByName('tn').AsInteger:=tn;
-    FDQuery1.Open;
-    did:=FDQuery1.FieldByName('dbtitle').AsInteger;
+    data.bool:=false;
+    WebStencilsProcessor8.AddVar('main',FDQuery1,false);
+  end
+  else
+  begin
     time := FDQuery1.FieldByName('datetime').AsDateTime;
-    //title:=FDQuery1.FieldByName('title').AsString;
+    title:=FDQuery1.FieldByName('title').AsString;
     name:=FDQuery1.FieldByName('name').AsString;
     text:=FDQuery1.FieldByName('comment').AsString;
-    WebStencilsProcessor8.AddVar('main',FDQuery1,false);
-    FDQuery1.Close;
+    log:=String.Format('''
+      <pre>
 
-    {
-    bglist.Add('');
-    bglist.Add('(*ユーザー様から報告がありました*)');
-    bglist.Add('TODAY is ' + DateToStr(Now));
-    bglist.Add(log);
-    bglist.Add(text);
-    bglist.Add('(*報告ここまで*)');
-    bglist.Add('');
-    log:=bglist.Text;
-    bglist.Clear;}
+      (*ユーザー様から報告がありました*)
+      TODAY is %s
+      <a href="/bbs/%s/%s/%d">[%s - %d]</a>
+      %s
+      </pre>
+      ''',[DateToStr(Now),username,dbtitle,tn,dbtitle,tn,text]);
+    did:=FDQuery1.FieldByName('dbtitle').AsInteger;
 
     FDQuery1.Open('select max(id) as maxid from weblog;');
     if FDQuery1.IsEmpty then
@@ -818,7 +832,6 @@ begin
     else
       id:=FDQuery1.FieldByName('maxid').AsInteger+1;
     FDQuery1.Close;
-
     FDCommand1.CommandText.Text:='''
       INSERT INTO weblog (id,time,log,dbid) VALUES (:id,:time,:log,:dbid);
       ''';
@@ -828,24 +841,21 @@ begin
     FDCommand1.ParamByName('dbid').AsInteger:=did;
     FDCommand1.Execute;
 
-    post:=false;
-  end
-  else
-    post:=true;
-  js:=TJSONObject.Create;
-  js.AddPair('post',post);
-  WebStencilsProcessor8.AddVar('Data',js);
-  Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := WebStencilsProcessor8.Content;
+    data.bool:=true;
+  end;
+  WebStencilsProcessor8.AddVar('Data',data);
+  Response.ContentType:='text/html;charset=utf8';
+  Response.Content:=WebStencilsProcessor8.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1helpAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id: integer;
-  post: Boolean;
-  js: TJSONObject;
+  data: TData;
 begin
+  data:=TData.Create;
   if Request.MethodType = mtPost then
   begin
     bglist.Clear;
@@ -861,13 +871,11 @@ begin
     FDQuery1.Open('select * from weblog;');
     FDQuery1.AppendRecord([id,Now,bglist.Text,0]);
     FDQuery1.Close;
-    post:=true;
+    data.bool:=true;
   end
   else
-    post:=false;
-  js:=TJSONObject.Create;
-  js.AddPair('post',TJSONBool.Create(post));
-  WebStencilsProcessor7.AddVar('Data',js);
+    data.bool:=false;
+  WebStencilsProcessor7.AddVar('Data',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
 end;
@@ -960,12 +968,6 @@ begin
     AValue:=adlist[Random(adlist.Count)];
   if AObjectName = 'word' then
     AValue := mysearch.WordList;
-end;
-
-procedure TWebModule1.WebStencilsProcessor9Value(Sender: TObject;
-  const AObjectName, APropName: string; var AValue: string;
-  var AHandled: Boolean);
-begin
 end;
 
 { TPageSearch }
