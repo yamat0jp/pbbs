@@ -167,8 +167,6 @@ type
 var
   WebModuleClass: TComponentClass = TWebModule1;
 
-function GetSafePostValue(Request: TWebRequest; const FieldName: string): string;
-
 implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
@@ -262,7 +260,7 @@ const
   ng = '死ね,阿保,馬鹿,殺す,爆破';
 begin
   for var s in ng.Split([',']) do
-    result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
+    result:=Data.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
@@ -477,9 +475,9 @@ begin
   if Request.MethodType = mtPost then
   begin
     tid:=FDQuery1.FieldByName('max').AsInteger+1;
-    name:=GetSafePostValue(Request,'name');
-    raw := replaceRawData(GetSafePostValue(Request,'comment'));
-    code := GetSafePostValue(Request,'code');
+    name:=Request.ContentFields.Values['name'];
+    raw := replaceRawData(Request.ContentFields.Values['comment']);
+    code := Request.ContentFields.Values['code'];
     if FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
@@ -595,8 +593,8 @@ begin
   user:=FDQuery1.FieldByName('dbname').AsString;
   if Request.MethodType = mtPost then
   begin
-    name:=GetSafePostValue(Request,'name');
-    title := GetSafePostValue(Request,'title');
+    name:=Request.ContentFields.Values['name'];
+    title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
 
     FDQuery1.Open('select MAX(id) OVER() max from titles;');
@@ -653,7 +651,7 @@ procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
 var
   s, words: string;
 begin
-  words:=GetSafePostValue(Request,'word1');
+  words:=Request.ContentFields.Values['word1'];
   FDQuery1.ResourceOptions.MacroCreate:=false;
   FDQuery1.ResourceOptions.MacroExpand:=false;
   FDQuery1.SQL.Text:='''
@@ -862,7 +860,7 @@ begin
     bglist.Add('');
     bglist.Add('(*ユーザー様から報告がありました*)');
     bglist.Add(DateToStr(Now));
-    bglist.Add(GetSafePostValue(Request,'help'));
+    bglist.Add(Request.ContentFields.Values['help']);
     bglist.Add('(*報告ここまで*)');
     bglist.Add('');
     FDQuery1.Open('select max(id) as maxid from weblog;');
@@ -899,7 +897,7 @@ begin
   FDQuery1.SQL.Add('select * from database where dbnumber = :db;');
   FDQuery1.Params.ParamByName('db').AsInteger:=DB.ToInteger;
   FDQuery1.Open;
-  name:=GetSafePostValue(Request,'text');
+  name:=Request.ContentFields.Values['text'];
   FDQuery1.Edit;
   FDQuery1.FieldByName('dbname').AsString:=name;
   FDQuery1.Post;

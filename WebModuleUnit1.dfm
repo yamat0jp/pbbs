@@ -77,8 +77,8 @@ object WebModule1: TWebModule1
     Params.Strings = (
       'User_Name=postgres'
       'Database=bbs'
-      'CharacterSet=UTF8'
       'Password=kainushi'
+      'CharacterSet=SJIS'
       'DriverID=PG')
     Connected = True
     LoginPrompt = False
