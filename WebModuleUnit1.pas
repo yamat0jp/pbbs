@@ -377,6 +377,7 @@ var
   items: TObjectList<TData>;
   data: TData;
   redirect: Boolean;
+  mainte: Boolean;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   try
@@ -389,26 +390,42 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select COUNT(*) OVER() AS cnt,dt.dbnumber,dt.dbtitle,pagetype,pagecount,count,maintenance from datatable dt
-    INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
-    INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
-    where nickname = :user and url = :title;
+    select * from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
+    where ds.nickname = :user and t.url = :title;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
   FDQuery1.ParamByName('title').AsString:=title;
   FDQuery1.Open;
+  userid:=FDQuery1.FieldByName('usernum').AsInteger;
+  dbtitle:=FDQuery1.FieldByName('id').AsInteger;
+  mainte:=FDQuery1.FieldByName('maintenance').AsBoolean;
+  FDQuery1.Close;
+  if mainte then
+  begin
+    Response.ContentType := 'text/html;charset=utf8';
+    Response.Content := WebStencilsProcessor11.Content;
+    Exit;
+  end;
+  FDQuery1.SQL.Text:='''
+    select COUNT(*) OVER() AS cnt,pagetype,pagecount,count from titles t
+    INNER JOIN datatable dt ON t.id = dt.dbtitle and t.usernum = dt.titlenum
+    where dbnumber = :userid and dbtitle = :dbtitle;
+    ''';
+  FDQuery1.ParamByName('userid').AsInteger:=userid;
+  FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
+  FDQuery1.Open;
+  count:=0;
+  pagecount:=0;
   if FDQuery1.IsEmpty then
   begin
     FDQuery1.Close;
     FDQuery1.SQL.Text:='''
       select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
-      where nickname = :user and t.url = :title;
+      where dbnumber = :userid and t.id = :dbtitle;
       ''';
-    FDQuery1.ParamByName('user').AsString:=user;
-    FDQuery1.ParamByName('title').AsString:=title;
+    FDQuery1.ParamByName('userid').AsInteger:=userid;
+    FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
     FDQuery1.Open;
-    userid:=FDQuery1.FieldByName('usernum').AsInteger;
-    dbtitle:=FDQuery1.FieldByName('id').AsInteger;
     rec:=0;
     case FDQuery1.FieldByName('PageType').AsInteger of
       0:
@@ -425,17 +442,9 @@ begin
   end
   else
   begin
-    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
-    dbtitle:=FDQuery1.FieldByName('dbtitle').AsInteger;
     rec:=FDQuery1.FieldByName('cnt').AsInteger;
     pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
     count:=FDQuery1.FieldByName('count').AsInteger;
-    if FDQuery1.FieldByName('maintenance').AsBoolean then
-    begin
-      Response.ContentType := 'text/html;charset=utf8';
-      Response.Content := WebStencilsProcessor11.Content;
-      Exit;
-    end;
   end;
   if (page = 0)and(Request.QueryFields.Values['recno'] <> '') then
   begin
