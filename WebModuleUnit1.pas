@@ -304,14 +304,14 @@ begin
       FDTransaction1.StartTransaction;
       try
         FDCommand1.CommandText.Text:=
-          'DELETE FROM datatable where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
+          'UPDATE datatable SET title='''',name='''' where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
         FDCommand1.ParamByName('db').AsInteger:=db;
         FDCommand1.ParamByName('id').AsInteger:=index;
         FDCommand1.MacroByName('tnums').AsRaw:=numbers;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:=
-          'DELETE FROM maintable where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
+          'UPDATE maintable SET comment='''',code='''' where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
         FDCommand1.ParamByName('db').AsInteger:=db;
         FDCommand1.ParamByName('id').AsInteger:=index;
         FDCommand1.MacroByName('tnums').AsRaw:=numbers;
