@@ -209,7 +209,6 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = './templates/alert.html'
     PathTemplate = '/alert/{user}/{title}/{id}'
-    DataVarDuplicates = ddReplace
     Left = 416
     Top = 472
   end

@@ -631,7 +631,7 @@ begin
   FDQuery1.SQL.Text:='select * from titles where usernum = :num ORDER BY id;';
   FDQuery1.ParamByName('num').AsInteger:=db;
   FDQuery1.Open;
-  FDQuery2.SQL.Text:='select * from weblog where dbid = :id;';
+  FDQuery2.SQL.Text:='select * from weblog where dbid = :id ORDER BY id asc;';
   FDQuery2.ParamByName('id').AsInteger:=db;
   FDQuery2.Open;
 
@@ -639,7 +639,7 @@ begin
   data.name:=user;
 
   WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
-  WebStencilsProcessor9.AddVar('Items',FDQuery2,false);
+  WebStencilsProcessor9.AddVar('Logs',FDQuery2,false);
   WebStencilsProcessor9.AddVar('Data',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor9.Content;
