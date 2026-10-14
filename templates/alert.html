@@ -4,7 +4,7 @@
 <link rel=stylesheet href="/css/main.css"></head>
 
 <body>
-@if Data.bool {
+@if (Post.bool) {
     <p>ご協力ありがとうございました</p>
 } @else {
     @Import .\templates\main.html {Data = main}

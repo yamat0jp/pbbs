@@ -86,6 +86,7 @@
     <p>お知らせ</p>
     @ForEach Logs {
         <div>@\loop.log</div>@loop.time
+        <span><a href="/members/@Page.Database?del=@loop.id">[↑削除]</a></span>
     }
 </div>
 

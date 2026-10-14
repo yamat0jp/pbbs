@@ -627,6 +627,13 @@ begin
     FDCommand1.ParamByName('url').AsString:=title;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
+  end
+  else if Request.QueryFields.Count > 0 then
+  begin
+    id:=Request.QueryFields.Values['del'].ToInteger;
+    FDCommand1.CommandText.Text:='DELETE FROM weblog where id = :id;';
+    FDCommand1.ParamByName('id').AsInteger:=id;
+    FDCommand1.Execute;
   end;
   FDQuery1.SQL.Text:='select * from titles where usernum = :num ORDER BY id;';
   FDQuery1.ParamByName('num').AsInteger:=db;
@@ -845,7 +852,7 @@ begin
 
     data.bool:=true;
   end;
-  WebStencilsProcessor8.AddVar('Data',data);
+  WebStencilsProcessor8.AddVar('Post',data);
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor8.Content;
   FDQuery1.Close;
