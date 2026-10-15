@@ -399,6 +399,8 @@ begin
   userid:=FDQuery1.FieldByName('usernum').AsInteger;
   dbtitle:=FDQuery1.FieldByName('id').AsInteger;
   mainte:=FDQuery1.FieldByName('maintenance').AsBoolean;
+  pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
+  count:=FDQuery1.FieldByName('count').AsInteger;
   FDQuery1.Close;
   if mainte then
   begin
@@ -406,51 +408,18 @@ begin
     Response.Content := WebStencilsProcessor11.Content;
     Exit;
   end;
-  FDQuery1.SQL.Text:='''
-    select COUNT(*) OVER() AS cnt,pagetype,pagecount,count from titles t
-    INNER JOIN datatable dt ON t.id = dt.dbtitle and t.usernum = dt.titlenum
-    where dbnumber = :userid and dbtitle = :dbtitle;
-    ''';
+  FDQuery1.SQL.Text:=
+    'select COUNT(titlenum) cnt from datatable where dbnumber = :userid and dbtitle = :dbtitle;';
   FDQuery1.ParamByName('userid').AsInteger:=userid;
   FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
   FDQuery1.Open;
-  count:=0;
-  pagecount:=0;
-  if FDQuery1.IsEmpty then
-  begin
-    FDQuery1.Close;
-    FDQuery1.SQL.Text:='''
-      select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
-      where dbnumber = :userid and t.id = :dbtitle;
-      ''';
-    FDQuery1.ParamByName('userid').AsInteger:=userid;
-    FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
-    FDQuery1.Open;
-    rec:=0;
-    case FDQuery1.FieldByName('PageType').AsInteger of
-      0:
-        begin
-          pagecount:=10;
-          count:=30;
-        end;
-      1:
-        begin
-          pagecount:=10;
-          count:=8;
-        end;
-    end;
-  end
-  else
-  begin
-    rec:=FDQuery1.FieldByName('cnt').AsInteger;
-    pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
-    count:=FDQuery1.FieldByName('count').AsInteger;
-  end;
   if (page = 0)and(Request.QueryFields.Values['recno'] <> '') then
   begin
     temp:=Request.QueryFields.Values['recno'].ToInteger;
     rec:=readRecNo(temp,userid,dbtitle,FDQuery2);
-  end;
+  end
+  else
+    rec:=FDQuery1.FieldByName('cnt').AsInteger;
   if (page = 0)or(page > rec div count+1) then
   begin
     temp:=rec div count+1;
@@ -483,27 +452,6 @@ begin
     name:=Request.ContentFields.Values['name'];
     raw := replaceRawData(Request.ContentFields.Values['comment']);
     code := Request.ContentFields.Values['code'];
-    if FDQuery1.IsEmpty then
-    begin
-      FDQuery1.Close;
-      FDQuery1.SQL.Text:='''
-        select dbnumber,id from database
-        INNER JOIN titles ON database.dbnumber = titles.usernum
-        where nickname = :user and titles.url = :title;
-        ''';
-      FDQuery1.ParamByName('user').AsString:=user;
-      FDQuery1.ParamByName('title').AsString:=title;
-      FDQuery1.Open;
-      if FDQuery1.IsEmpty then
-      begin
-        FDQuery1.Close;
-        Response.SendRedirect(Request.PathInfo);
-      end;
-      userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
-      dbtitle:=FDQuery1.FieldByName('id').AsInteger;
-      tid:=1;
-      redirect:=true;
-    end;
 
     FDTransaction1.StartTransaction;
     try
@@ -535,16 +483,10 @@ begin
       FDTransaction1.Rollback;
       raise;
     end;
-    if redirect then
-    begin
-      FDQuery1.Close;
-      Response.SendRedirect(Request.PathInfo);
-    end
-    else
-      FDQuery1.Refresh;
+    FDQuery1.Refresh;
   end;
 
-  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
+  WebStencilsProcessor1.AddVar('MainItems',FDQuery1,false);
 
   makeFooterNumber(page,pagecount,items);
   data:=TData.Create;
@@ -556,6 +498,7 @@ begin
 
   data:=TData.Create;
   data.id:=rec div 2;
+  data.name:=FDQuery1.FieldByName('dbname').AsString;
   WebStencilsProcessor1.AddVar('Count',data);
 
   Response.ContentType := 'text/html;charset=utf8';
@@ -603,9 +546,21 @@ begin
     name:=Request.ContentFields.Values['name'];
     title := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
-    pagecount:=10;
-    count:=30;
     mainte:=false;
+    count:=0;
+    pagecount:=0;
+    case kind of
+      0:
+        begin
+          pagecount:=10;
+          count:=30;
+        end;
+      1:
+        begin
+          pagecount:=20;
+          count:=8;
+        end;
+    end;
 
     FDQuery1.Open('select MAX(id) OVER() max from titles;');
     id:=FDQuery1.FieldByName('max').AsInteger+1;
@@ -845,10 +800,7 @@ begin
     did:=FDQuery1.FieldByName('dbnumber').AsInteger;
 
     FDQuery1.Open('select max(id) as maxid from weblog;');
-    if FDQuery1.IsEmpty then
-      id:=1
-    else
-      id:=FDQuery1.FieldByName('maxid').AsInteger+1;
+    id:=FDQuery1.FieldByName('maxid').AsInteger+1;
     FDQuery1.Close;
     FDCommand1.CommandText.Text:='''
       INSERT INTO weblog (id,time,log,dbid) VALUES (:id,:time,:log,:dbid);

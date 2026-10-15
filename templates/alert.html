@@ -4,10 +4,10 @@
 <link rel=stylesheet href="/css/main.css"></head>
 
 <body>
-@if (Post.bool) {
+@if Post.bool {
     <p>ご協力ありがとうございました</p>
 } @else {
-    @Import .\templates\main.html {Data = main}
+    @Import .\templates\main.html {Data = main, Bool = Post}
     <p>宜しければ何かお書き添えください</p>
     <form action="/alert/@Page.user/@Page.title/@Page.id" method="post" accept-charset="UTF-8">
     <textarea name=com></textarea><p style=text-align:center><input name=admit type=submit value="送信">

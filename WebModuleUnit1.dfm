@@ -148,7 +148,6 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\index.html'
     PathTemplate = '/bbs/{database}/{title}/{page}'
-    DataVarDuplicates = ddReplace
     OnValue = WebStencilsProcessor1Value
     Left = 416
     Top = 24

@@ -33,14 +33,14 @@
 
     <p><br /></p>
     <div style=text-align:center>
-        <p>@Page.database</p>
+        <p>@Count.name</p>
         @Import ./templates/footer.html {Data = Footer, Items}
         <p><a href=/members/@Page.database>戻る</a></p>
     </div>
 
 
     @Ad
-    @ForEach articles {
+    @ForEach MainItems {
         @if (loop.RecNo = Count.id) {@Ad}
         @Import ./templates/main.html {Data = loop,Bool = Footer}
     }
