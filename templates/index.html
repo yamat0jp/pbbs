@@ -39,12 +39,12 @@
     </div>
 
 
-    @Ad
+    <div>@Ad</div>
     @ForEach MainItems {
-        @if (loop.RecNo = Count.id) {@Ad}
         @Import ./templates/main.html {Data = loop,Bool = Footer}
+        @if (loop.RecNo = Count.id) {<div>@Ad</div>}
     }
-    @Ad
+    <div>@Ad</div>
 
 
     <div style=text-align:center>

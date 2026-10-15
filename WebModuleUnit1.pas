@@ -370,7 +370,7 @@ end;
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  user, raw, code, name, title: string;
+  user, raw, code, name, title, dbname: string;
   userid, page0, page, temp, rec, tid, dbtitle: integer;
   count, pagecount: integer;
   params: TArray<string>;
@@ -398,6 +398,7 @@ begin
   FDQuery1.Open;
   userid:=FDQuery1.FieldByName('usernum').AsInteger;
   dbtitle:=FDQuery1.FieldByName('id').AsInteger;
+  dbname:=FDQuery1.FieldByName('name').AsString;
   mainte:=FDQuery1.FieldByName('maintenance').AsBoolean;
   pagecount:=FDQuery1.FieldByName('pagecount').AsInteger;
   count:=FDQuery1.FieldByName('count').AsInteger;
@@ -498,7 +499,7 @@ begin
 
   data:=TData.Create;
   data.id:=rec div 2;
-  data.name:=FDQuery1.FieldByName('dbname').AsString;
+  data.name:=dbname;
   WebStencilsProcessor1.AddVar('Count',data);
 
   Response.ContentType := 'text/html;charset=utf8';
