@@ -643,7 +643,8 @@ begin
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
-    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+    INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
+    and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
     where dt.dbnumber = :userid and dt.dbtitle = :titleid
     ORDER BY datetime desc;
     ''';
@@ -672,8 +673,8 @@ begin
       main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
       ls.Add(main);
       FDQuery1.Next;
-      words:=mysearch.WordList;
     end;
+    words:=mysearch.WordList;
   finally
     mysearch.Free;
   end;
@@ -969,10 +970,7 @@ var
 begin
   s:=FList[i].Substring(st).ToLower;
   if s.Contains(word) then
-  begin
-    inc(st,s.IndexOf(word));
-    Exit(fdNormal);
-  end
+    Exit(fdNormal)
   else
   begin
     index:=s.LastIndexOf(word[1]);
@@ -1007,7 +1005,7 @@ begin
   index:=s.IndexOf(word);
   wrd:=FList[ln].Substring(id+index,word.Length);
   t:=String.Format(str,[wrd])+FList[ln].Substring(id+index+word.Length);
-  FList[ln]:=FList[ln].Remove(id)+t;
+  FList[ln]:=FList[ln].Remove(id+index)+t;
   result:=id+index+str.Length+word.Length;
 end;
 
@@ -1080,7 +1078,8 @@ begin
       state := checkState(id, i, word);
       case state of
         fdShort:
-          result:=processShort(id, i, word);
+          if processShort(id, i, word) then
+            result:=true;
         fdNormal:
           begin
             id:=processNormal(id, i, word);

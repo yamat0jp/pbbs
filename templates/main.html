@@ -1,7 +1,7 @@
 ﻿<div id="comment-@Data.titlenum" class="comment-card">
     <div class="comment-meta">
       <span class="comment-number">#@Data.titlenum</span>
-      <span class="comment-author">@Data.name</span>
+      <span class="comment-author">@if (Data.name = '') {名乗る名はない} @else {@Data.name}</span>
       <time class="comment-time" datetime="@Data.datetime">@Data.datetime</time>
       <span class="comment-alert">@if (Bool.bool and (Data.comment <> '')) {<a href="/alert/@Data.nickname/@Data.url/@Data.titlenum">alert</a>}</span>
     </div>
@@ -9,8 +9,8 @@
   @if (Data.comment = '') {
     ***deleted***
   } @else {
-    @Data.comment
-    @Data.code
+    @\Data.comment
+    @\Data.code
   }
   </pre>
 </div>
