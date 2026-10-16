@@ -374,7 +374,6 @@ var
   params: TArray<string>;
   items: TObjectList<TData>;
   data: TData;
-  redirect: Boolean;
   mainte: Boolean;
 begin
   params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
@@ -621,16 +620,35 @@ procedure TWebModule1.WebModule1searchItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   s, words: string;
+  params: TArray<string>;
+  user, title: string;
+  userid, titleid: integer;
 begin
+  params:=Request.PathInfo.Split(['/']);
+  user:=params[2];
+  title:=params[3];
+  FDQuery1.SQL.Text:='''
+    select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
+    where ds.nickname = :user and t.url = :title;
+    ''';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('title').AsString:=title;
+  FDQuery1.Open;
+  userid:=FDQuery1.FieldByName('usernum').AsInteger;
+  titleid:=FDQuery1.FieldByName('id').AsInteger;
+  FDQuery1.Close;
   words:=Request.ContentFields.Values['word1'];
-  FDQuery1.ResourceOptions.MacroCreate:=false;
-  FDQuery1.ResourceOptions.MacroExpand:=false;
+{  FDQuery1.ResourceOptions.MacroCreate:=false;
+  FDQuery1.ResourceOptions.MacroExpand:=false;}
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
+    where dt.dbnumber = :userid and dt.dbtitle = :titleid
     ORDER BY datetime desc;
     ''';
+  FDQuery1.ParamByName('userid').AsInteger:=userid;
+  FDQuery1.ParamByName('titleid').AsInteger:=titleid;
   FDQuery1.Open;
 
   var ls:=TObjectList<TMain>.Create;
@@ -654,13 +672,18 @@ begin
       main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
       ls.Add(main);
       FDQuery1.Next;
+      words:=mysearch.WordList;
     end;
-  WebStencilsProcessor6.AddVar('Datas',ls);
-  Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := WebStencilsProcessor6.Content;
   finally
     mysearch.Free;
   end;
+  var data:=TData.Create;
+  data.name:=words;
+  data.bool:=false;
+  WebStencilsProcessor6.AddVar('Datas',ls);
+  WebStencilsProcessor6.AddVar('Bool',data);
+  Response.ContentType := 'text/html;charset=utf8';
+  Response.Content := WebStencilsProcessor6.Content;
   FDQuery1.Close;
 end;
 
@@ -932,8 +955,6 @@ procedure TWebModule1.WebStencilsProcessor6Value(Sender: TObject;
 begin
   if AObjectName = 'adtext' then
     AValue:=adlist[Random(adlist.Count)];
-  if AObjectName = 'word' then
-    AValue := mysearch.WordList;
 end;
 
 { TPageSearch }

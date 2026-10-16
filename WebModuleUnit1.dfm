@@ -25,7 +25,7 @@ object WebModule1: TWebModule1
     end
     item
       Name = 'searchItem'
-      PathInfo = '/search'
+      PathInfo = '/search/*'
       OnAction = WebModule1searchItemAction
     end
     item
@@ -189,6 +189,8 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor6: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = './templates/search.html'
+    PathTemplate = '/search/{user}/{title}'
+    DataVarDuplicates = ddReplace
     OnValue = WebStencilsProcessor6Value
     Left = 416
     Top = 344

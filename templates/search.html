@@ -4,11 +4,11 @@
   <head>
     <title></title>
     <meta charset=utf-8>
-    <link rel=sytlesheet href=css/main.css>
+    <link rel="sytlesheet" href="/css/main.css">
   </head>
 
   <body>
-    <form action="/search" method="post">
+    <form action="/search/@Page.user/@Page.title" method="post">
     <p align="center"><strong>投稿検索
 </strong>
     </p>
@@ -19,7 +19,7 @@
       <p align="center">AND検索</p>
         <div style="HEIGHT: 26px; WIDTH: 105px; POSITION: relative; DISPLAY: inline" ms_positioning="FlowLayout">検索ワード
 </div>
-      <p>&nbsp;<input name="word1" value=@word></p>
+      <p>&nbsp;<input name="word1" value="@Bool.name"></p>
     <p><input type="radio" name="filter" style="HEIGHT: 20px; WIDTH: 17px" size="17" value="name">名前から検索 <input type="radio" checked="true" style="HEIGHT: 20px; WIDTH: 16px" size="16" name="filter" value="com">本文から検索
 </p>
       <p>
@@ -27,9 +27,9 @@
     </form>
     <pre>
     @ForEach Datas {
-        @Import ./templates/main.html {Data = loop}
+        @Import ./templates/main.html {Data = loop, Bool}
     }
     </pre>
-    <a href=/>戻る</a>
+    <a href="/bbs/@Page.user/@Page.title">戻る</a>
   </body>
 </html>
