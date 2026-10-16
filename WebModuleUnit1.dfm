@@ -30,14 +30,8 @@ object WebModule1: TWebModule1
     end
     item
       Name = 'helpPage'
-      PathInfo = '/help'
+      PathInfo = '/help/*'
       OnAction = WebModule1helpAction
-    end
-    item
-      MethodType = mtPost
-      Name = 'renameAction'
-      PathInfo = '/rename/*'
-      OnAction = WebModule1renameAction
     end
     item
       Name = 'master'
@@ -202,6 +196,8 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor7: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\help.html'
+    PathTemplate = '/help/{user}/{title}'
+    DataVarDuplicates = ddReplace
     Left = 416
     Top = 408
   end

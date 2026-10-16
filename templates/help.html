@@ -1,24 +1,38 @@
 ﻿<!doctype html>
-<html>
-<head><meta charset=utf-8><title></title></head>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>お問い合わせ・ヘルプ</title>
+</head>
 <body>
-<p>訪問者の皆さん
-<p>チャンネルを選択してメッセージを書き残しましょう
-<p>タイトル表示に切り替えると話題の参考になります.各記事には報告ボタンがついており、問題のある投稿を管理人に通報できます.
-  @if (@Data.post = false) {
-    <p>以下のフォームから管理人に直接メッセージを送信できます.削除依頼などにお使いくだい.
-    <form action="/help" method="post">
-    <textarea name="help" style=height:100px;width:250px>
-    投稿者名など：
-    相談内容：
-    その他：
-    </textarea></form>
+
+  <p>訪問者の皆さん</p>
+  <p>チャンネルを選択してメッセージを書き残しましょう。</p>
+  <p>タイトル表示に切り替えると話題の参考になります。各記事には報告ボタンがついており、問題のある投稿を管理人に通報できます。</p>
+
+  @if Help.bool {
+    <p>投稿ありがとうございました。</p>
   } @else {
-    <p>投稿ありがとうございました.</p>
+    <p>以下のフォームから管理人に直接メッセージを送信できます。削除依頼などにお使いください。</p>
+    <form action="/help/@Page.user/@Page.title" method="post">
+      <textarea name="help" style="height:100px; width:250px;">
+投稿者名など：
+相談内容：
+その他：
+      </textarea>
+      <br>
+      <button type="submit">送信する</button>
+    </form>
   }
-<p><br>
-<p><br>
-<p>利用規約
-<p>これから書きます
-<p style=text-align:center><a href="/top">戻る</p>
-</body></html>
+
+  <br><br>
+
+  <h2>利用規約</h2>
+  <p>これから書きます</p>
+
+  <p style="text-align:center;">
+    <a href="/bbs/@Page.user/@Page.title">戻る</a>
+  </p>
+
+</body>
+</html>

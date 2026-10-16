@@ -107,8 +107,6 @@ type
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1helpAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1renameAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
     procedure WebModuleDestroy(Sender: TObject);
     procedure WebModule1searchItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -823,30 +821,46 @@ end;
 procedure TWebModule1.WebModule1helpAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  id: integer;
+  id, userid: integer;
+  params: TArray<string>;
+  user, title, text: string;
   data: TData;
 begin
   data:=TData.Create;
   if Request.MethodType = mtPost then
   begin
-    bglist.Clear;
-    bglist.Add('');
-    bglist.Add('(*ユーザー様から報告がありました*)');
-    bglist.Add(DateToStr(Now));
-    bglist.Add(Request.ContentFields.Values['help']);
-    bglist.Add('(*報告ここまで*)');
-    bglist.Add('');
+    params:=Request.PathInfo.Split(['/']);
+    user:=params[2];
+    title:=params[3];
+    FDQuery1.SQL.Text:=
+      'select * from database where nickname = :user';
+    FDQuery1.ParamByName('user').AsString:=user;
+    FDQuery1.Open;
+    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+    FDQuery1.Close;
+    text:=String.Format('''
+      <pre>
+
+      (*%sにてユーザー様から報告がありました*)
+      %s
+      (*報告ここまで*)
+      </pre>
+      ''',[title,Request.ContentFields.Values['help']]);
     FDQuery1.Open('select max(id) as maxid from weblog;');
-    id:=FDQuery1.FieldByName('maxid').AsInteger;
+    id:=FDQuery1.FieldByName('maxid').AsInteger+1;
     FDQuery1.Close;
-    FDQuery1.Open('select * from weblog;');
-    FDQuery1.AppendRecord([id,Now,bglist.Text,0]);
-    FDQuery1.Close;
+    FDCommand1.CommandText.Text:=
+      'INSERT INTO weblog (id,time,log,dbid) VALUES (:id,:time,:log,:dbid);';
+    FDCommand1.ParamByName('id').AsInteger:=id;
+    FDCommand1.ParamByName('time').AsDate:=Now;
+    FDCommand1.ParamByName('log').AsString:=text;
+    FDCommand1.ParamByName('dbid').AsInteger:=userid;
+    FDCommand1.Execute;
     data.bool:=true;
   end
   else
     data.bool:=false;
-  WebStencilsProcessor7.AddVar('Data',data);
+  WebStencilsProcessor7.AddVar('Help',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
 end;
@@ -856,25 +870,6 @@ procedure TWebModule1.WebModule1linkItemAction(Sender: TObject;
 begin
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor4.Content;
-end;
-
-procedure TWebModule1.WebModule1renameAction(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  DB: string;
-  name: string;
-  params: TArray<string>;
-begin
-  params:=Request.PathInfo.Split(['/']);
-  db:=params[2];
-  FDQuery1.SQL.Add('select * from database where dbnumber = :db;');
-  FDQuery1.Params.ParamByName('db').AsInteger:=DB.ToInteger;
-  FDQuery1.Open;
-  name:=Request.ContentFields.Values['text'];
-  FDQuery1.Edit;
-  FDQuery1.FieldByName('dbname').AsString:=name;
-  FDQuery1.Post;
-  Response.SendRedirect('/admin/'+DB);
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
