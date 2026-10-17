@@ -1073,8 +1073,11 @@ begin
   if small.StartsWith(word.Substring(wrd.Length)) then
   begin
     id:=word.Length-wrd.Length;
+    inc(ln);
     wrd:=wrd+line.Remove(id);
-    strings:=strings+[String.Format(str,[line.Remove(id)])+line.Substring(id)];
+    small:=String.Format(str,[line.Remove(id)]);
+    strings:=strings+[small+line.Substring(id)];
+    inc(id,small.Length);
   end;
 
   if word = wrd then
