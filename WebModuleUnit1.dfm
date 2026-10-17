@@ -34,24 +34,8 @@ object WebModule1: TWebModule1
       OnAction = WebModule1helpAction
     end
     item
-      Name = 'master'
-      PathInfo = '/master'
-      Producer = master
-      OnAction = WebModule1masterAction
-    end
-    item
-      Name = 'linkItem'
-      PathInfo = '/link'
-      OnAction = WebModule1linkItemAction
-    end
-    item
       Name = 'members'
       PathInfo = '/members/*'
-      OnAction = WebModule1membersAction
-    end
-    item
-      Name = 'titlelist'
-      PathInfo = '/list'
       OnAction = WebModule1membersAction
     end
     item
@@ -64,6 +48,11 @@ object WebModule1: TWebModule1
       PathInfo = '/params/*'
       Producer = WebStencilsProcessor10
       OnAction = WebModule1WebActionItem1Action
+    end
+    item
+      Name = 'WebActionItem2'
+      PathInfo = '/super_search'
+      OnAction = WebModule1WebActionItem2Action
     end>
   Height = 556
   Width = 779
@@ -164,8 +153,8 @@ object WebModule1: TWebModule1
   end
   object WebStencilsProcessor4: TWebStencilsProcessor
     Engine = WebStencilsEngine1
-    InputFileName = './templates/link.html'
-    PathTemplate = '/link/{url}'
+    InputFileName = './templates/super_search.html'
+    DataVarDuplicates = ddReplace
     Left = 416
     Top = 216
   end

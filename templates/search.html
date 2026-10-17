@@ -25,11 +25,9 @@
       <p>
     <input type="submit" value="検索"></p>
     </form>
-    <pre>
     @ForEach Datas {
         @Import ./templates/main.html {Data = loop, Bool}
     }
-    </pre>
     <a href="/bbs/@Page.user/@Page.title">戻る</a>
   </body>
 </html>

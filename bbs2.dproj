@@ -197,23 +197,20 @@
         </RcItem>
         <None Include="templates\admin.html"/>
         <None Include="templates\alert.html"/>
-        <None Include="templates\header.html"/>
         <None Include="templates\help.html"/>
         <None Include="templates\index.html"/>
-        <None Include="templates\link.html"/>
         <None Include="templates\login.html"/>
         <None Include="templates\main.html"/>
-        <None Include="templates\master.html"/>
         <None Include="templates\members.html"/>
         <None Include="templates\maintenance.html"/>
         <None Include="templates\search.html"/>
-        <None Include="templates\tables.html"/>
         <None Include="templates\top.html"/>
         <None Include="css\main.css"/>
         <None Include="css\tablet.css"/>
         <None Include="templates\footer.html"/>
         <None Include="js\top.js"/>
         <None Include="templates\params.html"/>
+        <None Include="templates\super_search.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -584,12 +581,6 @@
                 <DeployFile LocalName="templates\form.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\header.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\header.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\header.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="templates\help.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\help.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\help.html" Configuration="Debug" Class="ProjectFile">
@@ -608,12 +599,6 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\link.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\link.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\link.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="templates\login.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\login.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\login.html" Configuration="Debug" Class="ProjectFile">
@@ -630,14 +615,14 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="templates\master.htm" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\master.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\master.html" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="templates\maintenance.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="templates\master.htm" Configuration="Debug" Class="ProjectFile"/>
+                <DeployFile LocalName="templates\master.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.html" Configuration="Debug" Class="ProjectFile">
@@ -648,7 +633,7 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\mentenance.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\mentenance.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\mentenance.html" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="templates\params.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -662,23 +647,17 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="templates\tables.htm" Configuration="Debug" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\tables.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\tables.html" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="templates\super_search.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="templates\tables.htm" Configuration="Debug" Class="ProjectFile"/>
+                <DeployFile LocalName="templates\tables.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="新規1.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

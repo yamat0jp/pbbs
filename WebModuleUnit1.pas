@@ -122,8 +122,6 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor6Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
-    procedure WebModule1linkItemAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebStencilsProcessor1Value(Sender: TObject; const AObjectName,
@@ -131,6 +129,8 @@ type
     procedure WebStencilsProcessor3Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebModule1WebActionItem1Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem2Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
@@ -638,8 +638,6 @@ begin
   titleid:=FDQuery1.FieldByName('id').AsInteger;
   FDQuery1.Close;
   words:=Request.ContentFields.Values['word1'];
-{  FDQuery1.ResourceOptions.MacroCreate:=false;
-  FDQuery1.ResourceOptions.MacroExpand:=false;}
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
@@ -767,6 +765,47 @@ begin
   FDQuery1.Close;
 end;
 
+procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  filter: string;
+begin
+  var data:=TData.Create;
+  data.name:=Request.ContentFields.Values['word1'];
+  filter:=Request.ContentFields.Values['filter'];
+  if Request.MethodType = mtPost then
+  begin
+    {FDCommand1.CommandText.Text:='''
+        -- PGroonga エクステンションの有効化
+      CREATE EXTENSION IF NOT EXISTS pgroonga;
+
+      -- 全文検索用インデックスの作成
+      CREATE INDEX IF NOT EXISTS idx_maintable_comment_pgroonga
+      ON maintable
+      USING pgroonga (comment);
+      ''';
+    FDCommand1.Execute;}
+    FDQuery1.SQL.Text:='''
+      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, dt.title
+      FROM datatable dt
+      INNER JOIN maintable mt
+      ON dt.dbnumber = mt.dbnumber AND dt.titlenum = mt.titlenum AND dt.dbtitle = mt.dbtitle
+      ''';
+    if filter = 'name' then
+      FDQuery1.SQL.Add('WHERE dt.name &@~ :search')
+    else
+      FDQuery1.SQL.Add('WHERE mt.comment &@~ :search');
+    FDQuery1.SQL.Add('ORDER BY mt.datetime DESC;');
+    FDQuery1.ParamByName('search').AsString:=data.name;
+    FDQuery1.Open;
+    WebStencilsProcessor4.AddVar('Supers',FDQuery1,false);
+  end;
+  WebStencilsProcessor4.AddVar('Word',data);
+  Response.ContentType:='text/html;charset=utf8';
+  Response.Content:=WebStencilsProcessor4.Content;
+  FDQuery1.Close;
+end;
+
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -887,13 +926,6 @@ begin
   WebStencilsProcessor7.AddVar('Help',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
-end;
-
-procedure TWebModule1.WebModule1linkItemAction(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-begin
-  Response.ContentType:='text/html;charset=utf8';
-  Response.Content:=WebStencilsProcessor4.Content;
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
@@ -1024,7 +1056,7 @@ begin
   if not word.StartsWith(wrd) then
     Exit(false);
 
-  while FList.Count > ln do
+  while FList.Count-1 > ln do
   begin
     line:=FList[ln+1];
     if line.Length+wrd.Length < word.Length then
