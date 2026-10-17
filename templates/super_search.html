@@ -158,6 +158,7 @@ h1 {
 
     <section class="search-results">
       @ForEach Supers {
+        @loop.dbname / @loop.title
         @Import ./templates/main.html {Data = loop, Bool = Word}
       }
     </section>

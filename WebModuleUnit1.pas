@@ -786,8 +786,10 @@ begin
       ''';
     FDCommand1.Execute;}
     FDQuery1.SQL.Text:='''
-      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, dt.title
+      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, dt.title, ds.dbname
       FROM datatable dt
+      INNER JOIN database ds
+      ON dt.dbnumber = ds.dbnumber
       INNER JOIN maintable mt
       ON dt.dbnumber = mt.dbnumber AND dt.titlenum = mt.titlenum AND dt.dbtitle = mt.dbtitle
       ''';
