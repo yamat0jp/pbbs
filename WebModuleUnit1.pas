@@ -644,42 +644,54 @@ begin
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
     and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
     where dt.dbnumber = :userid and dt.dbtitle = :titleid
-    ORDER BY datetime desc;
     ''';
+  var bool:=Request.ContentFields.Values['filter'] = 'name';
+  if bool then
+  begin
+    FDQuery1.SQL.Add('and dt.name = :name');
+    FDQuery1.SQL.Add('ORDER BY datetime desc;');
+    FDQuery1.ParamByName('name').AsString:=words;
+  end
+  else
+    FDQuery1.SQL.Add('ORDER BY datetime desc;');
   FDQuery1.ParamByName('userid').AsInteger:=userid;
   FDQuery1.ParamByName('titleid').AsInteger:=titleid;
   FDQuery1.Open;
-
-  var ls:=TObjectList<TMain>.Create;
-  mysearch := TPageSearch.Create;
-  try
-    mysearch.WordList:=words;
-    while not FDQuery1.Eof do
-    begin
-      s:=FDQuery1.FieldByName('comment').AsString;
-      if not mysearch.Execute(s) then
-      begin
-        FDQuery1.Next;
-        continue;
-      end;
-      var main:=TMain.Create;
-      main.database:=FDQuery1.FieldByName('dbname').AsString;
-      main.titlenum:=FDQuery1.FieldByName('titlenum').AsInteger;
-      main.title:=FDQuery1.FieldByName('title').AsString;
-      main.comment:=s;
-      main.name:=FDQuery1.FieldByName('name').AsString;
-      main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
-      ls.Add(main);
-      FDQuery1.Next;
-    end;
-    words:=mysearch.WordList;
-  finally
-    mysearch.Free;
-  end;
   var data:=TData.Create;
   data.name:=words;
   data.bool:=false;
-  WebStencilsProcessor6.AddVar('Datas',ls);
+  if not bool then
+  begin
+    var ls:=TObjectList<TMain>.Create;
+    mysearch := TPageSearch.Create;
+    try
+      mysearch.WordList:=words;
+      while not FDQuery1.Eof do
+      begin
+        s:=FDQuery1.FieldByName('comment').AsString;
+        if not mysearch.Execute(s) then
+        begin
+          FDQuery1.Next;
+          continue;
+        end;
+        var main:=TMain.Create;
+        main.database:=FDQuery1.FieldByName('dbname').AsString;
+        main.titlenum:=FDQuery1.FieldByName('titlenum').AsInteger;
+        main.title:=FDQuery1.FieldByName('title').AsString;
+        main.comment:=s;
+        main.name:=FDQuery1.FieldByName('name').AsString;
+        main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
+        ls.Add(main);
+        FDQuery1.Next;
+      end;
+      words:=mysearch.WordList;
+    finally
+      mysearch.Free;
+    end;
+    WebStencilsProcessor6.AddVar('Datas',ls);
+  end
+  else
+    WebStencilsProcessor6.AddVar('Datas',FDQuery1,false);
   WebStencilsProcessor6.AddVar('Bool',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor6.Content;
