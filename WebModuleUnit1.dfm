@@ -46,7 +46,6 @@ object WebModule1: TWebModule1
     item
       Name = 'WebActionItem1'
       PathInfo = '/params/*'
-      Producer = WebStencilsProcessor10
       OnAction = WebModule1WebActionItem1Action
     end
     item

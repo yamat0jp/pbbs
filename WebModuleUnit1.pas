@@ -122,8 +122,6 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor6Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
-    procedure WebModule1masterAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
     procedure WebStencilsProcessor1Value(Sender: TObject; const AObjectName,
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor3Value(Sender: TObject; const AObjectName,
@@ -254,7 +252,7 @@ const
   ng = '死ね,阿保,馬鹿,殺す,爆破';
 begin
   for var s in ng.Split([',']) do
-    result:=Data.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
+    result:=TNetEncoding.HTML.Encode(Data.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]));
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
@@ -286,7 +284,7 @@ begin
   FDQuery1.Open;
   db:=FDQuery1.FieldByName('dbnumber').AsInteger;
   index:=FDQuery1.FieldByName('id').AsInteger;
-  pagecount:=10;
+  pagecount:=25;
   count:=30;
   FDQuery1.Close;
 
@@ -295,7 +293,11 @@ begin
     nums:=[];
     for var i := 0 to Request.ContentFields.Count-1 do
       if Request.ContentFields.Names[i] = 'datas[]' then
-        nums:=nums+[Request.ContentFields.ValueFromIndex[i]];
+      begin
+        var val: integer;
+        if TryStrToInt(Request.ContentFields.ValueFromIndex[i],val) then
+          nums:=nums+[val.ToString];
+      end;
     var numbers:=String.Join(',',nums);
     if numbers <> '' then
     begin
@@ -447,9 +449,9 @@ begin
   if Request.MethodType = mtPost then
   begin
     tid:=FDQuery1.FieldByName('max').AsInteger+1;
-    name:=Request.ContentFields.Values['name'];
-    raw := replaceRawData(Request.ContentFields.Values['comment']);
-    code := Request.ContentFields.Values['code'];
+    name:=replaceRawData(Request.ContentFields.Values['name']);
+    raw:=replaceRawData(Request.ContentFields.Values['comment']);
+    code:=replaceRawData(Request.ContentFields.Values['code']);
 
     FDTransaction1.StartTransaction;
     try
@@ -501,25 +503,6 @@ begin
 
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor1.Content;
-  FDQuery1.Close;
-end;
-
-procedure TWebModule1.WebModule1masterAction(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  num: integer;
-begin
-  FDQuery1.Open('select * from database;');
-  if Request.MethodType = mtPost then
-  begin
-    FDQuery1.Last;
-    num:=FDQuery1.FieldByName('dbnumber').AsInteger+1;
-    for var name in ['taro', 'jiro', 'saburo', 'siro', 'gorou'] do
-    begin
-      FDQuery1.AppendRecord([num,'メンバー'+num.ToString,name]);
-      inc(num);
-    end;
-  end;
   FDQuery1.Close;
 end;
 
@@ -1154,7 +1137,7 @@ var
 begin
   lst := TDictionary<string, integer>.Create;
   try
-    for var s in FWordList.ToLower.Split([' ', '　']) do
+    for var s in TNetEncoding.HTML.Encode(FWordList.ToLower).Split([' ', '　']) do
       if s <> '' then
         lst.Add(s, s.Length);
     FBlindStr:=[];

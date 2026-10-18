@@ -139,14 +139,14 @@
 
         <form action="#" method="POST">
             <div class="form-group">
-                <label for="pagecount">項目数 (pagecount)</label>
+                <label for="pagecount">項目数</label>
                 <!-- placeholderとrequiredを追加 -->
-                <input type="number" id="pagecount" name="pagecount" min="10" max="30" placeholder="10〜30の数値を入力" required value="@Datas.pagecount">
+                <input type="number" id="count" name="pagecount" min="10" max="25" placeholder="10〜25の数値を入力" required value="@Datas.pagecount">
             </div>
 
             <div class="form-group">
-                <label for="count">表示数 (count)</label>
-                <input type="number" id="count" name="count" min="3" max="50" placeholder="3〜50の数値を入力" required value="@Datas.count">
+                <label for="count">表示数</label>
+                <input type="number" id="pagecount" name="count" min="3" max="30" placeholder="3〜30の数値を入力" required value="@Datas.count">
             </div>
 
             <div class="checkbox-group">
