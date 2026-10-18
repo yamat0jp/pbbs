@@ -304,7 +304,7 @@ begin
       FDTransaction1.StartTransaction;
       try
         FDCommand1.CommandText.Text:=
-          'UPDATE datatable SET title='''',name='''' where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
+          'UPDATE datatable SET name='''' where dbnumber = :db and dbtitle = :id and titlenum IN (&tnums);';
         FDCommand1.ParamByName('db').AsInteger:=db;
         FDCommand1.ParamByName('id').AsInteger:=index;
         FDCommand1.MacroByName('tnums').AsRaw:=numbers;
@@ -332,7 +332,7 @@ begin
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select t.name as pagetitle,dt.titlenum,dt.title,dt.name,mt.comment
+    select t.name as pagetitle,dt.titlenum,dt.name,mt.comment
     from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
     and dt.dbtitle = mt.dbtitle and dt.titlenum = mt.titlenum
     INNER JOIN titles t ON dt.dbtitle = t.id
@@ -456,12 +456,11 @@ begin
     FDTransaction1.StartTransaction;
     try
       FDCommand1.CommandText.Text :='''
-        INSERT INTO DATATABLE (dbnumber, titlenum, title, name, dbtitle)
-        VALUES (:db, :tid, :title, :name, :dbtitle)
+        INSERT INTO DATATABLE (dbnumber, titlenum, name, dbtitle)
+        VALUES (:db, :tid, :name, :dbtitle)
         ''';
       FDCommand1.ParamByName('db').AsInteger:=userid;
       FDCommand1.ParamByName('tid').AsInteger:=tid;
-      FDCommand1.ParamByName('title').AsString:=title;
       FDCommand1.ParamByName('name').AsString:=name;
       FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
       FDCommand1.Execute;
@@ -660,7 +659,6 @@ begin
         var main:=TMain.Create;
         main.database:=FDQuery1.FieldByName('dbname').AsString;
         main.titlenum:=FDQuery1.FieldByName('titlenum').AsInteger;
-        main.title:=FDQuery1.FieldByName('title').AsString;
         main.comment:=s;
         main.name:=FDQuery1.FieldByName('name').AsString;
         main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
@@ -781,7 +779,7 @@ begin
       ''';
     FDCommand1.Execute;}
     FDQuery1.SQL.Text:='''
-      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, dt.title, ds.dbname
+      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, ds.dbname
       FROM datatable dt
       INNER JOIN database ds
       ON dt.dbnumber = ds.dbnumber

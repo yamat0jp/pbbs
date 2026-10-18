@@ -14,6 +14,7 @@ object WebModule1: TWebModule1
     end
     item
       Default = True
+      MethodType = mtGet
       Name = 'showTop'
       PathInfo = '/top'
       OnAction = WebModule1showTopAction
@@ -49,9 +50,15 @@ object WebModule1: TWebModule1
       OnAction = WebModule1WebActionItem1Action
     end
     item
+      MethodType = mtGet
       Name = 'WebActionItem2'
       PathInfo = '/super_search'
       OnAction = WebModule1WebActionItem2Action
+    end
+    item
+      MethodType = mtGet
+      Name = 'WebActionItem3'
+      PathInfo = '/blog/*'
     end>
   Height = 556
   Width = 779
