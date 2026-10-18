@@ -989,9 +989,6 @@ end;
 
 { TPageSearch }
 
-const
-  str = '<span style=background-color:yellow>%s</span>';
-
 function TPageSearch.checkState(var st: integer; i: integer; const word: string): TFindState;
 var
   s: string;
@@ -1033,9 +1030,9 @@ begin
   s:=FList[ln].Substring(id).ToLower;
   index:=s.IndexOf(word);
   wrd:=FList[ln].Substring(id+index,word.Length);
-  t:=String.Format(str,[wrd])+FList[ln].Substring(id+index+word.Length);
+  t:=#1+wrd+#2+FList[ln].Substring(id+index+word.Length);
   FList[ln]:=FList[ln].Remove(id+index)+t;
-  result:=id+index+str.Length+word.Length;
+  result:=id+index+4+word.Length;
 end;
 
 function TPageSearch.processShort(var id, ln: integer; const word: string): Boolean;
@@ -1047,7 +1044,7 @@ begin
   index:=ln;
   line:=FList[index];
   wrd:=line.Substring(id);
-  strings:=[line.Remove(id)+String.Format(str,[wrd])];
+  strings:=[line.Remove(id)+#1+wrd+#2];
 
   //checking
   if not word.StartsWith(wrd) then
@@ -1058,7 +1055,7 @@ begin
     line:=FList[ln+1];
     if line.Length+wrd.Length < word.Length then
     begin
-      strings:=strings+[String.Format(str,[line])];
+      strings:=strings+[#1+line+#2];
       wrd:=wrd+line;
     end
     else
@@ -1072,7 +1069,7 @@ begin
     id:=word.Length-wrd.Length;
     inc(ln);
     wrd:=wrd+line.Remove(id);
-    small:=String.Format(str,[line.Remove(id)]);
+    small:=#1+line.Remove(id)+#2;
     strings:=strings+[small+line.Substring(id)];
     inc(id,small.Length);
   end;
@@ -1126,7 +1123,7 @@ begin
     end;
   end;
   if result then
-    Text:=FList.Text;
+    Text:=FList.Text.Replace(#1,'<span style="background-color:yellow">').Replace(#2,'</span>');
 end;
 
 procedure TPageSearch.initWordList;
