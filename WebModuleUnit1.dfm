@@ -50,7 +50,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1WebActionItem1Action
     end
     item
-      MethodType = mtGet
       Name = 'WebActionItem2'
       PathInfo = '/super_search'
       OnAction = WebModule1WebActionItem2Action

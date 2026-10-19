@@ -969,6 +969,7 @@ begin
         Path := '/';
         HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
         Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
+        SameSite := 'Lax';
       end;
       Response.SendRedirect('/members/'+FDQuery1.FieldByName('nickname').AsString);
       FDQuery1.Close;
