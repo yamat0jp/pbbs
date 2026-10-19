@@ -40,9 +40,9 @@ object WebModule1: TWebModule1
       OnAction = WebModule1membersAction
     end
     item
-      MethodType = mtGet
       Name = 'login'
       PathInfo = '/login'
+      OnAction = WebModule1loginAction
     end
     item
       Name = 'WebActionItem1'
@@ -59,6 +59,11 @@ object WebModule1: TWebModule1
       MethodType = mtGet
       Name = 'WebActionItem3'
       PathInfo = '/blog/*'
+    end
+    item
+      Name = 'WebActionItem4'
+      PathInfo = '/logout'
+      OnAction = WebModule1WebActionItem4Action
     end>
   Height = 556
   Width = 779
@@ -242,5 +247,11 @@ object WebModule1: TWebModule1
     PathTemplate = '/bbs/{user}/{title}'
     Left = 576
     Top = 240
+  end
+  object WebStencilsProcessor12: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\login.html'
+    Left = 576
+    Top = 304
   end
 end

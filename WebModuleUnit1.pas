@@ -102,6 +102,7 @@ type
     FDQuery2: TFDQuery;
     WebStencilsProcessor10: TWebStencilsProcessor;
     WebStencilsProcessor11: TWebStencilsProcessor;
+    WebStencilsProcessor12: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -130,6 +131,10 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem2Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem4Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1loginAction(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     mysearch: TPageSearch;
@@ -514,6 +519,17 @@ var
   id, kind, db: integer;
   params: TArray<string>;
 begin
+// クライアントから送信されたCookieを取得
+  var AuthToken := Request.CookieFields.Values['AuthToken'];
+
+  // トークンの検証（簡易的なチェック）
+  if not AuthToken.StartsWith('valid_session_') then
+  begin
+    // 未認証の場合はログイン画面へリダイレクト
+    Response.SendRedirect('/login');
+    Exit;
+  end;
+
   params:=Request.PathInfo.Split(['/']);
   user:=params[2];
   FDQuery1.SQL.Text:='select * from database where nickname = :name;';
@@ -801,6 +817,13 @@ begin
   FDQuery1.Close;
 end;
 
+procedure TWebModule1.WebModule1WebActionItem4Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  Response.CustomHeaders.Add('Set-Cookie: AuthToken=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; HttpOnly');
+  Response.SendRedirect('/login');
+end;
+
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -921,6 +944,43 @@ begin
   WebStencilsProcessor7.AddVar('Help',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
+end;
+
+procedure TWebModule1.WebModule1loginAction(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  inputpass, inputname: string;
+begin
+  if Request.MethodType = mtPost then
+  begin
+    inputname:=Request.ContentFields.Values['username'];
+    inputpass:=Request.ContentFields.Values['password'];
+    FDQuery1.SQL.Text:=
+      'select dbnumber,nickname from database where dbname = :u and password_hash = :p';
+    FDQuery1.ParamByName('u').AsString:=inputname;
+    FDQuery1.ParamByName('p').AsString:=inputpass;
+    FDQuery1.Open;
+    if not FDQuery1.IsEmpty then
+    begin
+      with Response.Cookies.Add do
+      begin
+        Name := 'AuthToken';
+        Value := 'valid_session_' + Inputname;
+        Path := '/';
+        HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
+        Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
+      end;
+      Response.SendRedirect('/members/'+FDQuery1.FieldByName('nickname').AsString);
+      FDQuery1.Close;
+      Exit;
+    end;
+    var data:=TData.Create;
+    data.name:='ユーザー名またはパスワードがまちがっています。';
+    WebStencilsProcessor12.AddVar('Msg',data);
+  end;
+  Response.ContentType:='text/html;charset=utf8';
+  Response.Content:=WebStencilsProcessor12.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
