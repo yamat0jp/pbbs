@@ -133,6 +133,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TWebModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="Bcrypt.pas"/>
         <None Include="js\main.js"/>
         <None Include="js\sub.js"/>
         <RcItem Include="img\BBS_bn.jpg">
@@ -211,6 +212,7 @@
         <None Include="js\top.js"/>
         <None Include="templates\params.html"/>
         <None Include="templates\super_search.html"/>
+        <None Include="templates\homepage.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -584,6 +586,12 @@
                 <DeployFile LocalName="templates\help.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\help.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\help.html" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\homepage.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

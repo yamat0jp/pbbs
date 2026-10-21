@@ -84,7 +84,7 @@ type
     FDConnection1: TFDConnection;
     WebFileDispatcher1: TWebFileDispatcher;
     FDQuery1: TFDQuery;
-    master: TPageProducer;
+    home: TPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     WebStencilsProcessor1: TWebStencilsProcessor;
     WebStencilsProcessor2: TWebStencilsProcessor;
@@ -135,6 +135,8 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1loginAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem6Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     mysearch: TPageSearch;
@@ -142,8 +144,10 @@ type
     procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
+    procedure AddCookie;
   public
     { public 宣言 }
+    function VerifyLogin(const Username,InputPassword: string): Boolean;
   end;
 
   TSlide = class
@@ -170,54 +174,49 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, System.Math;
+uses System.IOUtils, System.Math, Bcrypt;
 
-// Request.ContentFields の代わりに使用する安全な関数
-function GetSafePostValue(Request: TWebRequest; const FieldName: string): string;
+function TWebModule1.VerifyLogin(const Username, InputPassword: string): Boolean;
 var
-  RawBytes: TBytes;
-  RawStr: string;
-  Params, Pair: TArray<string>;
-  P: string;
+  StoredHash: string;
+  rehash: Boolean;
 begin
-  Result := '';
+  // 1. データベースから該当ユーザーのハッシュ値を取得
+  FDQuery1.SQL.Text:='SELECT password_hash FROM database WHERE dbname = :U;';
+  FDQuery1.ParamByName('U').AsString:=Username;
+  FDQuery1.Open;
+  StoredHash:=FDQuery1.FieldByName('password_hash').AsString;
+  FDQuery1.Close;
 
-  // 1. 生のバイトデータを取得（OSの文字コード干渉を完全に防ぐ）
-  RawBytes := Request.RawContent;
+  if StoredHash = '' then
+    Exit(False); // ユーザーが存在しない場合
 
-  // ※もしISAPIなどで長文が切れる（RawContentが空、またはサイズ不足）場合のフェイルセーフ
-  if (Length(RawBytes) = 0) and (Request.ContentLength > 0) then
+  // 2. 入力パスワードと保存済みハッシュを照合
+  // 内部でStoredHashからソルトとワークファクターを自動抽出し、同じ条件でハッシュ化して比較します
+  Result := TBcrypt.CheckPassword(InputPassword, StoredHash, rehash);
+  if rehash then
   begin
-    RawStr := Request.ReadString(Request.ContentLength);
-  end
-  else
-  begin
-    // URLエンコードされたデータはASCIIのみで構成されるため、ASCIIとして文字列化
-    RawStr := TEncoding.ASCII.GetString(RawBytes);
+    FDCommand1.CommandText.Text:=
+      'UPDATE database SET password_hash = :hash where dbname = :U;';
+    FDCommand1.ParamByName('hash').AsString:=TBcrypt.HashPassword(inputpassword);
+    FDCommand1.ParamByName('U').AsString:=username;
+    FDCommand1.Execute;
   end;
+end;
 
-  if RawStr = '' then Exit;
-
-  // 2. TStringList のバグを避けるため、String.Split で安全に '&' を分割
-  Params := RawStr.Split(['&']);
-
-  for P in Params do
+procedure TWebModule1.AddCookie;
+var
+  SessionToken: string;
+begin
+  SessionToken:=TGUID.NewGuid.ToString.Replace('{','').Replace('}','');
+  with Response.Cookies.Add do
   begin
-    // 3. '=' で名前と値に分割
-    Pair := P.Split(['=']);
-    if (Length(Pair) = 2) and SameText(Pair[0], FieldName) then
-    begin
-      try
-        // 4. 空白の処理と、UTF-8としてのURLデコード
-        Result := TNetEncoding.URL.Decode(Pair[1].Replace('+', ' '))
-          .Replace(#0,'',[rfReplaceAll]).Replace(#1,#2,[rfReplaceAll]);
-      except
-        // 万が一、ユーザーが不正なパーセントエンコードを送ってきた場合のエラー回避
-        on E: Exception do
-          Result := ''; // またはエラーログを出力
-      end;
-      Break;
-    end;
+    Name := 'AuthToken';
+    Value := 'valid_session_' +SessionToken;
+    Path := '/';
+    HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
+    Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
+    SameSite := 'Lax';
   end;
 end;
 
@@ -824,6 +823,40 @@ begin
   Response.SendRedirect('/login');
 end;
 
+procedure TWebModule1.WebModule1WebActionItem6Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  nickname, username, email, password: string;
+begin
+  username:=Request.ContentFields.Values['username'];
+  nickname:=Request.ContentFields.Values['nickname'];
+  email:=Request.ContentFields.Values['email'];
+  password:=Request.ContentFields.Values['password'];
+  FDQuery1.SQL.Text:='select * from database where dbname = :U and nickname = :N;';
+  FDQuery1.ParamByName('U').AsString:=username;
+  FDQuery1.ParamByName('N').AsString:=nickname;
+  FDQuery1.Open;
+  if FDQuery1.IsEmpty then
+  begin
+    FDQuery1.Close;
+    FDQuery1.Open('select MAX(dbnumber) AS max from database;');
+    FDCommand1.CommandText.Text:='''
+      INSERT INTO database (dbnumber,dbname,nickname,password_hash)
+      VALUES (:id,:U,:N,:P);
+      ''';
+    FDCommand1.ParamByName('id').AsInteger:=FDQuery1.FieldByName('max').AsInteger+1;
+    FDCommand1.ParamByName('U').AsString:=username;
+    FDCommand1.ParamByName('N').AsString:=nickname;
+    FDCommand1.ParamByName('P').AsString:=TBcrypt.HashPassword(password);
+    FDQuery1.Close;
+    FDCommand1.Execute;
+    AddCookie;
+    Response.SendRedirect('/members/'+nickname);
+  end
+  else
+    Response.SendRedirect('/home')
+end;
+
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -951,37 +984,27 @@ procedure TWebModule1.WebModule1loginAction(Sender: TObject;
 var
   inputpass, inputname: string;
 begin
+  var data:=TData.Create;
   if Request.MethodType = mtPost then
   begin
     inputname:=Request.ContentFields.Values['username'];
     inputpass:=Request.ContentFields.Values['password'];
-    FDQuery1.SQL.Text:=
-      'select dbnumber,nickname from database where dbname = :u and password_hash = :p';
-    FDQuery1.ParamByName('u').AsString:=inputname;
-    FDQuery1.ParamByName('p').AsString:=inputpass;
-    FDQuery1.Open;
-    if not FDQuery1.IsEmpty then
+    if VerifyLogin(inputname,inputpass) then
     begin
-      with Response.Cookies.Add do
-      begin
-        Name := 'AuthToken';
-        Value := 'valid_session_' + Inputname;
-        Path := '/';
-        HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
-        Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
-        SameSite := 'Lax';
-      end;
+      AddCookie;
+      FDQuery1.SQL.Text:='select nickname from database where dbname = :U;';
+      FDQuery1.ParamByName('U').AsString:=inputname;
+      FDQuery1.Open;
       Response.SendRedirect('/members/'+FDQuery1.FieldByName('nickname').AsString);
       FDQuery1.Close;
       Exit;
     end;
-    var data:=TData.Create;
+    data.bool:=true;
     data.name:='ユーザー名またはパスワードがまちがっています。';
-    WebStencilsProcessor12.AddVar('Msg',data);
   end;
+  WebStencilsProcessor12.AddVar('Msg',data);
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor12.Content;
-  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModuleCreate(Sender: TObject);

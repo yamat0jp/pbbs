@@ -63,6 +63,17 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem4'
       PathInfo = '/logout'
       OnAction = WebModule1WebActionItem4Action
+    end
+    item
+      Name = 'WebActionItem5'
+      PathInfo = '/home'
+      Producer = home
+    end
+    item
+      MethodType = mtPost
+      Name = 'WebActionItem6'
+      PathInfo = '/register'
+      OnAction = WebModule1WebActionItem6Action
     end>
   Height = 556
   Width = 779
@@ -127,8 +138,8 @@ object WebModule1: TWebModule1
     Left = 160
     Top = 104
   end
-  object master: TPageProducer
-    HTMLFile = '.\templates\master.html'
+  object home: TPageProducer
+    HTMLFile = '.\templates\homepage.html'
     Left = 272
     Top = 448
   end
@@ -250,6 +261,7 @@ object WebModule1: TWebModule1
   object WebStencilsProcessor12: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\login.html'
+    DataVarDuplicates = ddReplace
     Left = 576
     Top = 304
   end
