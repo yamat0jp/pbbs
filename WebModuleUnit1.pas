@@ -556,7 +556,7 @@ end;
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  user, name, title: string;
+  user, name, title, url: string;
   count, pagecount: integer;
   mainte: Boolean;
   id, kind, db: integer;
@@ -595,8 +595,8 @@ begin
 
   if Request.MethodType = mtPost then
   begin
-    name:=Request.ContentFields.Values['name'];
-    title := Request.ContentFields.Values['title'];
+    title:=Request.ContentFields.Values['name'];
+    url := Request.ContentFields.Values['title'];
     kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
     mainte:=false;
     count:=0;
@@ -622,10 +622,11 @@ begin
     FDQuery1.ParamByName('id').AsInteger:=db;
     FDQuery1.ParamByName('title').AsString:=title;
     FDQuery1.Open;
-    if (name = '') or not FDQuery1.IsEmpty then
+    if (title = '')or(url = '') or not FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
       Response.SendRedirect(Request.PathInfo);
+      Exit;
     end;
     FDQuery1.Close;
 
@@ -635,12 +636,12 @@ begin
     ''';
 
     FDCommand1.ParamByName('db').AsInteger:=db;
-    FDCommand1.ParamByName('title').AsString:=name;
+    FDCommand1.ParamByName('title').AsString:=title;
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mainte').AsBoolean:=mainte;
     FDCommand1.ParamByName('kind').AsInteger:=kind;
-    FDCommand1.ParamByName('url').AsString:=title;
+    FDCommand1.ParamByName('url').AsString:=url;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
   end
