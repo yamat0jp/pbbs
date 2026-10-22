@@ -236,6 +236,7 @@ object WebModule1: TWebModule1
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\members.html'
     PathTemplate = '/members/{Database}'
+    DataVarDuplicates = ddReplace
     Left = 576
     Top = 112
   end

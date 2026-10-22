@@ -144,7 +144,10 @@ type
     procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
-    procedure AddCookie;
+    procedure AddCookie(const name: string);
+    function HashValidator(const Validator: string): string;
+    function GenerateSelector: string;
+    function GenerateValidator: string;
   public
     { public 宣言 }
     function VerifyLogin(const Username,InputPassword: string): Boolean;
@@ -174,7 +177,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, System.Math, Bcrypt;
+uses System.IOUtils, System.Math, Bcrypt, System.Hash;
 
 function TWebModule1.VerifyLogin(const Username, InputPassword: string): Boolean;
 var
@@ -204,20 +207,60 @@ begin
   end;
 end;
 
-procedure TWebModule1.AddCookie;
+procedure TWebModule1.AddCookie(const name: string);
 var
-  SessionToken: string;
+  SessionToken, selector, validator, validatorhash: string;
+  db: integer;
 begin
-  SessionToken:=TGUID.NewGuid.ToString.Replace('{','').Replace('}','');
+  selector:=GenerateSelector;
+  validator:=GenerateValidator;
+  validatorhash:=HashValidator(validator);
+  FDQuery1.SQL.Text:='select dbnumber from database ds where dbname = :u;';
+  FDQuery1.ParamByName('u').AsString:=name;
+  FDQuery1.Open;
+  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  FDQuery1.Close;
+
+  FDCommand1.CommandText.Text:='''
+    INSERT INTO token (selector,validatorhash,username,ExpiresAt,number)
+    VALUES (:s,:vh,:u,:exp,:num)
+    ON CONFLICT (number)
+    DO UPDATE SET selector = :s, validatorhash = :vh, username = :u, ExpiresAt = :exp;
+    ''';
+  FDCommand1.ParamByName('s').AsString:=selector;
+  FDCommand1.ParamByName('vh').AsString:=validatorhash;
+  FDCommand1.ParamByName('u').AsString:=name;
+  FDCommand1.ParamByName('exp').AsDate:=Now+3;
+  FDCommand1.ParamByName('num').AsInteger:=db;
+  FDCommand1.Execute;
+
+  SessionToken:=selector+'-'+validator;
   with Response.Cookies.Add do
   begin
     Name := 'AuthToken';
-    Value := 'valid_session_' +SessionToken;
+    Value := SessionToken;
     Path := '/';
     HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
     Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
     SameSite := 'Lax';
+    Expires:=Now+3;
   end;
+end;
+
+function TWebModule1.GenerateSelector: string;
+begin
+  result:=TGUID.NewGuid.ToString.Replace('{','').Replace('}','').Replace('-','').ToLower;
+end;
+
+function TWebModule1.GenerateValidator: string;
+begin
+  result:=GenerateSelector+GenerateSelector;
+end;
+
+function TWebModule1.HashValidator(const Validator: string): string;
+begin
+  // System.Hash.THashSHA2 を使用
+  Result := THashSHA2.GetHashString(Validator, THashSHA2.TSHA2Version.SHA256).ToLower;
 end;
 
 procedure TWebModule1.makeFooterNumber(id, max: integer;out link: TObjectList<TData>);
@@ -393,7 +436,8 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select * from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
+    select usernum,id,name,maintenance,pagecount,count from titles t
+    INNER JOIN database ds ON t.usernum = ds.dbnumber
     where ds.nickname = :user and t.url = :title;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
@@ -517,25 +561,38 @@ var
   mainte: Boolean;
   id, kind, db: integer;
   params: TArray<string>;
+  clientselector,clientvalidator,dbvalidator: string;
 begin
-// クライアントから送信されたCookieを取得
-  var AuthToken := Request.CookieFields.Values['AuthToken'];
+  // クライアントから送信されたCookieを取得
+  params := Request.CookieFields.Values['AuthToken'].Split(['-']);
+  if Length(params) < 2 then
+  begin
+    Response.SendRedirect('/login');
+    Exit;
+  end;
+  clientselector:=params[0];
+  clientvalidator:=params[1];
 
-  // トークンの検証（簡易的なチェック）
-  if not AuthToken.StartsWith('valid_session_') then
+  params:=Request.PathInfo.Split(['/']);
+  user:=params[2];
+  FDQuery1.SQL.Text:='''
+    select validatorhash,dbnumber,dbname from token INNRE JOIN database ds
+    ON number = dbnumber where ds.nickname = :u;
+    ''';
+  FDQuery1.ParamByName('u').AsString:=user;
+  FDQuery1.Open;
+  dbvalidator:=FDQuery1.FieldByName('validatorhash').AsString;
+  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  name:=FDQuery1.FieldByName('dbname').AsString;
+  FDQuery1.Close;
+
+  if HashValidator(clientvalidator) <> dbvalidator then
   begin
     // 未認証の場合はログイン画面へリダイレクト
     Response.SendRedirect('/login');
     Exit;
   end;
 
-  params:=Request.PathInfo.Split(['/']);
-  user:=params[2];
-  FDQuery1.SQL.Text:='select * from database where nickname = :name;';
-  FDQuery1.ParamByName('name').AsString:=user;
-  FDQuery1.Open;
-  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
-  user:=FDQuery1.FieldByName('dbname').AsString;
   if Request.MethodType = mtPost then
   begin
     name:=Request.ContentFields.Values['name'];
@@ -602,7 +659,7 @@ begin
   FDQuery2.Open;
 
   var data:=TData.Create;
-  data.name:=user;
+  data.name:=name;
 
   WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
   WebStencilsProcessor9.AddVar('Logs',FDQuery2,false);
@@ -625,8 +682,8 @@ begin
   user:=params[2];
   title:=params[3];
   FDQuery1.SQL.Text:='''
-    select * from database ds INNER JOIN titles t ON ds.dbnumber = t.usernum
-    where ds.nickname = :user and t.url = :title;
+    select usernum,id from database ds INNER JOIN titles t
+    ON ds.dbnumber = t.usernum where ds.nickname = :user and t.url = :title;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
   FDQuery1.ParamByName('title').AsString:=title;
@@ -747,7 +804,7 @@ begin
   user:=params[2];
   title:=params[3];
   FDQuery1.SQL.Text:='''
-    select * from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
+    select id,usernum from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
     where t.url = :title and ds.nickname = :user;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
@@ -850,7 +907,7 @@ begin
     FDCommand1.ParamByName('P').AsString:=TBcrypt.HashPassword(password);
     FDQuery1.Close;
     FDCommand1.Execute;
-    AddCookie;
+    AddCookie(username);
     Response.SendRedirect('/members/'+nickname);
   end
   else
@@ -877,7 +934,7 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select * from datatable dt
+    select datetime,title,name,comment,dbnumber from datatable dt
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbtitle = t.id
@@ -991,7 +1048,7 @@ begin
     inputpass:=Request.ContentFields.Values['password'];
     if VerifyLogin(inputname,inputpass) then
     begin
-      AddCookie;
+      AddCookie(inputname);
       FDQuery1.SQL.Text:='select nickname from database where dbname = :U;';
       FDQuery1.ParamByName('U').AsString:=inputname;
       FDQuery1.Open;
