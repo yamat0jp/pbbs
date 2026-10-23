@@ -4,7 +4,7 @@
 <body>
     <h2>ログイン</h2>
     <!-- エラーメッセージがある場合のみ表示 -->
-    @if Msg.bool {<div style="color: red;">@Msg.name</div>}
+    <div style="color: red;">@Msg.name</div>
 
     <form method="POST" action="/login">
         <div>

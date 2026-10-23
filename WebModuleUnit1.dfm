@@ -64,9 +64,11 @@ object WebModule1: TWebModule1
       OnAction = WebModule1WebActionItem4Action
     end
     item
+      Default = True
+      MethodType = mtGet
       Name = 'WebActionItem5'
       PathInfo = '/home'
-      Producer = home
+      OnAction = WebModule1WebActionItem5Action
     end
     item
       MethodType = mtPost
@@ -136,11 +138,6 @@ object WebModule1: TWebModule1
     Connection = FDConnection1
     Left = 160
     Top = 104
-  end
-  object home: TPageProducer
-    HTMLFile = '.\templates\homepage.html'
-    Left = 272
-    Top = 448
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Console'
@@ -264,5 +261,12 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     Left = 576
     Top = 304
+  end
+  object WebStencilsProcessor13: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\homepage.html'
+    DataVarDuplicates = ddReplace
+    Left = 576
+    Top = 368
   end
 end

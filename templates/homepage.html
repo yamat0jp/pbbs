@@ -102,13 +102,13 @@
         <h2>初めて登録する</h2>
         <form action="/register" method="POST">
             <div>
-                <label for="username">ユーザー名 (Username):</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">ユーザー名 (Username):</label>@Msg.name
+                <input type="text" id="username" name="username" value="@Name.name" required>
             </div>
             <div>
-                <label for="nickname">ニックネーム※公開 (Nickname):</label>
+                <label for="nickname">ニックネーム※公開 (Nickname):</label>@Msg.tag
                 <!-- 必須にしたい場合は末尾に required を追加してください -->
-                <input type="text" id="nickname" name="nickname" required>
+                <input type="text" id="nickname" name="nickname" value="@Name.tag" required>
             </div>
             <div>
                 <label for="email">メールアドレス (Email):</label>

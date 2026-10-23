@@ -84,7 +84,6 @@ type
     FDConnection1: TFDConnection;
     WebFileDispatcher1: TWebFileDispatcher;
     FDQuery1: TFDQuery;
-    home: TPageProducer;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     WebStencilsProcessor1: TWebStencilsProcessor;
     WebStencilsProcessor2: TWebStencilsProcessor;
@@ -103,6 +102,7 @@ type
     WebStencilsProcessor10: TWebStencilsProcessor;
     WebStencilsProcessor11: TWebStencilsProcessor;
     WebStencilsProcessor12: TWebStencilsProcessor;
+    WebStencilsProcessor13: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -136,6 +136,8 @@ type
     procedure WebModule1loginAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem6Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem5Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
@@ -599,7 +601,6 @@ procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   token, name, title, url: string;
-  s: string;
   count, pagecount: integer;
   mainte: Boolean;
   id, kind, db: integer;
@@ -900,6 +901,23 @@ begin
   Response.SendRedirect('/login');
 end;
 
+procedure TWebModule1.WebModule1WebActionItem5Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  data, data2: TData;
+begin
+  data:=TData.Create;
+  data2:=TData.Create;
+  data.name:='';
+  data.tag:='';
+  data2.name:='';
+  data2.tag:='';
+  WebStencilsProcessor13.AddVar('Msg',data);
+  WebStencilsProcessor13.AddVar('Name',data2);
+  Response.ContentType:='text/html;charset=utf8';
+  Response.Content:=WebStencilsProcessor13.Content;
+end;
+
 procedure TWebModule1.WebModule1WebActionItem6Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -910,26 +928,46 @@ begin
   nickname:=Request.ContentFields.Values['nickname'];
   email:=Request.ContentFields.Values['email'];
   password:=Request.ContentFields.Values['password'];
+  FDQuery1.SQL.Text:=
+    'select dbname from database where dbname = :n or nickname = :nn;';
+  FDQuery1.ParamByName('n').AsString:=username;
+  FDQuery1.ParamByName('nn').AsString:=nickname;
+  FDQuery1.Open;
   if FDQuery1.IsEmpty then
   begin
+    FDQuery1.Close;
     FDQuery1.Open('select MAX(dbnumber) AS max from database;');
     max:=FDQuery1.FieldByName('max').AsInteger+1;
-    FDQuery1.Close;
     FDCommand1.CommandText.Text:='''
-      INSERT INTO database (dbnumber,dbname,nickname,password_hash)
-      VALUES (:id,:U,:N,:P);
+      INSERT INTO database (dbnumber,dbname,nickname,password_hash,email)
+      VALUES (:id,:U,:N,:P,:E);
       ''';
     FDCommand1.ParamByName('id').AsInteger:=max;
     FDCommand1.ParamByName('U').AsString:=username;
     FDCommand1.ParamByName('N').AsString:=nickname;
     FDCommand1.ParamByName('P').AsString:=TBcrypt.HashPassword(password);
+    FDCommand1.ParamByName('E').AsString:=email;
     FDCommand1.Execute;
     var s: string;
     AddCookie(username,s,true);
     Response.SendRedirect('/members/'+nickname);
   end
   else
-    Response.SendRedirect('/home')
+  begin
+    var data:=TData.Create;
+    if FDQuery1.FieldByName('dbname').AsString = username then
+      data.name:='そのお名前は登録できません'
+    else
+      data.tag:='ニックネームが重複しています';
+    var data2:=TData.Create;
+    data2.name:=username;
+    data2.tag:=nickname;
+    WebStencilsProcessor13.AddVar('Msg',data);
+    WebStencilsProcessor13.AddVar('Name',data2);
+    Response.ContentType:='text/html;charset=utf8';
+    Response.Content:=WebStencilsProcessor13.Content;
+  end;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
@@ -1060,6 +1098,7 @@ var
   inputpass, inputname, nickname: string;
 begin
   var data:=TData.Create;
+  data.name:='';
   if Request.MethodType = mtPost then
   begin
     inputname:=Request.ContentFields.Values['username'];
@@ -1070,7 +1109,6 @@ begin
       Response.SendRedirect('/members/'+nickname);
       Exit;
     end;
-    data.bool:=true;
     data.name:='ユーザー名またはパスワードがまちがっています。';
   end;
   WebStencilsProcessor12.AddVar('Msg',data);
