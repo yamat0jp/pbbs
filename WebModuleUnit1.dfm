@@ -13,7 +13,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1alertAction
     end
     item
-      Default = True
       MethodType = mtGet
       Name = 'showTop'
       PathInfo = '/top'
