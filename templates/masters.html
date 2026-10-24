@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head><title>ログイン</title></head>
+<body>
+    <h2>ログイン</h2>
+    <!-- エラーメッセージがある場合のみ表示 -->
+    <div style="color: red;">@Msg.name</div>
+
+    <form method="POST" action="/masters">
+        <div>
+            <label>ユーザー名:</label>
+            <input type="text" name="username" required>
+        </div>
+        <div>
+            <label>パスワード:</label>
+            <input type="password" name="password" required>
+        </div>
+        <div>
+            <label><input type="CHECKBOX" name="auto" value="yes">ログインしたままにする</label>
+        </div>
+        <button type="submit">ログイン</button>
+    </form>
+</body>
+</html>

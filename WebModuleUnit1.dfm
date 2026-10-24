@@ -15,7 +15,7 @@ object WebModule1: TWebModule1
     item
       MethodType = mtGet
       Name = 'showTop'
-      PathInfo = '/top'
+      PathInfo = '/top/*'
       OnAction = WebModule1showTopAction
     end
     item
@@ -80,6 +80,11 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem7'
       PathInfo = '/exit/*'
       OnAction = WebModule1WebActionItem7Action
+    end
+    item
+      Name = 'WebActionItem8'
+      PathInfo = '/masters'
+      OnAction = WebModule1WebActionItem8Action
     end>
   Height = 556
   Width = 779
@@ -281,5 +286,12 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     Left = 576
     Top = 432
+  end
+  object WebStencilsProcessor15: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\masters.html'
+    DataVarDuplicates = ddReplace
+    Left = 576
+    Top = 496
   end
 end

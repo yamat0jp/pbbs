@@ -214,6 +214,7 @@
         <None Include="templates\super_search.html"/>
         <None Include="templates\homepage.html"/>
         <None Include="templates\exit.html"/>
+        <None Include="templates\masters.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -367,12 +368,6 @@
                 <DeployFile LocalName="$(IBREDISTDIR)\win64_togo\interbase\oss_license_notice.txt" Configuration="Release" Class="File">
                     <Platform Name="Win64">
                         <RemoteDir>interbase\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Untitled1.htm" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -580,6 +575,12 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\algo.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\algo.htm" Configuration="Release" Class="ProjectFile"/>
+                <DeployFile LocalName="templates\exit.html" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="templates\footer.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
@@ -638,6 +639,12 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\master.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\master.htm" Configuration="Release" Class="ProjectFile"/>
+                <DeployFile LocalName="templates\masters.html" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="templates\members.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.html" Configuration="Debug" Class="ProjectFile">
