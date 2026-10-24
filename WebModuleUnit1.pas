@@ -103,6 +103,7 @@ type
     WebStencilsProcessor11: TWebStencilsProcessor;
     WebStencilsProcessor12: TWebStencilsProcessor;
     WebStencilsProcessor13: TWebStencilsProcessor;
+    WebStencilsProcessor14: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -138,6 +139,8 @@ type
     procedure WebModule1WebActionItem6Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem5Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem7Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
@@ -968,6 +971,67 @@ begin
     Response.Content:=WebStencilsProcessor13.Content;
   end;
   FDQuery1.Close;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem7Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  token, username: string;
+  number: integer;
+begin
+  var data:=TData.Create;
+  token:=Request.CookieFields.Values['AuthToken'];
+  if not VerifyRememberMe(token,username,number) then
+  begin
+    Response.SendRedirect('/login');
+    Exit;
+  end;
+  if Request.MethodType = mtPost then
+  begin
+    if Request.ContentFields.Values['check'] <> 'yes' then
+    begin
+      Response.SendRedirect('/exit');
+      Exit;
+    end;
+    if VerifyLogin(username,Request.ContentFields.Values['password']) then
+    begin
+      FDTransaction1.StartTransaction;
+      try
+        FDCommand1.CommandText.Text:='DELETE FROM database where dbnumber = :n;';
+        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.Execute;
+
+        FDCommand1.CommandText.Text:='DELETE FROM token where number = :n;';
+        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.Execute;
+
+        FDCommand1.CommandText.Text:='DELETE FROM datatable where dbnumber = :n;';
+        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.Execute;
+
+        FDCommand1.CommandText.Text:='DELETE FROM maintable where dbnumber = :n;';
+        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.Execute;
+
+        FDCommand1.CommandText.Text:='DELETE FROM titles where usernum = :n;';
+        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.Execute;
+
+        FDTransaction1.Commit;
+      except
+        FDTransaction1.Rollback;
+        raise;
+      end;
+      data.bool:=false;
+    end;
+  end
+  else
+    data.bool:=true;
+  data.name:=username;
+  data.tag:='退会しました。3秒後にジャンプします。ご利用いただきありがとうございます。';
+  WebStencilsProcessor14.AddVar('Data',data);
+  Response.ContentType:='text/html;charset=utf8';
+  Response.Content:=WebStencilsProcessor14.Content;
 end;
 
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;

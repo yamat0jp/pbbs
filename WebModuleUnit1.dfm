@@ -75,6 +75,11 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem6'
       PathInfo = '/register'
       OnAction = WebModule1WebActionItem6Action
+    end
+    item
+      Name = 'WebActionItem7'
+      PathInfo = '/exit/*'
+      OnAction = WebModule1WebActionItem7Action
     end>
   Height = 556
   Width = 779
@@ -268,5 +273,13 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     Left = 576
     Top = 368
+  end
+  object WebStencilsProcessor14: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\exit.html'
+    PathTemplate = '/exit/{user}'
+    DataVarDuplicates = ddReplace
+    Left = 576
+    Top = 432
   end
 end
