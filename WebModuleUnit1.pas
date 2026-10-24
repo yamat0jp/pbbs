@@ -1045,6 +1045,10 @@ begin
         FDCommand1.ParamByName('n').AsInteger:=number;
         FDCommand1.Execute;
 
+        FDCommand1.CommandText.Text:='DELETE FROM weblog where dbid = :d;';
+        FDCommand1.ParamByName('d').AsInteger:=number;
+        FDCommand1.Execute;
+
         FDTransaction1.Commit;
       except
         FDTransaction1.Rollback;
@@ -1090,7 +1094,7 @@ procedure TWebModule1.WebModule1alertAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id, did, tn: integer;
-  log, name, title, username, dbtitle, text, msg: string;
+  log, name, username, dbtitle, text, msg: string;
   time: TDate;
   data: TData;
   params: TArray<string>;
@@ -1106,7 +1110,7 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select datetime,title,name,comment,dbnumber from datatable dt
+    select datetime,dt.name,comment,dt.dbnumber from datatable dt
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbtitle = t.id
@@ -1124,7 +1128,6 @@ begin
   else
   begin
     time := FDQuery1.FieldByName('datetime').AsDateTime;
-    title:=FDQuery1.FieldByName('title').AsString;
     name:=FDQuery1.FieldByName('name').AsString;
     text:=FDQuery1.FieldByName('comment').AsString;
     msg:=Request.ContentFields.Values['com'];
