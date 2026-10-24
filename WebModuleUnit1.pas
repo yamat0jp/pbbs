@@ -1060,7 +1060,6 @@ begin
   else
     data.bool:=true;
   data.name:=username;
-  data.tag:='退会しました。3秒後にジャンプします。ご利用いただきありがとうございます。';
   WebStencilsProcessor14.AddVar('Data',data);
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor14.Content;

@@ -1,24 +1,122 @@
 ﻿<!DOCTYPE html>
 <html lang="ja">
-<head><title>ログイン</title></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            color: #333333;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+        .error-message {
+            color: #d9534f;
+            background-color: #f9f2f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            /* @Msg.name が空の場合は非表示になるようサーバー側で制御してください */
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555555;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .checkbox-group input {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        button[type="submit"] {
+            width: 100%;
+            background-color: #0056b3;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #004494;
+        }
+    </style>
+</head>
 <body>
-    <h2>マスターログイン</h2>
-    <!-- エラーメッセージがある場合のみ表示 -->
-    <div style="color: red;">@Msg.name</div>
+    <div class="login-container">
+        <h2>マスターログイン</h2>
 
-    <form method="POST" action="/masters">
-        <div>
-            <label>ユーザー名:</label>
-            <input type="text" name="username" required>
-        </div>
-        <div>
-            <label>パスワード:</label>
-            <input type="password" name="password" required>
-        </div>
-        <div>
-            <label><input type="CHECKBOX" name="auto" value="yes">ログインしたままにする</label>
-        </div>
-        <button type="submit">ログイン</button>
-    </form>
+        <!-- エラーメッセージ -->
+        <div class="error-message">@Msg.name</div>
+
+        <form method="POST" action="/masters">
+            <div class="form-group">
+                <label for="username">ユーザー名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="auto_login" name="auto" value="yes">
+                <label for="auto_login">ログインしたままにする</label>
+            </div>
+            <button type="submit">ログイン</button>
+        </form>
+    </div>
 </body>
 </html>

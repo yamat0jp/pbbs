@@ -2,6 +2,7 @@
 
 <html>
   <head>
+  @if (Data.bool = false) {<meta http-equiv="refresh" content="5;url=/home">}
     <title>退会受付</title>
   </head>
 
@@ -19,7 +20,7 @@
             <label><input type="CHECKBOX" name="check" value="yes">退会に同意します</label>
         </div>
         <input type="SUBMIT" value="退会">
-    </form> } @else {@Data.tag}
+    </form> } @else {退会しました。5秒後にジャンプします。ご利用いただきありがとうございます。}
   </body>
 </html>
 
