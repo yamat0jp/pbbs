@@ -95,3 +95,14 @@
 body {
     background-color:#fdf5f3;
 }
+
+.code-body {
+  display: block; /* ← これを追加 */
+  padding: 1em;
+  width: 90%;
+  margin: auto;
+  border: solid 1px #4d4d4d;
+  background: #25292f;
+  color: #fff;
+  overflow-x: auto; /* ← 長いコードが横にはみ出さないようにスクロールバーを出す設定（推奨） */
+}

@@ -8,9 +8,7 @@
   <pre class="comment-body">
   @if (Data.comment = '') {
     ***deleted***
-  } @else {
-    @\Data.comment
-    @\Data.code
-  }
-  </pre>
+  } @else {@\Data.comment}
+  @if (Data.code = '') {} @else {
+  <code class="code-body">@\Data.code</code>}</pre>
 </div>
