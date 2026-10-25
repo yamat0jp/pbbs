@@ -350,8 +350,9 @@ function TWebModule1.replaceRawData(const Data: string): string;
 const
   ng = '死ね,阿保,馬鹿,殺す,爆破';
 begin
+  result:=TNetEncoding.HTML.Encode(Data);
   for var s in ng.Split([',']) do
-    result:=TNetEncoding.HTML.Encode(Data.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]));
+    result:=result.Replace(s,'*****',[rfReplaceAll,rfIgnoreCase]);
 end;
 
 procedure TWebModule1.WebModule1adminPageAction(Sender: TObject;
