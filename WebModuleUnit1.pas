@@ -293,7 +293,7 @@ begin
     Value := SessionToken;
     Path := '/';
     HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
-    Secure := False;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
+    Secure := true;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
     SameSite := 'Lax';
     Expires:=Now+3;
   end;
@@ -643,7 +643,7 @@ begin
         end;
     end;
 
-    FDQuery1.Open('select MAX(id) OVER() max from titles;');
+    FDQuery1.Open('select MAX(id) as max from titles;');
     id:=FDQuery1.FieldByName('max').AsInteger+1;
     FDQuery1.Close;
 

@@ -5,10 +5,11 @@
       <time class="comment-time" datetime="@Data.datetime">@Data.datetime</time>
       <span class="comment-alert">@if (Bool.bool and (Data.comment <> '')) {<a href="/alert/@Data.nickname/@Data.url/@Data.titlenum">alert</a>}</span>
     </div>
-  <pre class="comment-body">
+  <pre>
   @if (Data.comment = '') {
     ***deleted***
-  } @else {@\Data.comment}
+  } @else {<span class="comment-body">@\Data.comment</span>}
   @if (Data.code = '') {} @else {
+
   <code class="code-body">@\Data.code</code>}</pre>
 </div>
