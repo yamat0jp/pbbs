@@ -145,6 +145,8 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem8Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem9Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     mysearch: TPageSearch;
@@ -187,7 +189,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, System.Math, Bcrypt, System.Hash;
+uses System.IOUtils, System.Math, Bcrypt, System.Hash, System.DateUtils;
 
 function TWebModule1.VerifyLogin(const Username, InputPassword: string): Boolean;
 var
@@ -423,6 +425,8 @@ begin
         raise;
       end;
     end;
+    Response.SendRedirect(String.Join('/',['/admin',user,title,page]));
+    Exit;
   end;
   FDQuery1.SQL.Text:='select COUNT(*) cnt from datatable where dbnumber = :db and dbtitle = :id;';
   FDQuery1.ParamByName('db').AsInteger:=db;
@@ -470,8 +474,8 @@ end;
 procedure TWebModule1.WebModule1mainItemAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  user, raw, code, name, title, dbname: string;
-  userid, page0, page, temp, rec, tid, dbtitle: integer;
+  user, title, dbname: string;
+  userid, page, temp, rec, dbtitle: integer;
   count, pagecount: integer;
   params: TArray<string>;
   items: TObjectList<TData>;
@@ -483,7 +487,6 @@ begin
     user:=params[2];
     title:=params[3];
     page:=if High(params) = 4 then params[4].ToInteger else 0;
-    page0:=page;
   except
     Handled:=false;
     Exit;
@@ -530,8 +533,8 @@ begin
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select t.name as pagetitle,ds.dbname,ds.nickname,dt.titlenum,
-    comment,code,datetime,dt.name,t.url,MAX(dt.titlenum) OVER() AS max from datatable dt
+    select t.name as pagetitle,ds.dbname,ds.nickname,dt.titlenum,comment,code,
+    datetime,dt.name,t.url from datatable dt
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbnumber = t.usernum and dt.dbtitle = t.id
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
@@ -547,44 +550,6 @@ begin
     FDQuery1.ParamByName('st').AsInteger:=(page-1)*count;
   FDQuery1.Open;
 
-  if Request.MethodType = mtPost then
-  begin
-    tid:=FDQuery1.FieldByName('max').AsInteger+1;
-    name:=replaceRawData(Request.ContentFields.Values['name']);
-    raw:=replaceRawData(Request.ContentFields.Values['comment']);
-    code:=replaceRawData(Request.ContentFields.Values['code']);
-
-    FDTransaction1.StartTransaction;
-    try
-      FDCommand1.CommandText.Text :='''
-        INSERT INTO DATATABLE (dbnumber, titlenum, name, dbtitle)
-        VALUES (:db, :tid, :name, :dbtitle)
-        ''';
-      FDCommand1.ParamByName('db').AsInteger:=userid;
-      FDCommand1.ParamByName('tid').AsInteger:=tid;
-      FDCommand1.ParamByName('name').AsString:=name;
-      FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
-      FDCommand1.Execute;
-
-      FDCommand1.CommandText.Text:='''
-        INSERT INTO MAINTABLE (dbnumber, titlenum, comment, datetime, code, dbtitle)
-        VALUES (:db, :tid, :comment, :dt, :code, :dbtitle)
-        ''';
-      FDCommand1.ParamByName('db').AsInteger:=userid;
-      FDCommand1.ParamByName('tid').AsInteger:=tid;
-      FDCommand1.ParamByName('comment').AsString:=raw;
-      FDCommand1.ParamByName('dt').AsDateTime:=Now;
-      FDCommand1.ParamByName('code').AsString:=code;
-      FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
-      FDCommand1.Execute;
-
-      FDTransaction1.Commit;
-    except
-      FDTransaction1.Rollback;
-      raise;
-    end;
-    FDQuery1.Refresh;
-  end;
 
   WebStencilsProcessor1.AddVar('MainItems',FDQuery1,false);
 
@@ -1088,6 +1053,95 @@ begin
   WebStencilsProcessor15.AddVar('Msg',data);
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor15.Content;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  userid, dbtitle, tid, newid: integer;
+  user, title, name, raw, code, ip: string;
+  timenow: TDateTime;
+  params: TArray<string>;
+begin
+  if (Request.UserAgent = '')or(Request.Referer.ToLower.IndexOf('curl') > -1) then
+  begin
+    Response.StatusCode:=403;
+    Exit;
+  end;
+  params:=Request.PathInfo.Split(['/']);
+  try
+    user:=params[2];
+    title:=params[3];
+  except
+    Handled:=false;
+    Exit;
+  end;
+  FDQuery1.SQL.Text:='''
+    select usernum,id,t.ip,time,MAX(titlenum) OVER() as max
+    from titles t
+    INNER JOIN database ds ON t.usernum = ds.dbnumber
+    INNER JOIN datatable dt ON t.usernum = dt.dbnumber
+    where ds.nickname = :user and t.url = :title;
+    ''';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('title').AsString:=title;
+  FDQuery1.Open;
+
+  userid:=FDQuery1.FieldByName('usernum').AsInteger;
+  dbtitle:=FDQuery1.FieldByName('id').AsInteger;
+  tid:=FDQuery1.FieldByName('max').AsInteger+1;
+  name:=replaceRawData(Request.ContentFields.Values['name']);
+  raw:=replaceRawData(Request.ContentFields.Values['comment']);
+  code:=replaceRawData(Request.ContentFields.Values['code']);
+  ip:=Request.RemoteAddr;
+  timenow:=Now-Today;
+  var limit:=SecondsBetween(timenow,FDQuery1.FieldByName('time').AsDateTime);
+  if (ip = FDQuery1.FieldByName('ip').AsString)and(limit < 10) then
+  begin
+    Response.StatusCode:=403;
+    Exit;
+  end;
+  FDQuery1.Close;
+
+  FDTransaction1.StartTransaction;
+  try
+    FDCommand1.CommandText.Text :='''
+      INSERT INTO DATATABLE (dbnumber, titlenum, name, dbtitle, ip)
+      VALUES (:db, :tid, :name, :dbtitle, :ip)
+      ''';
+    FDCommand1.ParamByName('db').AsInteger:=userid;
+    FDCommand1.ParamByName('tid').AsInteger:=tid;
+    FDCommand1.ParamByName('name').AsString:=name;
+    FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
+    FDCommand1.ParamByName('ip').AsString:=ip;
+    FDCommand1.Execute;
+
+    FDCommand1.CommandText.Text:='''
+      INSERT INTO MAINTABLE (dbnumber, titlenum, comment, datetime, code, dbtitle)
+      VALUES (:db, :tid, :comment, :dt, :code, :dbtitle)
+      ''';
+    FDCommand1.ParamByName('db').AsInteger:=userid;
+    FDCommand1.ParamByName('tid').AsInteger:=tid;
+    FDCommand1.ParamByName('comment').AsString:=raw;
+    FDCommand1.ParamByName('dt').AsDateTime:=timenow;
+    FDCommand1.ParamByName('code').AsString:=code;
+    FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
+    FDCommand1.Execute;
+
+    FDCommand1.CommandText.Text:=
+      'UPDATE titles SET ip = :ip, time = :t where usernum = :u and id = :id;';
+    FDCommand1.ParamByName('ip').AsString:=ip;
+    FDCommand1.ParamByName('t').AsTime:=timenow;
+    FDCommand1.ParamByName('u').AsInteger:=userid;
+    FDCommand1.ParamByName('id').AsInteger:=dbtitle;
+    FDCommand1.Execute;
+
+    FDTransaction1.Commit;
+  except
+    FDTransaction1.Rollback;
+    raise;
+  end;
+  Response.SendRedirect(String.Join('/',['/bbs',user,title]));
 end;
 
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;

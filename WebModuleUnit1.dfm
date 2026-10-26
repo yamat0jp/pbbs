@@ -3,9 +3,16 @@ object WebModule1: TWebModule1
   OnDestroy = WebModuleDestroy
   Actions = <
     item
+      MethodType = mtGet
       Name = 'mainItem'
       PathInfo = '/bbs/*'
       OnAction = WebModule1mainItemAction
+    end
+    item
+      MethodType = mtPost
+      Name = 'WebActionItem9'
+      PathInfo = '/bbsregister/*'
+      OnAction = WebModule1WebActionItem9Action
     end
     item
       Name = 'alertItem'
