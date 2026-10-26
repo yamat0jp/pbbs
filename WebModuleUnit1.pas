@@ -686,7 +686,7 @@ begin
   userid:=FDQuery1.FieldByName('usernum').AsInteger;
   titleid:=FDQuery1.FieldByName('id').AsInteger;
   FDQuery1.Close;
-  words:=Request.ContentFields.Values['word1'];
+  words:=Request.ContentFields.Values['word1'].Trim;
   FDQuery1.SQL.Text:='''
     select * from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
@@ -881,7 +881,7 @@ begin
     else
       FDQuery1.SQL.Add('WHERE mt.comment &@~ :search');
     FDQuery1.SQL.Add('ORDER BY mt.datetime DESC;');
-    FDQuery1.ParamByName('search').AsString:=data.name;
+    FDQuery1.ParamByName('search').AsString:=data.name.Trim;
     FDQuery1.Open;
     WebStencilsProcessor4.AddVar('Supers',FDQuery1,false);
   end;
@@ -1063,7 +1063,8 @@ var
   timenow: TDateTime;
   params: TArray<string>;
 begin
-  if (Request.UserAgent = '')or(Request.Referer.ToLower.IndexOf('curl') > -1) then
+  if (Request.UserAgent = '')or(Request.Referer.ToLower.IndexOf('curl') > -1)
+    or(Request.ContentFields.Values['honey_pot'] <> '') then
   begin
     Response.StatusCode:=403;
     Exit;
@@ -1090,7 +1091,7 @@ begin
   userid:=FDQuery1.FieldByName('usernum').AsInteger;
   dbtitle:=FDQuery1.FieldByName('id').AsInteger;
   tid:=FDQuery1.FieldByName('max').AsInteger+1;
-  name:=replaceRawData(Request.ContentFields.Values['name']);
+  name:=replaceRawData(Request.ContentFields.Values['name'].Trim);
   raw:=replaceRawData(Request.ContentFields.Values['comment']);
   code:=replaceRawData(Request.ContentFields.Values['code']);
   ip:=Request.RemoteAddr;
