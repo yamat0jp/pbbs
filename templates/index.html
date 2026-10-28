@@ -16,7 +16,6 @@
     <div class="input-header" style="width:80%;align:center">
     <a name=top></a>
     <form action="/bbsregister/@Page.database/@Page.title" method="post" accept-charset="UTF-8">
-      <p><br></p>
       <div style="display:none;"><input type="TEXT" name="honey_pot" value="">
       </div>
           <label for=text1>本文<span style=color:red>必須</span></label>
@@ -24,11 +23,10 @@
                 required placeholder="コメントなどを入力してください."></textarea>
           <p>コードが書き足せます<p>
           <textarea style="width:60%;overflow-x:scroll;" rows="4" name="code" placeholder="code space"></textarea>
-
-      <p><br></p>
-            お名前
+            <div>お名前
             <input name="name" value="">
             <input class="btn btn-primary ml-3" type="submit" value="送信">
+            </div>
     </form>
     </div>
 

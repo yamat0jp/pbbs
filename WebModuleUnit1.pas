@@ -296,7 +296,7 @@ begin
     Path := '/';
     HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
     Secure := true;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
-    SameSite := 'Lax';
+    SameSite := 'strict';
     Expires:=Now+3;
   end;
 end;
@@ -577,11 +577,9 @@ var
   token, name, title, url: string;
   count, pagecount: integer;
   mainte: Boolean;
-  id, kind, db: integer;
+  id, db: integer;
 begin
   token:=Request.CookieFields.Values['AuthToken'];
-  if Request.QueryFields.Values['auto'] = 'yes' then
-    Request.QueryFields.Delete(Request.QueryFields.IndexOfName('auto'));
   if not VerifyRememberMe(token,name,db) then
   begin
     Response.SendRedirect('/login');
@@ -591,30 +589,18 @@ begin
   begin
     title:=Request.ContentFields.Values['name'];
     url := Request.ContentFields.Values['title'];
-    kind:=Integer(Request.ContentFields.Values['types'] = 'Blog');
     mainte:=false;
-    count:=0;
-    pagecount:=0;
-    case kind of
-      0:
-        begin
-          pagecount:=10;
-          count:=30;
-        end;
-      1:
-        begin
-          pagecount:=20;
-          count:=8;
-        end;
-    end;
+    pagecount:=10;
+    count:=30;
 
     FDQuery1.Open('select MAX(id) as max from titles;');
     id:=FDQuery1.FieldByName('max').AsInteger+1;
     FDQuery1.Close;
 
-    FDQuery1.SQL.Text:='select * from titles where usernum = :id and url = :title;';
+    FDQuery1.SQL.Text:='select id from titles where usernum = :id and (name = :title or url = :url);';
     FDQuery1.ParamByName('id').AsInteger:=db;
     FDQuery1.ParamByName('title').AsString:=title;
+    FDQuery1.ParamByName('url').AsString:=url;
     FDQuery1.Open;
     if (title = '')or(url = '') or not FDQuery1.IsEmpty then
     begin
@@ -625,8 +611,8 @@ begin
     FDQuery1.Close;
 
     FDCommand1.CommandText.Text :='''
-    INSERT INTO titles (usernum, name, pagecount, count, maintenance, pagetype, url, id)
-    VALUES (:db, :title, :pagecount, :count, :mainte, :kind, :url, :id)
+    INSERT INTO titles (usernum, name, pagecount, count, maintenance, url, id)
+    VALUES (:db, :title, :pagecount, :count, :mainte, :url, :id)
     ''';
 
     FDCommand1.ParamByName('db').AsInteger:=db;
@@ -634,7 +620,6 @@ begin
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mainte').AsBoolean:=mainte;
-    FDCommand1.ParamByName('kind').AsInteger:=kind;
     FDCommand1.ParamByName('url').AsString:=url;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
@@ -893,8 +878,25 @@ end;
 
 procedure TWebModule1.WebModule1WebActionItem4Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  name: string;
+  num: integer;
 begin
-  Response.CustomHeaders.Add('Set-Cookie: AuthToken=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; HttpOnly');
+  VerifyRememberMe(Request.CookieFields.Values['AuthToken'],name,num);
+  with Response.Cookies.Add do
+  begin
+    name:='AuthToken';
+    value:='';
+    Expires:=0;
+    Path:='/';
+    HttpOnly:=true;
+    Secure:=true;
+  end;
+  FDCommand1.CommandText.Text:=
+    'DELETE FROM token where username = :un and number = :num;';
+  FDCommand1.ParamByName('num').AsInteger:=num;
+  FDCommand1.ParamByName('un').AsString:=name;
+  FDCommand1.Execute;
   Response.SendRedirect('/login');
 end;
 
@@ -1058,7 +1060,7 @@ end;
 procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  userid, dbtitle, tid, newid: integer;
+  userid, dbtitle, tid: integer;
   user, title, name, raw, code, ip: string;
   timenow: TDateTime;
   params: TArray<string>;
