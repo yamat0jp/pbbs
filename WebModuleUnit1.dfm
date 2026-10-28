@@ -67,7 +67,7 @@ object WebModule1: TWebModule1
     end
     item
       Name = 'WebActionItem4'
-      PathInfo = '/logout'
+      PathInfo = '/logout/*'
       OnAction = WebModule1WebActionItem4Action
     end
     item

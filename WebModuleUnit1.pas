@@ -160,6 +160,7 @@ type
     function GenerateValidator: string;
     function VerifyRememberMe(const CookieValue: string; out username: string;
       out usernumber: integer): Boolean;
+    function IsLogin(const CookieValue, url: string; out usernumber: integer): Boolean;
   public
     { public 宣言 }
     function VerifyLogin(const Username,InputPassword: string): Boolean;
@@ -315,6 +316,29 @@ function TWebModule1.HashValidator(const Validator: string): string;
 begin
   // System.Hash.THashSHA2 を使用
   Result := THashSHA2.GetHashString(Validator, THashSHA2.TSHA2Version.SHA256).ToLower;
+end;
+
+function TWebModule1.IsLogin(const CookieValue, url: string; out usernumber: integer): Boolean;
+var
+  clientselector, clientvalidator, dbvalidator: string;
+  params: TArray<string>;
+begin
+  params := CookieValue.Split(['-']);
+  if Length(params) <> 2 then
+    Exit(false);
+  clientselector:=params[0];
+  clientvalidator:=params[1];
+
+  FDQuery1.SQL.Text:='''
+    select validatorhash,dbnumber,dbname,authtype,auto from token INNRE JOIN database ds
+    ON number = dbnumber where ds.nickname = :u;
+    ''';
+  FDQuery1.ParamByName('u').AsString:=url;
+  FDQuery1.Open;
+  dbvalidator:=FDQuery1.FieldByName('validatorhash').AsString;
+  usernumber:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  FDQuery1.Close;
+  result:=HashValidator(clientvalidator)=dbvalidator;
 end;
 
 procedure TWebModule1.makeFooterNumber(id, max: integer;out link: TObjectList<TData>);
@@ -879,10 +903,12 @@ end;
 procedure TWebModule1.WebModule1WebActionItem4Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  name: string;
   num: integer;
+  params: TArray<string>;
 begin
-  VerifyRememberMe(Request.CookieFields.Values['AuthToken'],name,num);
+  params:=Request.PathInfo.Split(['/']);
+  if not IsLogin(Request.CookieFields.Values['AuthToken'],params[2],num) then
+    Exit;
   with Response.Cookies.Add do
   begin
     name:='AuthToken';
@@ -893,11 +919,10 @@ begin
     Secure:=true;
   end;
   FDCommand1.CommandText.Text:=
-    'DELETE FROM token where username = :un and number = :num;';
+    'DELETE FROM token where number = :num;';
   FDCommand1.ParamByName('num').AsInteger:=num;
-  FDCommand1.ParamByName('un').AsString:=name;
   FDCommand1.Execute;
-  Response.SendRedirect('/login');
+  Response.SendRedirect('/home');
 end;
 
 procedure TWebModule1.WebModule1WebActionItem5Action(Sender: TObject;
