@@ -93,6 +93,8 @@ object WebModule1: TWebModule1
       PathInfo = '/masters'
       OnAction = WebModule1WebActionItem8Action
     end>
+  BeforeDispatch = WebModuleBeforeDispatch
+  AfterDispatch = WebModuleAfterDispatch
   Height = 556
   Width = 779
   object FDConnection1: TFDConnection

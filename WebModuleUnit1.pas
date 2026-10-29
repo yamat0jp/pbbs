@@ -71,6 +71,7 @@ type
     FDatetime: TDatetime;
     FTitlenum: integer;
     FDatabase: string;
+    FCode: string;
   public
     property database: string read FDatabase write FDatabase;
     property titlenum: integer read FTitlenum write FTitlenum;
@@ -78,6 +79,7 @@ type
     property name: string read FName write FName;
     property datetime: TDatetime read FDatetime write FDatetime;
     property comment: string read FComment write FComment;
+    property code: string read FCode write FCode;
   end;
 
   TWebModule1 = class(TWebModule)
@@ -147,20 +149,24 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem9Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModuleBeforeDispatch(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
+    procedure WebModuleAfterDispatch(Sender: TObject; Request: TWebRequest;
+      Response: TWebResponse; var Handled: Boolean);
   private
     { private 宣言 }
     mysearch: TPageSearch;
     bglist, adlist: TStringList;
+    userdata: TData;
     procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
-    procedure AddCookie(const name: string; out nickname: string; auto: Boolean);
+    procedure AddCookie(const name: string; auto: Boolean);
     function HashValidator(const Validator: string): string;
     function GenerateSelector: string;
     function GenerateValidator: string;
-    function VerifyRememberMe(const CookieValue: string; out username: string;
-      out usernumber: integer): Boolean;
-    function IsLogin(const CookieValue, url: string; out usernumber: integer): Boolean;
+    function VerifyRememberMe(const CookieValue: string): Boolean;
+    function IsLogin(const CookieValue, url: string): Boolean;
   public
     { public 宣言 }
     function VerifyLogin(const Username,InputPassword: string): Boolean;
@@ -198,10 +204,13 @@ var
   rehash: Boolean;
 begin
   // 1. データベースから該当ユーザーのハッシュ値を取得
-  FDQuery1.SQL.Text:='SELECT password_hash FROM database WHERE dbname = :U;';
+  FDQuery1.SQL.Text:='SELECT password_hash,dbnumber,nickname FROM database WHERE dbname = :U;';
   FDQuery1.ParamByName('U').AsString:=Username;
   FDQuery1.Open;
   StoredHash:=FDQuery1.FieldByName('password_hash').AsString;
+  userdata.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  userdata.name:=username;
+  userdata.tag:=FDQuery1.FieldByName('nickname').AsString;
   FDQuery1.Close;
 
   if StoredHash = '' then
@@ -220,71 +229,44 @@ begin
   end;
 end;
 
-function TWebModule1.VerifyRememberMe(const CookieValue: string;
-  out username: string; out usernumber: integer): Boolean;
-var
-  params: TArray<string>;
-  clientselector, clientvalidator, dbvalidator, dbauthtype: string;
+function TWebModule1.VerifyRememberMe(const CookieValue: string): Boolean;
 begin
-  params := CookieValue.Split(['-']);
-  if Length(params) <> 2 then
-    Exit(false);
-  clientselector:=params[0];
-  clientvalidator:=params[1];
-
-  params:=Request.PathInfo.Split(['/']);
-  if High(params) < 2 then
-    Exit(false);
-  username:=params[2];
-  FDQuery1.SQL.Text:='''
-    select validatorhash,dbnumber,dbname,authtype,auto from token INNRE JOIN database ds
-    ON number = dbnumber where ds.nickname = :u;
-    ''';
-  FDQuery1.ParamByName('u').AsString:=username;
-  FDQuery1.Open;
-  dbvalidator:=FDQuery1.FieldByName('validatorhash').AsString;
-  usernumber:=FDQuery1.FieldByName('dbnumber').AsInteger;
-  username:=FDQuery1.FieldByName('dbname').AsString;
-  dbauthtype:=FDQuery1.FieldByName('authtype').AsString;
-  if HashValidator(clientvalidator) = dbvalidator then
-    result:= (dbauthtype = 'PASSWORD')or FDQuery1.FieldByName('auto').AsBoolean
+  if IsLogin(CookieValue,userdata.tag) then
+  begin
+    FDQuery1.SQL.Text:='select authtype,auto from token where number = :n;';
+    FDQuery1.ParamByName('n').AsInteger:=userdata.id;
+    FDQuery1.Open;
+    result:= (FDQuery1.FieldByName('authtype').AsString = 'PASSWORD')
+      or FDQuery1.FieldByName('auto').AsBoolean;
+    FDQuery1.Close;
+  end
   else
     result:=false;
-  FDQuery1.Close;
-
   FDCommand1.CommandText.Text:=
     'UPDATE token SET authtype = ''REMEMBER'' where number = :n;';
-  FDCommand1.ParamByName('n').AsInteger:=usernumber;
+  FDCommand1.ParamByName('n').AsInteger:=userdata.id;
   FDCommand1.Execute;
 end;
 
-procedure TWebModule1.AddCookie(const name: string; out nickname: string; auto: Boolean);
+procedure TWebModule1.AddCookie(const name: string; auto: Boolean);
 var
   SessionToken, selector, validator, validatorhash: string;
-  db: integer;
 begin
   selector:=GenerateSelector;
   validator:=GenerateValidator;
   validatorhash:=HashValidator(validator);
-  FDQuery1.SQL.Text:='select dbnumber,nickname from database ds where dbname = :u;';
-  FDQuery1.ParamByName('u').AsString:=name;
-  FDQuery1.Open;
-  db:=FDQuery1.FieldByName('dbnumber').AsInteger;
-  nickname:=FDQuery1.FieldByName('nickname').AsString;
-  FDQuery1.Close;
 
   FDCommand1.CommandText.Text:='''
-    INSERT INTO token (selector,validatorhash,username,ExpiresAt,number,authtype,auto)
-    VALUES (:s,:vh,:u,:exp,:num,:a,:au)
+    INSERT INTO token (selector,validatorhash,expiresAt,number,authtype,auto)
+    VALUES (:s,:vh,:exp,:num,:a,:au)
     ON CONFLICT (number)
-    DO UPDATE SET selector = :s, validatorhash = :vh, username = :u, ExpiresAt = :exp,
+    DO UPDATE SET selector = :s, validatorhash = :vh, ExpiresAt = :exp,
     authtype = :a, auto = :au;
     ''';
   FDCommand1.ParamByName('s').AsString:=selector;
   FDCommand1.ParamByName('vh').AsString:=validatorhash;
-  FDCommand1.ParamByName('u').AsString:=name;
   FDCommand1.ParamByName('exp').AsDate:=Now+3;
-  FDCommand1.ParamByName('num').AsInteger:=db;
+  FDCommand1.ParamByName('num').AsInteger:=userdata.id;
   FDCommand1.ParamByName('a').AsString:='PASSWORD';
   FDCommand1.ParamByName('au').AsBoolean:=auto;
   FDCommand1.Execute;
@@ -318,26 +300,25 @@ begin
   Result := THashSHA2.GetHashString(Validator, THashSHA2.TSHA2Version.SHA256).ToLower;
 end;
 
-function TWebModule1.IsLogin(const CookieValue, url: string; out usernumber: integer): Boolean;
+function TWebModule1.IsLogin(const CookieValue, url: string): Boolean;
 var
   clientselector, clientvalidator, dbvalidator: string;
   params: TArray<string>;
 begin
-  params := CookieValue.Split(['-']);
-  if Length(params) <> 2 then
-    Exit(false);
-  clientselector:=params[0];
-  clientvalidator:=params[1];
-
   FDQuery1.SQL.Text:='''
-    select validatorhash,dbnumber,dbname,authtype,auto from token INNRE JOIN database ds
+    select validatorhash,dbnumber,dbname from token INNRE JOIN database ds
     ON number = dbnumber where ds.nickname = :u;
     ''';
   FDQuery1.ParamByName('u').AsString:=url;
   FDQuery1.Open;
   dbvalidator:=FDQuery1.FieldByName('validatorhash').AsString;
-  usernumber:=FDQuery1.FieldByName('dbnumber').AsInteger;
   FDQuery1.Close;
+
+  params := CookieValue.Split(['-']);
+  if Length(params) <> 2 then
+    Exit(false);
+  clientselector:=params[0];
+  clientvalidator:=params[1];
   result:=HashValidator(clientvalidator)=dbvalidator;
 end;
 
@@ -537,7 +518,7 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:=
-    'select COUNT(titlenum) cnt from datatable where dbnumber = :userid and dbtitle = :dbtitle;';
+    'select COUNT(titlenum) as cnt from datatable where dbnumber = :userid and dbtitle = :dbtitle;';
   FDQuery1.ParamByName('userid').AsInteger:=userid;
   FDQuery1.ParamByName('dbtitle').AsInteger:=dbtitle;
   FDQuery1.Open;
@@ -598,17 +579,11 @@ end;
 procedure TWebModule1.WebModule1membersAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  token, name, title, url: string;
+  title, url: string;
   count, pagecount: integer;
   mainte: Boolean;
-  id, db: integer;
+  id: integer;
 begin
-  token:=Request.CookieFields.Values['AuthToken'];
-  if not VerifyRememberMe(token,name,db) then
-  begin
-    Response.SendRedirect('/login');
-    Exit;
-  end;
   if Request.MethodType = mtPost then
   begin
     title:=Request.ContentFields.Values['name'];
@@ -622,7 +597,7 @@ begin
     FDQuery1.Close;
 
     FDQuery1.SQL.Text:='select id from titles where usernum = :id and (name = :title or url = :url);';
-    FDQuery1.ParamByName('id').AsInteger:=db;
+    FDQuery1.ParamByName('id').AsInteger:=userdata.id;
     FDQuery1.ParamByName('title').AsString:=title;
     FDQuery1.ParamByName('url').AsString:=url;
     FDQuery1.Open;
@@ -639,12 +614,12 @@ begin
     VALUES (:db, :title, :pagecount, :count, :mainte, :url, :id)
     ''';
 
-    FDCommand1.ParamByName('db').AsInteger:=db;
+    FDCommand1.ParamByName('db').AsInteger:=userdata.id;
     FDCommand1.ParamByName('title').AsString:=title;
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mainte').AsBoolean:=mainte;
-    FDCommand1.ParamByName('url').AsString:=url;
+    FDCommand1.ParamByName('url').AsString:=userdata.tag;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
   end
@@ -656,14 +631,14 @@ begin
     FDCommand1.Execute;
   end;
   FDQuery1.SQL.Text:='select * from titles where usernum = :num ORDER BY id;';
-  FDQuery1.ParamByName('num').AsInteger:=db;
+  FDQuery1.ParamByName('num').AsInteger:=userdata.id;
   FDQuery1.Open;
   FDQuery2.SQL.Text:='select * from weblog where dbid = :id ORDER BY id asc;';
-  FDQuery2.ParamByName('id').AsInteger:=db;
+  FDQuery2.ParamByName('id').AsInteger:=userdata.id;
   FDQuery2.Open;
 
   var data:=TData.Create;
-  data.name:=name;
+  data.name:=userdata.name;
 
   WebStencilsProcessor9.AddVar('Titles',FDQuery1,false);
   WebStencilsProcessor9.AddVar('Logs',FDQuery2,false);
@@ -697,7 +672,7 @@ begin
   FDQuery1.Close;
   words:=Request.ContentFields.Values['word1'].Trim;
   FDQuery1.SQL.Text:='''
-    select * from datatable dt
+    select dbname,dt.titlenum,name,datetime,comment,code from datatable dt
     INNER JOIN database ON dt.dbnumber = database.dbnumber
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
     and dt.titlenum = mt.titlenum and dt.dbtitle = mt.dbtitle
@@ -736,6 +711,7 @@ begin
         main.database:=FDQuery1.FieldByName('dbname').AsString;
         main.titlenum:=FDQuery1.FieldByName('titlenum').AsInteger;
         main.comment:=s;
+        main.code:=FDQuery1.FieldByName('code').AsString;
         main.name:=FDQuery1.FieldByName('name').AsString;
         main.datetime:=FDQuery1.FieldByName('datetime').AsDateTime;
         ls.Add(main);
@@ -763,13 +739,12 @@ var
   slide: TSlide;
   USERName: TData;
   token, user: string;
-  num: integer;
 begin
   token:=Request.CookieFields.Values['AuthToken'];
-  if VerifyRememberMe(token,user,num) then
+  if VerifyRememberMe(token) then
   begin
-    FDQuery1.SQL.Text:='select super_master from token where username = :u;';
-    FDQuery1.ParamByName('u').AsString:=user;
+    FDQuery1.SQL.Text:='select super_master from token where number = :n;';
+    FDQuery1.ParamByName('n').AsInteger:=userdata.id;
     FDQuery1.Open;
     if FDQUery1.FieldByName('super_master').AsBoolean = false then
     begin
@@ -903,11 +878,10 @@ end;
 procedure TWebModule1.WebModule1WebActionItem4Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  num: integer;
   params: TArray<string>;
 begin
   params:=Request.PathInfo.Split(['/']);
-  if not IsLogin(Request.CookieFields.Values['AuthToken'],params[2],num) then
+  if not IsLogin(Request.CookieFields.Values['AuthToken'],params[2]) then
     Exit;
   with Response.Cookies.Add do
   begin
@@ -920,7 +894,7 @@ begin
   end;
   FDCommand1.CommandText.Text:=
     'DELETE FROM token where number = :num;';
-  FDCommand1.ParamByName('num').AsInteger:=num;
+  FDCommand1.ParamByName('num').AsInteger:=userdata.id;
   FDCommand1.Execute;
   Response.SendRedirect('/home');
 end;
@@ -973,7 +947,7 @@ begin
     FDCommand1.ParamByName('E').AsString:=email;
     FDCommand1.Execute;
     var s: string;
-    AddCookie(username,s,true);
+    AddCookie(username,true);
     Response.SendRedirect('/members/'+nickname);
   end
   else
@@ -997,12 +971,11 @@ end;
 procedure TWebModule1.WebModule1WebActionItem7Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  token, username: string;
-  number: integer;
+  token: string;
 begin
   var data:=TData.Create;
   token:=Request.CookieFields.Values['AuthToken'];
-  if not VerifyRememberMe(token,username,number) then
+  if not VerifyRememberMe(token) then
   begin
     Response.SendRedirect('/login');
     Exit;
@@ -1014,32 +987,32 @@ begin
       Response.SendRedirect('/exit');
       Exit;
     end;
-    if VerifyLogin(username,Request.ContentFields.Values['password']) then
+    if VerifyLogin(userdata.name,Request.ContentFields.Values['password']) then
     begin
       FDTransaction1.StartTransaction;
       try
         FDCommand1.CommandText.Text:='DELETE FROM database where dbnumber = :n;';
-        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.ParamByName('n').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:='DELETE FROM token where number = :n;';
-        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.ParamByName('n').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:='DELETE FROM datatable where dbnumber = :n;';
-        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.ParamByName('n').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:='DELETE FROM maintable where dbnumber = :n;';
-        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.ParamByName('n').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:='DELETE FROM titles where usernum = :n;';
-        FDCommand1.ParamByName('n').AsInteger:=number;
+        FDCommand1.ParamByName('n').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDCommand1.CommandText.Text:='DELETE FROM weblog where dbid = :d;';
-        FDCommand1.ParamByName('d').AsInteger:=number;
+        FDCommand1.ParamByName('d').AsInteger:=userdata.id;
         FDCommand1.Execute;
 
         FDTransaction1.Commit;
@@ -1052,7 +1025,7 @@ begin
   end
   else
     data.bool:=true;
-  data.name:=username;
+  data.name:=userdata.name;
   WebStencilsProcessor14.AddVar('Data',data);
   Response.ContentType:='text/html;charset=utf8';
   Response.Content:=WebStencilsProcessor14.Content;
@@ -1061,7 +1034,7 @@ end;
 procedure TWebModule1.WebModule1WebActionItem8Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  inputname, inputpass, nickname: string;
+  inputname, inputpass: string;
 begin
   var data:=TData.Create;
   data.name:='';
@@ -1071,8 +1044,8 @@ begin
     inputpass:=Request.ContentFields.Values['password'];
     if VerifyLogin(inputname,inputpass) then
     begin
-      AddCookie(inputname,nickname,Request.ContentFields.Values['auto']='yes');
-      Response.SendRedirect('/top/'+nickname);
+      AddCookie(inputname,Request.ContentFields.Values['auto']='yes');
+      Response.SendRedirect('/top/'+userdata.tag);
       Exit;
     end;
     data.name:='ユーザー名またはパスワードがまちがっています。';
@@ -1170,6 +1143,47 @@ begin
     raise;
   end;
   Response.SendRedirect(String.Join('/',['/bbs',user,title]));
+end;
+
+procedure TWebModule1.WebModuleAfterDispatch(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  userdata.Free;
+end;
+
+procedure TWebModule1.WebModuleBeforeDispatch(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  params: TArray<string>;
+begin
+  userdata:=TData.Create;
+  if Request.MethodType <> mtGet then
+    Exit;
+  for var data in ['/members','/admin','/params','/exit'] do
+    if Request.PathInfo.StartsWith(data,true) then
+    begin
+      params:=Request.PathInfo.Split(['/']);
+      if High(params) >= 2 then
+      begin
+        userdata.tag:=params[2];
+        FDQuery1.SQL.Text:='''
+          select dbnumber,dbname from database
+          INNER JOIN token ON dbnumber = number
+          where nickname = :n;
+          ''';
+        FDQuery1.ParamByName('n').AsString:=userdata.tag;
+        FDQuery1.Open;
+        userdata.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
+        userdata.name:=FDQuery1.FieldByName('dbname').AsString;
+      end;
+      if not VerifyRememberMe(Request.CookieFields.Values['AuthToken']) then
+      begin
+        Response.SendRedirect('/login');
+        Handled:=true;
+        Exit;
+      end;
+      break;
+    end;
 end;
 
 procedure TWebModule1.WebModule1alertAction(Sender: TObject;
@@ -1296,7 +1310,7 @@ end;
 procedure TWebModule1.WebModule1loginAction(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
-  inputpass, inputname, nickname: string;
+  inputpass, inputname: string;
 begin
   var data:=TData.Create;
   data.name:='';
@@ -1306,8 +1320,8 @@ begin
     inputpass:=Request.ContentFields.Values['password'];
     if VerifyLogin(inputname,inputpass) then
     begin
-      AddCookie(inputname,nickname,Request.ContentFields.Values['auto']='yes');
-      Response.SendRedirect('/members/'+nickname);
+      AddCookie(inputname,Request.ContentFields.Values['auto']='yes');
+      Response.SendRedirect('/members/'+userdata.tag);
       Exit;
     end;
     data.name:='ユーザー名またはパスワードがまちがっています。';
@@ -1424,7 +1438,7 @@ begin
   wrd:=FList[ln].Substring(id+index,word.Length);
   t:=#1+wrd+#2+FList[ln].Substring(id+index+word.Length);
   FList[ln]:=FList[ln].Remove(id+index)+t;
-  result:=id+index+4+word.Length;
+  result:=id+index+word.Length+2;
 end;
 
 function TPageSearch.processShort(var id, ln: integer; const word: string): Boolean;
