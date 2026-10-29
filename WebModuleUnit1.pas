@@ -306,7 +306,7 @@ var
   params: TArray<string>;
 begin
   FDQuery1.SQL.Text:='''
-    select validatorhash,dbnumber,dbname from token INNRE JOIN database ds
+    select validatorhash from token INNRE JOIN database ds
     ON number = dbnumber where ds.nickname = :u;
     ''';
   FDQuery1.ParamByName('u').AsString:=url;
@@ -738,7 +738,7 @@ const
 var
   slide: TSlide;
   USERName: TData;
-  token, user: string;
+  token: string;
 begin
   token:=Request.CookieFields.Values['AuthToken'];
   if VerifyRememberMe(token) then
@@ -749,7 +749,7 @@ begin
     if FDQUery1.FieldByName('super_master').AsBoolean = false then
     begin
       FDQuery1.Close;
-      Response.SendRedirect('/masters'+user);
+      Response.SendRedirect('/masters/'+userdata.tag);
       Exit;
     end;
   end
@@ -853,7 +853,7 @@ begin
       ''';
     FDCommand1.Execute;}
     FDQuery1.SQL.Text:='''
-      SELECT dt.titlenum, mt.comment, mt.datetime, dt.name, ds.dbname
+      SELECT dt.titlenum, mt.comment, mt.code, mt.datetime, dt.name, ds.dbname
       FROM datatable dt
       INNER JOIN database ds
       ON dt.dbnumber = ds.dbnumber
@@ -1155,11 +1155,12 @@ procedure TWebModule1.WebModuleBeforeDispatch(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   params: TArray<string>;
+  cookie: string;
 begin
   userdata:=TData.Create;
   if Request.MethodType <> mtGet then
     Exit;
-  for var data in ['/members','/admin','/params','/exit'] do
+  for var data in ['/members','/admin','/params','/exit','/top'] do
     if Request.PathInfo.StartsWith(data,true) then
     begin
       params:=Request.PathInfo.Split(['/']);
@@ -1176,9 +1177,13 @@ begin
         userdata.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
         userdata.name:=FDQuery1.FieldByName('dbname').AsString;
       end;
-      if not VerifyRememberMe(Request.CookieFields.Values['AuthToken']) then
+      cookie:=Request.CookieFields.Values['AuthToken'];
+      if not IsLogin(cookie,userdata.tag) and not VerifyRememberMe(cookie) then
       begin
-        Response.SendRedirect('/login');
+        if data = '/top' then
+          Response.SendRedirect('/masters')
+        else
+          Response.SendRedirect('/login');
         Handled:=true;
         Exit;
       end;
