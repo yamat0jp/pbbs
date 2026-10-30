@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2026/10/11 16:17:05.000.887,=E:\fuke\GitHub\2023\My BBS\rebbs\新規1.html</Transaction>
+    <Transaction>2026/10/11 16:17:20.000.954,E:\fuke\GitHub\2023\My BBS\rebbs\新規1.html=E:\fuke\GitHub\2023\My BBS\rebbs\templates\params.html</Transaction>
+    <Transaction>2026/10/11 19:25:59.000.452,E:\fuke\GitHub\2023\My BBS\rebbs\templates\maintenance.html=E:\fuke\GitHub\2023\My BBS\rebbs\templates\mentenance.html</Transaction>
+    <Transaction>2026/10/17 10:43:31.000.255,E:\fuke\GitHub\2023\My BBS\rebbs\templates\link.html=</Transaction>
+    <Transaction>2026/10/17 10:43:36.000.343,E:\fuke\GitHub\2023\My BBS\rebbs\templates\master.html=</Transaction>
+    <Transaction>2026/10/17 10:44:05.000.972,E:\fuke\GitHub\2023\My BBS\rebbs\templates\tables.html=</Transaction>
+    <Transaction>2026/10/17 10:44:33.000.823,E:\fuke\GitHub\2023\My BBS\rebbs\templates\header.html=</Transaction>
+    <Transaction>2026/10/17 15:46:45.000.670,=E:\fuke\GitHub\2023\My BBS\rebbs\templates\super_search.html</Transaction>
+    <Transaction>2026/10/20 19:18:26.000.153,=E:\fuke\GitHub\2023\My BBS\rebbs\Bcrypt.pas</Transaction>
+    <Transaction>2026/10/21 18:16:19.000.119,=E:\fuke\GitHub\2023\My BBS\rebbs\templates\homepage.html</Transaction>
+    <Transaction>2026/10/24 09:26:21.000.280,=E:\fuke\GitHub\2023\My BBS\rebbs\Untitled1.htm</Transaction>
+    <Transaction>2026/10/24 09:26:49.000.045,E:\fuke\GitHub\2023\My BBS\rebbs\templates\exit.htm=E:\fuke\GitHub\2023\My BBS\rebbs\Untitled1.htm</Transaction>
+    <Transaction>2026/10/24 15:06:10.000.569,=E:\fuke\GitHub\2023\My BBS\rebbs\templates\masters.html</Transaction>
+    <Transaction>2026/10/30 17:51:55.898,E:\fuke\GitHub\2023\My BBS\rebbs\templates\masters.html=</Transaction>
+    <Transaction>2026/10/30 17:52:04.346,E:\fuke\GitHub\2023\My BBS\rebbs\templates\top.html=</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="css"/>
+    <File Path="css\main.css"/>
+    <File Path="css\tablet.css"/>
+    <File Path="img"/>
+    <File Path="img\BBS_bn.jpg"/>
+    <File Path="img\favicon64.ico"/>
+    <File Path="img\slide1.jpg"/>
+    <File Path="img\slide10.jpg"/>
+    <File Path="img\slide11.jpg"/>
+    <File Path="img\slide12.jpg"/>
+    <File Path="img\slide2.jpg"/>
+    <File Path="img\slide3.jpg"/>
+    <File Path="img\slide4.jpg"/>
+    <File Path="img\slide5.jpg"/>
+    <File Path="img\slide6.jpg"/>
+    <File Path="img\slide7.jpg"/>
+    <File Path="img\slide8.jpg"/>
+    <File Path="img\slide9.jpg"/>
+    <File Path="img\sprites.png"/>
+    <File Path="js"/>
+    <File Path="js\main.js"/>
+    <File Path="js\sub.js"/>
+    <File Path="js\top.js"/>
+    <File Path="templates"/>
+    <File Path="templates\admin.html"/>
+    <File Path="templates\alert.html"/>
+    <File Path="templates\footer.html"/>
+    <File Path="templates\help.html"/>
+    <File Path="templates\index.html"/>
+    <File Path="templates\login.html"/>
+    <File Path="templates\main.html"/>
+    <File Path="templates\maintenance.html"/>
+    <File Path="templates\members.html"/>
+    <File Path="templates\params.html"/>
+    <File Path="templates\search.html"/>
+    <File Path="templates\super_search.html"/>
+    <File Path="templates\homepage.html"/>
+    <File Path="templates\exit.html"/>
+    <File Path="FormUnit1.pas"/>
+    <File Path="FormUnit1.dfm"/>
+    <File Path="WebModuleUnit1.pas"/>
+    <File Path="WebModuleUnit1.dfm"/>
+    <File Path="Bcrypt.pas"/>
+  </ProjectSortOrder>
+</BorlandProject>

@@ -88,7 +88,6 @@ type
     FDQuery1: TFDQuery;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     WebStencilsProcessor1: TWebStencilsProcessor;
-    WebStencilsProcessor2: TWebStencilsProcessor;
     WebStencilsProcessor3: TWebStencilsProcessor;
     WebStencilsProcessor4: TWebStencilsProcessor;
     WebStencilsProcessor5: TWebStencilsProcessor;
@@ -106,7 +105,6 @@ type
     WebStencilsProcessor12: TWebStencilsProcessor;
     WebStencilsProcessor13: TWebStencilsProcessor;
     WebStencilsProcessor14: TWebStencilsProcessor;
-    WebStencilsProcessor15: TWebStencilsProcessor;
     procedure WebModuleCreate(Sender: TObject);
     procedure WebModule1alertAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -118,8 +116,6 @@ type
     procedure WebModule1mainItemAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1adminPageAction(Sender: TObject; Request: TWebRequest;
-      Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1showTopAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1membersAction(Sender: TObject; Request: TWebRequest;
       Response: TWebResponse; var Handled: Boolean);
@@ -144,8 +140,6 @@ type
     procedure WebModule1WebActionItem5Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem7Action(Sender: TObject;
-      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-    procedure WebModule1WebActionItem8Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem9Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
@@ -731,69 +725,6 @@ begin
   FDQuery1.Close;
 end;
 
-procedure TWebModule1.WebModule1showTopAction(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-const
-  cnt = 7;
-var
-  slide: TSlide;
-  USERName: TData;
-  token: string;
-begin
-  token:=Request.CookieFields.Values['AuthToken'];
-  if VerifyRememberMe(token) then
-  begin
-    FDQuery1.SQL.Text:='select super_master from token where number = :n;';
-    FDQuery1.ParamByName('n').AsInteger:=userdata.id;
-    FDQuery1.Open;
-    if FDQUery1.FieldByName('super_master').AsBoolean = false then
-    begin
-      FDQuery1.Close;
-      Response.SendRedirect('/masters/'+userdata.tag);
-      Exit;
-    end;
-  end
-  else
-  begin
-    FDQuery1.Close;
-    REsponse.SendRedirect('/masters');
-    Exit;
-  end;
-  FDQuery1.Close;
-
-  FDQuery1.Open('select * from database;');
-  var ls:=TObjectList<TSlide>.Create;
-  for var i := 0 to FDQuery1.RecordCount div cnt do
-  begin
-    slide:=TSlide.Create;
-    ls.Add(slide);
-    slide.index:=i;
-    slide.imgname:=String.Format('/img/slide%d.jpg',[i+1]);
-    slide.activeClass:=if i = 0 then 'active' else '';
-    for var j := 1 to cnt do
-    begin
-      USERName:=TData.Create;
-      if not FDQuery1.Eof then
-      begin
-        USERName.id:=FDQuery1.FieldByName('dbnumber').AsInteger;
-        USERName.name:=FDQuery1.FieldByName('dbname').AsString;
-        USERName.tag:=FDQuery1.FieldByName('nickname').AsString;
-        FDQuery1.Next;
-      end
-      else
-      begin
-        USERName.id:=0;
-        USERName.name:='未加入';
-      end;
-      slide.Items.Add(USERName);
-    end;
-  end;
-  WebStencilsProcessor2.AddVar('Slides',ls);
-  Response.ContentType := 'text/html;charset=utf8';
-  Response.Content := WebStencilsProcessor2.Content;
-  FDQuery1.Close;
-end;
-
 procedure TWebModule1.WebModule1WebActionItem1Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -1031,30 +962,6 @@ begin
   Response.Content:=WebStencilsProcessor14.Content;
 end;
 
-procedure TWebModule1.WebModule1WebActionItem8Action(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  inputname, inputpass: string;
-begin
-  var data:=TData.Create;
-  data.name:='';
-  if Request.MethodType = mtPost then
-  begin
-    inputname:=Request.ContentFields.Values['username'];
-    inputpass:=Request.ContentFields.Values['password'];
-    if VerifyLogin(inputname,inputpass) then
-    begin
-      AddCookie(inputname,Request.ContentFields.Values['auto']='yes');
-      Response.SendRedirect('/top/'+userdata.tag);
-      Exit;
-    end;
-    data.name:='ユーザー名またはパスワードがまちがっています。';
-  end;
-  WebStencilsProcessor15.AddVar('Msg',data);
-  Response.ContentType:='text/html;charset=utf8';
-  Response.Content:=WebStencilsProcessor15.Content;
-end;
-
 procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
@@ -1160,7 +1067,7 @@ begin
   userdata:=TData.Create;
   if Request.MethodType <> mtGet then
     Exit;
-  for var data in ['/members','/admin','/params','/exit','/top'] do
+  for var data in ['/members','/admin','/params','/exit'] do
     if Request.PathInfo.StartsWith(data,true) then
     begin
       params:=Request.PathInfo.Split(['/']);

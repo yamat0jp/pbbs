@@ -20,12 +20,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1alertAction
     end
     item
-      MethodType = mtGet
-      Name = 'showTop'
-      PathInfo = '/top/*'
-      OnAction = WebModule1showTopAction
-    end
-    item
       Name = 'adminPage'
       PathInfo = '/admin/*'
       OnAction = WebModule1adminPageAction
@@ -87,11 +81,6 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem7'
       PathInfo = '/exit/*'
       OnAction = WebModule1WebActionItem7Action
-    end
-    item
-      Name = 'WebActionItem8'
-      PathInfo = '/masters'
-      OnAction = WebModule1WebActionItem8Action
     end>
   BeforeDispatch = WebModuleBeforeDispatch
   AfterDispatch = WebModuleAfterDispatch
@@ -172,12 +161,6 @@ object WebModule1: TWebModule1
     Left = 416
     Top = 24
   end
-  object WebStencilsProcessor2: TWebStencilsProcessor
-    Engine = WebStencilsEngine1
-    InputFileName = '.\templates\top.html'
-    Left = 416
-    Top = 88
-  end
   object WebStencilsProcessor3: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = '.\templates\admin.html'
@@ -185,21 +168,21 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     OnValue = WebStencilsProcessor3Value
     Left = 416
-    Top = 152
+    Top = 88
   end
   object WebStencilsProcessor4: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = './templates/super_search.html'
     DataVarDuplicates = ddReplace
     Left = 416
-    Top = 216
+    Top = 152
   end
   object WebStencilsProcessor5: TWebStencilsProcessor
     Engine = WebStencilsEngine1
     InputFileName = './templates/help.html'
     OnValue = WebStencilsProcessor5Value
     Left = 416
-    Top = 280
+    Top = 216
   end
   object WebStencilsEngine1: TWebStencilsEngine
     PathTemplates = <>
@@ -218,7 +201,7 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     OnValue = WebStencilsProcessor6Value
     Left = 416
-    Top = 344
+    Top = 280
   end
   object WebStencilsProcessor7: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -226,7 +209,7 @@ object WebModule1: TWebModule1
     PathTemplate = '/help/{user}/{title}'
     DataVarDuplicates = ddReplace
     Left = 416
-    Top = 408
+    Top = 344
   end
   object WebStencilsProcessor8: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -234,7 +217,7 @@ object WebModule1: TWebModule1
     PathTemplate = '/alert/{user}/{title}/{id}'
     DataVarDuplicates = ddReplace
     Left = 416
-    Top = 472
+    Top = 408
   end
   object FDCommand1: TFDCommand
     Connection = FDConnection1
@@ -295,12 +278,5 @@ object WebModule1: TWebModule1
     DataVarDuplicates = ddReplace
     Left = 576
     Top = 432
-  end
-  object WebStencilsProcessor15: TWebStencilsProcessor
-    Engine = WebStencilsEngine1
-    InputFileName = '.\templates\masters.html'
-    DataVarDuplicates = ddReplace
-    Left = 576
-    Top = 496
   end
 end

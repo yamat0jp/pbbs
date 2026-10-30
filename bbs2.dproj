@@ -205,7 +205,6 @@
         <None Include="templates\members.html"/>
         <None Include="templates\maintenance.html"/>
         <None Include="templates\search.html"/>
-        <None Include="templates\top.html"/>
         <None Include="css\main.css"/>
         <None Include="css\tablet.css"/>
         <None Include="templates\footer.html"/>
@@ -214,7 +213,6 @@
         <None Include="templates\super_search.html"/>
         <None Include="templates\homepage.html"/>
         <None Include="templates\exit.html"/>
-        <None Include="templates\masters.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -639,12 +637,6 @@
                 </DeployFile>
                 <DeployFile LocalName="templates\master.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\master.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\masters.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="templates\members.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\members.html" Configuration="Debug" Class="ProjectFile">
@@ -679,12 +671,6 @@
                 <DeployFile LocalName="templates\tables.htm" Configuration="Release" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.htm" Configuration="Debug" Class="ProjectFile"/>
                 <DeployFile LocalName="templates\top.htm" Configuration="Release" Class="ProjectFile"/>
-                <DeployFile LocalName="templates\top.html" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
