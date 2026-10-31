@@ -719,7 +719,7 @@ begin
     end;
     WebStencilsProcessor6.AddVar('Datas',ls);
   end
-  else
+  else if not words.IsEmpty then
     WebStencilsProcessor6.AddVar('Datas',FDQuery1,false);
   WebStencilsProcessor6.AddVar('Bool',data);
   Response.ContentType := 'text/html;charset=utf8';
@@ -773,7 +773,7 @@ begin
   var data:=TData.Create;
   data.name:=Request.ContentFields.Values['word1'];
   filter:=Request.ContentFields.Values['filter'];
-  if Request.MethodType = mtPost then
+  if (Request.MethodType = mtPost)and((filter <> 'name')or not data.name.IsEmpty) then
   begin
     {FDCommand1.CommandText.Text:='''
         -- PGroonga エクステンションの有効化
