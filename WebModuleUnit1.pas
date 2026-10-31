@@ -1131,7 +1131,7 @@ begin
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select datetime,dt.name,comment,dt.dbnumber from datatable dt
+    select dt.titlenum,datetime,t.name,comment,code,dt.dbnumber from datatable dt
     INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber and dt.titlenum = mt.titlenum
     INNER JOIN database ds ON dt.dbnumber = ds.dbnumber
     INNER JOIN titles t ON dt.dbtitle = t.id
@@ -1157,12 +1157,12 @@ begin
 
       (*ユーザー様から報告がありました*)
       TODAY is %s
-      <a href="/bbs/%s/%s?recno=%d">[%s - %d]</a>
+      <a href="/bbs/%s/%s?recno=%d#%d">[%s - %d]</a>
       %s
 
       %s
       </pre>
-      ''',[DateToStr(Now),username,dbtitle,tn,dbtitle,tn,text,msg]);
+      ''',[DateToStr(Now),username,dbtitle,tn,tn,name,tn,text,msg]);
     did:=FDQuery1.FieldByName('dbnumber').AsInteger;
 
     FDQuery1.Open('select max(id) as maxid from weblog;');
