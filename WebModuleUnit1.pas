@@ -616,6 +616,8 @@ begin
     FDCommand1.ParamByName('url').AsString:=userdata.tag;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
+    Response.SendRedirect(Request.PathInfo);
+    Exit;
   end
   else if Request.QueryFields.Count > 0 then
   begin
@@ -966,7 +968,7 @@ procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   userid, dbtitle, tid: integer;
-  user, title, name, raw, code, ip: string;
+  username, title, name, raw, code, ip: string;
   timenow: TDateTime;
   params: TArray<string>;
 begin
@@ -978,26 +980,42 @@ begin
   end;
   params:=Request.PathInfo.Split(['/']);
   try
-    user:=params[2];
+    username:=params[2];
     title:=params[3];
   except
     Handled:=false;
     Exit;
   end;
   FDQuery1.SQL.Text:='''
-    select usernum,id,t.ip,time,MAX(titlenum) OVER() as max
-    from titles t
-    INNER JOIN database ds ON t.usernum = ds.dbnumber
-    INNER JOIN datatable dt ON t.usernum = dt.dbnumber
-    where ds.nickname = :user and t.url = :title;
+    select usernum,id from titles
+    INNER JOIN database ON dbnumber = usernum
+    where nickname = :name and url = :title;
     ''';
-  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.ParamByName('name').AsString:=username;
   FDQuery1.ParamByName('title').AsString:=title;
   FDQuery1.Open;
-
   userid:=FDQuery1.FieldByName('usernum').AsInteger;
   dbtitle:=FDQuery1.FieldByName('id').AsInteger;
+  FDQuery1.Close;
+
+  FDQuery1.SQL.Text:=
+    'select MAX(titlenum) FILTER (where dbnumber = :u and dbtitle = :t) as max from datatable;';
+  FDQuery1.ParamByName('u').AsInteger:=userid;
+  FDQuery1.ParamByName('t').AsInteger:=dbtitle;
+  FDQuery1.Open;
   tid:=FDQuery1.FieldByName('max').AsInteger+1;
+  FDQuery1.Close;
+
+  FDQuery1.SQL.Text:='''
+    select t.ip,time from titles t
+    INNER JOIN database ds ON t.usernum = ds.dbnumber
+    INNER JOIN datatable dt ON t.usernum = dt.dbnumber
+    where usernum = :num and id = :id;
+    ''';
+  FDQuery1.ParamByName('num').AsInteger:=userid;
+  FDQuery1.ParamByName('id').AsInteger:=dbtitle;
+  FDQuery1.Open;
+
   name:=replaceRawData(Request.ContentFields.Values['name'].Trim);
   raw:=replaceRawData(Request.ContentFields.Values['comment']);
   code:=replaceRawData(Request.ContentFields.Values['code']);
@@ -1049,7 +1067,7 @@ begin
     FDTransaction1.Rollback;
     raise;
   end;
-  Response.SendRedirect(String.Join('/',['/bbs',user,title]));
+  Response.SendRedirect(String.Join('/',['/bbs',username,title]));
 end;
 
 procedure TWebModule1.WebModuleAfterDispatch(Sender: TObject;
@@ -1065,8 +1083,6 @@ var
   cookie: string;
 begin
   userdata:=TData.Create;
-  if Request.MethodType <> mtGet then
-    Exit;
   for var data in ['/members','/admin','/params','/exit'] do
     if Request.PathInfo.StartsWith(data,true) then
     begin
@@ -1087,10 +1103,7 @@ begin
       cookie:=Request.CookieFields.Values['AuthToken'];
       if not IsLogin(cookie,userdata.tag) and not VerifyRememberMe(cookie) then
       begin
-        if data = '/top' then
-          Response.SendRedirect('/masters')
-        else
-          Response.SendRedirect('/login');
+        Response.SendRedirect('/login');
         Handled:=true;
         Exit;
       end;
