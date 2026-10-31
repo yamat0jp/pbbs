@@ -76,6 +76,13 @@ type
     FDTable3: TFDTable;
     BindSourceDB5: TBindSourceDB;
     LinkControlToField5: TLinkControlToField;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
   private
     { Private êÈåæ }

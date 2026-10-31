@@ -1,6 +1,8 @@
 object Form1: TForm1
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'DBTool'
   ClientHeight = 609
   ClientWidth = 873
@@ -12,26 +14,77 @@ object Form1: TForm1
   Font.Style = []
   TextHeight = 15
   object Label1: TLabel
-    Left = 624
-    Top = 80
+    Left = 632
+    Top = 56
     Width = 56
     Height = 15
     Caption = #12480#12452#12472#12455#12473#12488
   end
+  object Label2: TLabel
+    Left = 480
+    Top = 56
+    Width = 39
+    Height = 15
+    Caption = 'IP Addr'
+  end
+  object Label3: TLabel
+    Left = 328
+    Top = 56
+    Width = 39
+    Height = 15
+    Caption = #25237#31295#32773
+  end
+  object Label4: TLabel
+    Left = 288
+    Top = 131
+    Width = 26
+    Height = 15
+    Caption = #26412#25991
+  end
+  object Label5: TLabel
+    Left = 288
+    Top = 235
+    Width = 28
+    Height = 15
+    Caption = 'Code'
+  end
+  object Label6: TLabel
+    Left = 144
+    Top = 59
+    Width = 39
+    Height = 15
+    Caption = #31649#29702#20154
+  end
+  object Label7: TLabel
+    Left = 144
+    Top = 235
+    Width = 46
+    Height = 15
+    Caption = 'BBS'#21517#31216
+  end
+  object Label8: TLabel
+    Left = 256
+    Top = 395
+    Width = 26
+    Height = 15
+    Caption = #33510#24773
+  end
   object Memo1: TMemo
-    Left = 352
+    Left = 328
     Top = 128
-    Width = 185
+    Width = 265
     Height = 89
     ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 0
   end
   object Memo2: TMemo
-    Left = 352
+    Left = 328
     Top = 232
-    Width = 185
+    Width = 265
     Height = 89
     ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 1
   end
   object DBNavigator1: TDBNavigator
@@ -44,15 +97,15 @@ object Form1: TForm1
     TabOrder = 2
   end
   object ListBox1: TListBox
-    Left = 624
-    Top = 112
+    Left = 632
+    Top = 88
     Width = 177
-    Height = 209
+    Height = 393
     ItemHeight = 15
     TabOrder = 3
   end
   object ListBox2: TListBox
-    Left = 160
+    Left = 144
     Top = 80
     Width = 121
     Height = 137
@@ -63,7 +116,7 @@ object Form1: TForm1
     TabOrder = 4
   end
   object ListBox3: TListBox
-    Left = 160
+    Left = 144
     Top = 256
     Width = 121
     Height = 97
@@ -71,11 +124,12 @@ object Form1: TForm1
     TabOrder = 5
   end
   object Memo3: TMemo
-    Left = 264
+    Left = 144
     Top = 416
-    Width = 185
-    Height = 89
+    Width = 289
+    Height = 153
     ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 6
   end
   object Edit1: TEdit
@@ -106,8 +160,8 @@ object Form1: TForm1
   object FDTable1: TFDTable
     Active = True
     IndexFieldNames = 'dbnumber;dbtitle;titlenum'
-    MasterSource = DataSource5
-    MasterFields = 'usernum;id'
+    MasterSource = DataSource2
+    MasterFields = 'dbnumber;dbtitle;titlenum'
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'datatable'
@@ -141,7 +195,7 @@ object Form1: TForm1
   end
   object FDTable2: TFDTable
     Active = True
-    IndexFieldNames = 'dbnumber;dbtitle'
+    IndexFieldNames = 'dbnumber;dbtitle;titlenum'
     MasterSource = DataSource5
     MasterFields = 'usernum;id'
     Connection = FDConnection1
@@ -191,7 +245,7 @@ object Form1: TForm1
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = '"database"'
-    Left = 176
+    Left = 160
     Top = 120
     object FDTable4dbnumber: TIntegerField
       FieldName = 'dbnumber'
@@ -227,7 +281,7 @@ object Form1: TForm1
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'titles'
-    Left = 176
+    Left = 160
     Top = 272
     object FDTable5usernum: TIntegerField
       FieldName = 'usernum'
@@ -369,12 +423,12 @@ object Form1: TForm1
   end
   object DataSource4: TDataSource
     DataSet = FDTable4
-    Left = 176
+    Left = 160
     Top = 184
   end
   object DataSource5: TDataSource
     DataSet = FDTable5
-    Left = 176
+    Left = 160
     Top = 336
   end
   object BindSourceDB4: TBindSourceDB
@@ -391,8 +445,8 @@ object Form1: TForm1
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'weblog'
-    Left = 320
-    Top = 432
+    Left = 256
+    Top = 440
   end
   object BindSourceDB5: TBindSourceDB
     DataSet = FDTable3
