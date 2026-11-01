@@ -241,6 +241,7 @@ object Form1: TForm1
   object FDTable4: TFDTable
     Active = True
     BeforeScroll = FDTable4BeforeScroll
+    AfterScroll = FDTable4AfterScroll
     IndexFieldNames = 'dbnumber'
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
@@ -396,13 +397,6 @@ object Form1: TForm1
       Control = Edit1
       Track = True
     end
-    object LinkControlToField5: TLinkControlToField
-      Category = #12463#12452#12483#12463' '#12496#12452#12531#12487#12451#12531#12464
-      DataSource = BindSourceDB5
-      FieldName = 'log'
-      Control = Memo3
-      Track = False
-    end
   end
   object BindSourceDB2: TBindSourceDB
     DataSet = FDTable5
@@ -440,18 +434,29 @@ object Form1: TForm1
   object FDTable3: TFDTable
     Active = True
     IndexFieldNames = 'dbid;id'
-    MasterSource = DataSource5
-    MasterFields = 'id'
+    MasterSource = DataSource4
+    MasterFields = 'dbnumber'
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'weblog'
     Left = 256
     Top = 440
-  end
-  object BindSourceDB5: TBindSourceDB
-    DataSet = FDTable3
-    ScopeMappings = <>
-    Left = 56
-    Top = 504
+    object FDTable3id: TIntegerField
+      FieldName = 'id'
+      Origin = 'id'
+    end
+    object FDTable3time: TDateField
+      FieldName = 'time'
+      Origin = '"time"'
+    end
+    object FDTable3log: TMemoField
+      FieldName = 'log'
+      Origin = 'log'
+      BlobType = ftMemo
+    end
+    object FDTable3dbid: TIntegerField
+      FieldName = 'dbid'
+      Origin = 'dbid'
+    end
   end
 end

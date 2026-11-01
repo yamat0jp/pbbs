@@ -74,8 +74,6 @@ type
     LinkControlToField3: TLinkControlToField;
     LinkControlToField4: TLinkControlToField;
     FDTable3: TFDTable;
-    BindSourceDB5: TBindSourceDB;
-    LinkControlToField5: TLinkControlToField;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -83,7 +81,12 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
+    FDTable3id: TIntegerField;
+    FDTable3time: TDateField;
+    FDTable3log: TMemoField;
+    FDTable3dbid: TIntegerField;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
+    procedure FDTable4AfterScroll(DataSet: TDataSet);
   private
     { Private êÈåæ }
   public
@@ -96,6 +99,17 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.FDTable4AfterScroll(DataSet: TDataSet);
+begin
+  Memo3.Lines.Clear;
+  while not FDTable3.Eof do
+  begin
+    Memo3.Lines.Add(FDTable3.FieldByName('log').AsString);
+    Memo3.Lines.Add('================');
+    FDTable3.Next;
+  end;
+end;
 
 procedure TForm1.FDTable4BeforeScroll(DataSet: TDataSet);
 begin
