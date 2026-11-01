@@ -86,6 +86,9 @@ type
     FDTable3dbid: TIntegerField;
     Label9: TLabel;
     Button1: TButton;
+    Label10: TLabel;
+    Edit3: TEdit;
+    LinkControlToField5: TLinkControlToField;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
     procedure FDTable4AfterScroll(DataSet: TDataSet);
     procedure Button1Click(Sender: TObject);

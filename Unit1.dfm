@@ -21,7 +21,7 @@ object Form1: TForm1
     Caption = #12480#12452#12472#12455#12473#12488
   end
   object Label2: TLabel
-    Left = 480
+    Left = 505
     Top = 56
     Width = 39
     Height = 15
@@ -75,6 +75,13 @@ object Form1: TForm1
     Width = 76
     Height = 15
     Caption = 'BBS'#21066#38500#12508#12479#12531
+  end
+  object Label10: TLabel
+    Left = 416
+    Top = 56
+    Width = 26
+    Height = 15
+    Caption = #30058#21495
   end
   object Memo1: TMemo
     Left = 328
@@ -142,17 +149,19 @@ object Form1: TForm1
     TabOrder = 6
   end
   object Edit1: TEdit
-    Left = 472
+    Left = 505
     Top = 77
-    Width = 121
+    Width = 88
     Height = 23
+    ReadOnly = True
     TabOrder = 7
   end
   object Edit2: TEdit
     Left = 328
     Top = 77
-    Width = 121
+    Width = 75
     Height = 23
+    ReadOnly = True
     TabOrder = 8
   end
   object Button1: TButton
@@ -163,6 +172,14 @@ object Form1: TForm1
     Caption = #21066#38500
     TabOrder = 9
     OnClick = Button1Click
+  end
+  object Edit3: TEdit
+    Left = 416
+    Top = 77
+    Width = 73
+    Height = 23
+    ReadOnly = True
+    TabOrder = 10
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
@@ -183,8 +200,8 @@ object Form1: TForm1
     Connection = FDConnection1
     ResourceOptions.AssignedValues = [rvEscapeExpand]
     TableName = 'datatable'
-    Left = 400
-    Top = 56
+    Left = 352
+    Top = 72
     object FDTable1dbnumber: TIntegerField
       FieldName = 'dbnumber'
       Origin = 'dbnumber'
@@ -409,6 +426,13 @@ object Form1: TForm1
       DataSource = BindSourceDB4
       FieldName = 'ip'
       Control = Edit1
+      Track = True
+    end
+    object LinkControlToField5: TLinkControlToField
+      Category = #12463#12452#12483#12463' '#12496#12452#12531#12487#12451#12531#12464
+      DataSource = BindSourceDB4
+      FieldName = 'titlenum'
+      Control = Edit3
       Track = True
     end
   end

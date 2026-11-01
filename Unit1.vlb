@@ -1,30 +1,30 @@
 ﻿[FDConnection1]
-Coordinates=357,78,90,33
+Coordinates=357,78,104,36
 
 [FDTable2]
-Coordinates=187,10,60,33
+Coordinates=187,10,71,36
 Visible=False
 
 [Memo1]
-Coordinates=214,10,53,51
+Coordinates=214,10,64,58
 Visible=True
 
 [Memo2]
-Coordinates=214,312,53,51
+Coordinates=214,312,64,58
 
 [DataSource2]
-Coordinates=230,188,77,33
+Coordinates=230,188,89,36
 
 [FDTable1]
-Coordinates=640,612,60,33
+Coordinates=883,642,71,36
 Visible=True
 
 [FDTable4]
-Coordinates=446,612,60,33
+Coordinates=608,632,71,36
 Visible=True
 
 [FDTable5]
-Coordinates=543,612,60,33
+Coordinates=705,632,71,36
 Visible=True
 
 []
@@ -33,169 +33,176 @@ ExplicitSubNodes=Position
 Visible=True
 
 [BindSourceDB1]
-Coordinates=10,77,92,195
+Coordinates=10,77,106,226
 
 [BindingsList1]
-Coordinates=106,241,82,33
+Coordinates=106,241,91,36
 
 [DBNavigator1]
-Coordinates=89,612,82,51
+Coordinates=89,612,94,58
 
 [FDTable2titlenum]
-Coordinates=196,197,100,33
+Coordinates=196,197,116,36
 
 [FDTable2datetime]
-Coordinates=196,252,103,33
+Coordinates=196,252,120,36
 
 [FDTable2comment]
-Coordinates=399,197,106,33
+Coordinates=399,197,123,36
 
 [FDTable2dbtitle]
-Coordinates=399,252,91,33
+Coordinates=399,252,106,36
 
 [FDTable2code]
-Coordinates=399,307,84,33
+Coordinates=399,307,99,36
 
 [FDTable2dbnumber]
-Coordinates=399,362,111,33
+Coordinates=399,362,128,36
 
 [FDTable1titlenum]
-Coordinates=196,197,100,33
+Coordinates=196,197,116,36
 
 [FDTable1name]
-Coordinates=196,252,87,33
+Coordinates=196,252,103,36
 
 [FDTable1ip]
-Coordinates=17,307,69,33
+Coordinates=17,307,81,36
 
 [FDTable1dbtitle]
-Coordinates=399,197,91,33
+Coordinates=399,197,106,36
 
 [FDTable1dbnumber]
-Coordinates=399,252,111,33
+Coordinates=399,252,128,36
 
 [FDTable4password_hash]
-Coordinates=196,197,138,33
+Coordinates=196,197,161,36
 
 [FDTable4nickname]
-Coordinates=196,252,108,33
+Coordinates=196,252,126,36
 
 [FDTable4dbname]
-Coordinates=399,197,100,33
+Coordinates=399,197,117,36
 
 [FDTable4email]
-Coordinates=399,252,87,33
+Coordinates=399,252,102,36
 
 [FDTable4dbnumber]
-Coordinates=399,307,111,33
+Coordinates=399,307,128,36
 
 [FDTable5url]
-Coordinates=17,307,73,33
+Coordinates=17,307,85,36
 
 [FDTable5name]
-Coordinates=196,197,87,33
+Coordinates=196,197,103,36
 
 [FDTable5pagecount]
-Coordinates=399,197,112,33
+Coordinates=399,197,131,36
 
 [FDTable5maintenance]
-Coordinates=399,252,123,33
+Coordinates=399,252,144,36
 
 [FDTable5id]
-Coordinates=238,307,69,33
+Coordinates=238,307,81,36
 
 [FDTable5time]
-Coordinates=358,307,81,33
+Coordinates=358,307,95,36
 
 [FDTable5usernum]
-Coordinates=399,362,104,33
+Coordinates=399,362,121,36
 
 [FDTable5count]
-Coordinates=290,392,88,33
+Coordinates=290,392,102,36
 
 [FDTable5ip]
-Coordinates=208,392,69,33
+Coordinates=208,392,81,36
 
 [BindSourceDB2]
-Coordinates=504,10,92,249
+Coordinates=624,622,106,278
 
 [ListBox1]
-Coordinates=196,128,84,105
+Coordinates=196,128,101,124
 
 [FDPhysPgDriverLink1]
-Coordinates=183,170,122,33
+Coordinates=183,170,141,36
 
 [ListBox2]
-Coordinates=10,429,84,105
+Coordinates=10,429,101,124
 
 [BindSourceDB3]
-Coordinates=191,396,92,159
+Coordinates=527,622,106,190
 
 [ListBox3]
-Coordinates=323,98,84,105
+Coordinates=323,98,101,124
 Visible=True
 
 [DataSource4]
-Coordinates=0,0,77,33
+Coordinates=0,0,89,36
 
 [DataSource5]
-Coordinates=0,0,77,33
+Coordinates=0,0,89,36
 
 [Memo3]
-Coordinates=657,396,53,51
+Coordinates=657,396,64,58
 
 [Label1]
-Coordinates=10,612,46,51
+Coordinates=10,612,53,58
 
 [Edit1]
-Coordinates=822,135,40,51
+Coordinates=822,135,44,58
 
 [Edit2]
-Coordinates=822,17,40,51
+Coordinates=822,17,44,58
 Visible=True
 
 [BindSourceDB4]
-Coordinates=636,10,92,159
+Coordinates=802,632,106,190
 
 [FDTable3]
-Coordinates=323,396,60,123
+Coordinates=323,396,71,146
 
 [Label6]
-Coordinates=367,612,46,51
+Coordinates=367,612,53,58
 
 [Label8]
-Coordinates=209,612,46,51
+Coordinates=209,612,53,58
 
 [Label7]
-Coordinates=578,396,46,51
+Coordinates=578,396,53,58
 
 [Label5]
-Coordinates=288,612,46,51
+Coordinates=288,612,53,58
 
 [Label3]
-Coordinates=420,396,46,51
+Coordinates=420,396,53,58
 
 [Label2]
-Coordinates=747,396,46,51
+Coordinates=747,396,53,58
 
 [Label4]
-Coordinates=499,396,46,51
+Coordinates=499,396,53,58
 
 [FDTable3id]
-Coordinates=296,1,69,33
+Coordinates=296,1,81,36
 
 [FDTable3time]
-Coordinates=117,341,81,33
+Coordinates=117,341,95,36
 
 [FDTable3log]
-Coordinates=648,219,76,33
+Coordinates=648,219,88,36
 
 [FDTable3dbid]
-Coordinates=648,274,82,33
+Coordinates=648,274,95,36
 
 [Label9]
-Coordinates=112,1,46,51
+Coordinates=112,1,53,58
 
 [Button1]
-Coordinates=581,329,53,51
+Coordinates=581,329,59,58
+
+[Edit3]
+Coordinates=740,240,44,58
+Visible=True
+
+[Label10]
+Coordinates=581,550,60,58
 
