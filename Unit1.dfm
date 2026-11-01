@@ -69,6 +69,13 @@ object Form1: TForm1
     Height = 15
     Caption = #33510#24773
   end
+  object Label9: TLabel
+    Left = 48
+    Top = 288
+    Width = 76
+    Height = 15
+    Caption = 'BBS'#21066#38500#12508#12479#12531
+  end
   object Memo1: TMemo
     Left = 328
     Top = 128
@@ -102,6 +109,8 @@ object Form1: TForm1
     Width = 177
     Height = 393
     ItemHeight = 15
+    Items.Strings = (
+      'test')
     TabOrder = 3
   end
   object ListBox2: TListBox
@@ -145,6 +154,15 @@ object Form1: TForm1
     Width = 121
     Height = 23
     TabOrder = 8
+  end
+  object Button1: TButton
+    Left = 48
+    Top = 309
+    Width = 75
+    Height = 25
+    Caption = #21066#38500
+    TabOrder = 9
+    OnClick = Button1Click
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
@@ -305,10 +323,6 @@ object Form1: TForm1
     object FDTable5maintenance: TBooleanField
       FieldName = 'maintenance'
       Origin = 'maintenance'
-    end
-    object FDTable5pagetype: TIntegerField
-      FieldName = 'pagetype'
-      Origin = 'pagetype'
     end
     object FDTable5url: TMemoField
       FieldName = 'url'

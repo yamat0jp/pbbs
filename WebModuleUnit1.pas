@@ -613,7 +613,7 @@ begin
     FDCommand1.ParamByName('pagecount').AsInteger:=pagecount;
     FDCommand1.ParamByName('count').AsInteger:=count;
     FDCommand1.ParamByName('mainte').AsBoolean:=mainte;
-    FDCommand1.ParamByName('url').AsString:=userdata.tag;
+    FDCommand1.ParamByName('url').AsString:=url;
     FDCommand1.ParamByName('id').AsInteger:=id;
     FDCommand1.Execute;
     Response.SendRedirect(Request.PathInfo);

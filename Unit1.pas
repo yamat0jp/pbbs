@@ -50,7 +50,6 @@ type
     FDTable5pagecount: TIntegerField;
     FDTable5count: TIntegerField;
     FDTable5maintenance: TBooleanField;
-    FDTable5pagetype: TIntegerField;
     FDTable5url: TMemoField;
     FDTable5id: TIntegerField;
     FDTable5ip: TMemoField;
@@ -85,8 +84,11 @@ type
     FDTable3time: TDateField;
     FDTable3log: TMemoField;
     FDTable3dbid: TIntegerField;
+    Label9: TLabel;
+    Button1: TButton;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
     procedure FDTable4AfterScroll(DataSet: TDataSet);
+    procedure Button1Click(Sender: TObject);
   private
     { Private êÈåæ }
   public
@@ -99,6 +101,19 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  for var obj in [FDTable1,FDTable2,FDTable3] do
+  begin
+    obj.BeginBatch(true);
+    while not obj.Eof do
+      obj.Delete;
+    obj.EndBatch;
+  end;
+  FDTable5.Delete;
+  FDTable3.Refresh;
+end;
 
 procedure TForm1.FDTable4AfterScroll(DataSet: TDataSet);
 begin
