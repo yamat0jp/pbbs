@@ -89,9 +89,12 @@ type
     Label10: TLabel;
     Edit3: TEdit;
     LinkControlToField5: TLinkControlToField;
+    更新ボタン: TLabel;
+    Button2: TButton;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
     procedure FDTable4AfterScroll(DataSet: TDataSet);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private 宣言 }
   public
@@ -116,6 +119,11 @@ begin
   end;
   FDTable5.Delete;
   FDTable3.Refresh;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  FDTable4.Refresh;
 end;
 
 procedure TForm1.FDTable4AfterScroll(DataSet: TDataSet);

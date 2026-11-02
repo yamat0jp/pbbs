@@ -1,4 +1,4 @@
-object Form1: TForm1
+﻿object Form1: TForm1
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
@@ -83,11 +83,20 @@ object Form1: TForm1
     Height = 15
     Caption = #30058#21495
   end
+  object 更新ボタン: TLabel
+    Left = 56
+    Top = 106
+    Width = 56
+    Height = 15
+    Caption = #26356#26032#12508#12479#12531
+  end
   object Memo1: TMemo
     Left = 328
     Top = 128
     Width = 265
     Height = 89
+    Lines.Strings = (
+      'new')
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 0
@@ -117,7 +126,7 @@ object Form1: TForm1
     Height = 393
     ItemHeight = 15
     Items.Strings = (
-      'test')
+      'new')
     TabOrder = 3
   end
   object ListBox2: TListBox
@@ -127,8 +136,9 @@ object Form1: TForm1
     Height = 137
     ItemHeight = 15
     Items.Strings = (
+      #12414#12354#12375#12356
       'master_a'
-      #12414#12354#12375#12356)
+      'USER A')
     TabOrder = 4
   end
   object ListBox3: TListBox
@@ -137,6 +147,10 @@ object Form1: TForm1
     Width = 121
     Height = 97
     ItemHeight = 15
+    Items.Strings = (
+      'BBS'
+      'NEW'
+      'FREE')
     TabOrder = 5
   end
   object Memo3: TMemo
@@ -155,6 +169,7 @@ object Form1: TForm1
     Height = 23
     ReadOnly = True
     TabOrder = 7
+    Text = '0:0:0:0:0:0:0:1'
   end
   object Edit2: TEdit
     Left = 328
@@ -180,6 +195,16 @@ object Form1: TForm1
     Height = 23
     ReadOnly = True
     TabOrder = 10
+    Text = '1'
+  end
+  object Button2: TButton
+    Left = 48
+    Top = 127
+    Width = 75
+    Height = 25
+    Caption = #26356#26032
+    TabOrder = 11
+    OnClick = Button2Click
   end
   object FDConnection1: TFDConnection
     Params.Strings = (
