@@ -124,6 +124,10 @@ end;
 procedure TForm1.Button2Click(Sender: TObject);
 begin
   FDTable4.Refresh;
+  FDTable1.Refresh;
+  FDTable2.Refresh;
+  FDTable3.Refresh;
+  FDTable5.Refresh;
 end;
 
 procedure TForm1.FDTable4AfterScroll(DataSet: TDataSet);

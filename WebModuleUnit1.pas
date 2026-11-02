@@ -155,7 +155,7 @@ type
     procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
-    procedure AddCookie(const data: TData; auto: Boolean);
+    procedure AddCookie(data: TData; auto: Boolean);
     function HashValidator(const Validator: string): string;
     function GenerateSelector: string;
     function GenerateValidator: string;
@@ -242,7 +242,7 @@ begin
   FDCommand1.Execute;
 end;
 
-procedure TWebModule1.AddCookie(const data: TData; auto: Boolean);
+procedure TWebModule1.AddCookie(data: TData; auto: Boolean);
 var
   SessionToken, selector, validator, validatorhash: string;
 begin
