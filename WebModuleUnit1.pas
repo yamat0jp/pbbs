@@ -155,7 +155,7 @@ type
     procedure makeFooterNumber(id, max: integer; out link: TObjectList<TData>);
     function replaceRawData(const Data: string): string;
     function readRecNo(index,userid,titleid: integer; Query: TFDQuery): integer;
-    procedure AddCookie(const name: string; auto: Boolean);
+    procedure AddCookie(const data: TData; auto: Boolean);
     function HashValidator(const Validator: string): string;
     function GenerateSelector: string;
     function GenerateValidator: string;
@@ -163,7 +163,7 @@ type
     function IsLogin(const CookieValue, url: string): Boolean;
   public
     { public 宣言 }
-    function VerifyLogin(const Username,InputPassword: string): Boolean;
+    function VerifyLogin(const Username,InputPassword: string; out data: TData): Boolean;
   end;
 
   TSlide = class
@@ -192,7 +192,7 @@ implementation
 
 uses System.IOUtils, System.Math, Bcrypt, System.Hash, System.DateUtils;
 
-function TWebModule1.VerifyLogin(const Username, InputPassword: string): Boolean;
+function TWebModule1.VerifyLogin(const Username, InputPassword: string; out data: TData): Boolean;
 var
   StoredHash: string;
   rehash: Boolean;
@@ -242,7 +242,7 @@ begin
   FDCommand1.Execute;
 end;
 
-procedure TWebModule1.AddCookie(const name: string; auto: Boolean);
+procedure TWebModule1.AddCookie(const data: TData; auto: Boolean);
 var
   SessionToken, selector, validator, validatorhash: string;
 begin
@@ -260,7 +260,7 @@ begin
   FDCommand1.ParamByName('s').AsString:=selector;
   FDCommand1.ParamByName('vh').AsString:=validatorhash;
   FDCommand1.ParamByName('exp').AsDate:=Now+3;
-  FDCommand1.ParamByName('num').AsInteger:=userdata.id;
+  FDCommand1.ParamByName('num').AsInteger:=data.id;
   FDCommand1.ParamByName('a').AsString:='PASSWORD';
   FDCommand1.ParamByName('au').AsBoolean:=auto;
   FDCommand1.Execute;
@@ -853,14 +853,13 @@ procedure TWebModule1.WebModule1WebActionItem6Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   nickname, username, email, password: string;
-  max: integer;
 begin
   username:=Request.ContentFields.Values['username'];
   nickname:=Request.ContentFields.Values['nickname'];
   email:=Request.ContentFields.Values['email'];
   password:=Request.ContentFields.Values['password'];
   FDQuery1.SQL.Text:=
-    'select dbname from database where dbname = :n or nickname = :nn;';
+    'select dbnumber,dbname from database where dbname = :n or nickname = :nn;';
   FDQuery1.ParamByName('n').AsString:=username;
   FDQuery1.ParamByName('nn').AsString:=nickname;
   FDQuery1.Open;
@@ -868,19 +867,21 @@ begin
   begin
     FDQuery1.Close;
     FDQuery1.Open('select MAX(dbnumber) AS max from database;');
-    max:=FDQuery1.FieldByName('max').AsInteger+1;
+    userdata.id:=FDQuery1.FieldByName('max').AsInteger+1;
+    userdata.name:=username;
+    userdata.tag:=nickname;
     FDCommand1.CommandText.Text:='''
       INSERT INTO database (dbnumber,dbname,nickname,password_hash,email)
       VALUES (:id,:U,:N,:P,:E);
       ''';
-    FDCommand1.ParamByName('id').AsInteger:=max;
+    FDCommand1.ParamByName('id').AsInteger:=userdata.id;
     FDCommand1.ParamByName('U').AsString:=username;
     FDCommand1.ParamByName('N').AsString:=nickname;
     FDCommand1.ParamByName('P').AsString:=TBcrypt.HashPassword(password);
     FDCommand1.ParamByName('E').AsString:=email;
     FDCommand1.Execute;
     var s: string;
-    AddCookie(username,true);
+    AddCookie(userdata,false);
     Response.SendRedirect('/members/'+nickname);
   end
   else
@@ -903,16 +904,8 @@ end;
 
 procedure TWebModule1.WebModule1WebActionItem7Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-var
-  token: string;
 begin
   var data:=TData.Create;
-  token:=Request.CookieFields.Values['AuthToken'];
-  if not VerifyRememberMe(token) then
-  begin
-    Response.SendRedirect('/login');
-    Exit;
-  end;
   if Request.MethodType = mtPost then
   begin
     if Request.ContentFields.Values['check'] <> 'yes' then
@@ -920,7 +913,7 @@ begin
       Response.SendRedirect('/exit');
       Exit;
     end;
-    if VerifyLogin(userdata.name,Request.ContentFields.Values['password']) then
+    if VerifyLogin(userdata.name,Request.ContentFields.Values['password'], userdata) then
     begin
       FDTransaction1.StartTransaction;
       try
@@ -1243,9 +1236,9 @@ begin
   begin
     inputname:=Request.ContentFields.Values['username'];
     inputpass:=Request.ContentFields.Values['password'];
-    if VerifyLogin(inputname,inputpass) then
+    if VerifyLogin(inputname,inputpass,userdata) then
     begin
-      AddCookie(inputname,Request.ContentFields.Values['auto']='yes');
+      AddCookie(userdata,Request.ContentFields.Values['auto']='yes');
       Response.SendRedirect('/members/'+userdata.tag);
       Exit;
     end;
