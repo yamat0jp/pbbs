@@ -9,6 +9,9 @@
         <Projects Include="bbs2.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="blog.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="bbs2:Make">
         <MSBuild Projects="bbs2.dproj" Targets="Make"/>
     </Target>
+    <Target Name="blog">
+        <MSBuild Projects="blog.dproj"/>
+    </Target>
+    <Target Name="blog:Clean">
+        <MSBuild Projects="blog.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="blog:Make">
+        <MSBuild Projects="blog.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DBTool;bbs2"/>
+        <CallTarget Targets="DBTool;bbs2;blog"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DBTool:Clean;bbs2:Clean"/>
+        <CallTarget Targets="DBTool:Clean;bbs2:Clean;blog:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DBTool:Make;bbs2:Make"/>
+        <CallTarget Targets="DBTool:Make;bbs2:Make;blog:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
