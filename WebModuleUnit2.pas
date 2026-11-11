@@ -1,4 +1,4 @@
-unit WebModuleUnit2;
+ï»¿unit WebModuleUnit2;
 
 interface
 
@@ -33,9 +33,11 @@ type
       APropName: string; var AValue: string; var AHandled: Boolean);
     procedure WebStencilsProcessor2BeforeProduce(Sender: TObject);
     procedure WebStencilsProcessor2AfterProduce(Sender: TObject);
-    procedure WebModule1WebActionItem8Action(Sender: TObject;
-      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem9Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem12Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem10Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { Private declarations }
@@ -95,11 +97,47 @@ begin
   else
     FDQuery1.Open('select * from items;');
   FDQuery2.Open('select DISTINCT category from items ORDER BY category;');
-  WebStencilsProcessor1.AddVar('Items',FDQuery1,false);
+  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   WebStencilsProcessor1.AddVar('Categories',FDQuery2,false);
   Response.Content := WebStencilsProcessor1.Content;
   FDQuery1.Close;
   FDQuery2.Close;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem10Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  id: integer;
+begin
+  FDQuery1.Open('select MAX(id) as max from items;');
+  id:=FDQuery1.FieldByName('max').AsInteger+1;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text:='''
+    INSERT INTO items (id,title,content,created_at)
+    VALUES (:i, :t, :c, :a);
+    ''';
+  FDQuery1.ParamByName('i').Index:=id;
+  FDQuery1.ParamByName('t').AsString:=Request.ContentFields.Values['title'];
+  FDQuery1.ParamByName('c').AsString:=Request.ContentFields.Values['content'];
+  FDQuery1.ParamByName('a').AsDate:=Now;
+  FDQuery1.ExecSQL;
+  Response.SendRedirect('/posts');
+end;
+
+procedure TWebModule1.WebModule1WebActionItem12Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  FDQuery1.Open('''
+    SELECT title, category, thumbnail_url,
+    TO_CHAR(created_at, 'YYYY/MM/DD') AS formatted_date
+    FROM items
+    WHERE status = 'published'
+    ORDER BY created_at DESC
+    LIMIT 5
+    ''');
+  WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
+  Response.Content:=WebStencilsProcessor1.Content;
+  FDQuery1.Close;
 end;
 
 procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
@@ -130,21 +168,21 @@ begin
         tagstr:=tagstr+ja.Items[i].Value;
       end;
     end;
-    // 3. Base64•¶š—ñ‚©‚ç‰æ‘œƒtƒ@ƒCƒ‹‚ğ•œŒ³‚µ‚Äƒ[ƒJƒ‹•Û‘¶
+    // 3. Base64æ–‡å­—åˆ—ã‹ã‚‰ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’å¾©å…ƒã—ã¦ãƒ­ãƒ¼ã‚«ãƒ«ä¿å­˜
     ThumbnailPath := '';
     if JS.TryGetValue<string>('thumbnail_base64', Base64Str) and (Base64Str <> '') then
     begin
-      // "data:image/png;base64," ‚Ì‚æ‚¤‚Èƒƒ^î•ñƒwƒbƒ_‚ğØ‚è—‚Æ‚·
+      // "data:image/png;base64," ã®ã‚ˆã†ãªãƒ¡ã‚¿æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’åˆ‡ã‚Šè½ã¨ã™
       var i:=Base64Str.IndexOf('base64');
       if i > -1 then Base64Str:=Base64Str.Substring(i+7);
 
-      // ƒfƒR[ƒh‚µ‚Äƒtƒ@ƒCƒ‹‚Æ‚µ‚Ä•Û‘¶
+      // ãƒ‡ã‚³ãƒ¼ãƒ‰ã—ã¦ãƒ•ã‚¡ã‚¤ãƒ«ã¨ã—ã¦ä¿å­˜
       Bytes := TNetEncoding.Base64.DecodeStringToBytes(Base64Str);
       ThumbnailPath := '/uploads/thumb_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.jpg';
 
       var ImageStream := TBytesStream.Create(Bytes);
       try
-        // Àsƒtƒ@ƒCƒ‹‚Ì”z’uƒtƒHƒ‹ƒ_Šî€‚Å•Û‘¶æ‚ğw’èi‚ ‚ç‚©‚¶‚ß uploads ƒtƒHƒ‹ƒ_‚ğì¬‚µ‚Ä‚¨‚­j
+        // å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ã®é…ç½®ãƒ•ã‚©ãƒ«ãƒ€åŸºæº–ã§ä¿å­˜å…ˆã‚’æŒ‡å®šï¼ˆã‚ã‚‰ã‹ã˜ã‚ uploads ãƒ•ã‚©ãƒ«ãƒ€ã‚’ä½œæˆã—ã¦ãŠãï¼‰
         var s:=ExtractFilePath(ParamStr(0)) + 'public' + ThumbnailPath.Replace('/','\',[rfReplaceAll]);
         ForceDirectories(ExtractFileDir(s));
         ImageStream.SaveToFile(s);
@@ -224,21 +262,6 @@ begin
   FDQuery1.Close;
 end;
 
-procedure TWebModule1.WebModule1WebActionItem8Action(Sender: TObject;
-  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
-begin
-  FDQuery1.Open('select * from params;');
-  if FDQuery1.IsEmpty then
-  begin
-    FDQuery1.Close;
-    FDQuery1.ExecSQL('INSERT INTO params VALUES ('''', 3, '''', true, 1);');
-    FDQuery1.Open('select * from params;');
-  end;
-  WebStencilsProcessor2.AddVar('Settings',FDQuery1,false);
-  Response.Content:=WebStencilsProcessor2.Content;
-  FDQuery1.Close;
-end;
-
 procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
@@ -269,20 +292,22 @@ procedure TWebModule1.WebStencilsProcessor2BeforeProduce(Sender: TObject);
 var
   JSONObj: TJSONObject;
   TargetSlug: string;
+  params: TArray<string>;
+  count: integer;
 begin
   var model:=TModel.Create;
   if Request.PathInfo = '/dashboard' then
     model.ActiveView:='dashboard'
   else if Request.PathInfo = '/posts' then
     model.ActiveView:='all-posts'
-  else if Request.PathInfo = '/posts/new' then
+  else if (Request.PathInfo = '/posts/new') or Request.PathInfo.StartsWith('/posts/edit/') then
     model.ActiveView:='new-post'
   else if Request.PathInfo = '/categories' then
     model.ActiveView:='categories'
   else if Request.PathInfo = '/settings' then
     model.ActiveView:='settings';
   WebStencilsProcessor2.AddVar('Model',model);
-  if Request.PathInfo = '/dashboard' then
+  if (Request.PathInfo = '/dashboard')or(Request.PathInfo = '/posts') then
   begin
     FDQuery1.Open('select * from items;');
     FDQuery2.Open('select DISTINCT category from items ORDER BY category;');
@@ -290,6 +315,31 @@ begin
     WebStencilsProcessor2.AddVar('Categories',FDQuery2,false);
     FDQuery3.Open('select COUNT(id) as published from items where status = ''published'';');
     FDQuery4.Open('select COUNT(id) as draft from items where status = ''draft'';');
+  end
+  else if Request.PathInfo = '/settings' then
+  begin
+    FDQuery1.Open('select * from params;');
+    if FDQuery1.IsEmpty then
+    begin
+      FDQuery1.Close;
+      FDQuery1.ExecSQL('INSERT INTO params VALUES ('''', 3, '''', true, 1);');
+      FDQuery1.Open('select * from params;');
+    end;
+    WebStencilsProcessor2.AddVar('Settings',FDQuery1,false);
+  end
+  else if Request.PathInfo.StartsWith('/posts/edit/') then
+  begin
+    params:=Request.PathInfo.Split(['/']);
+    if High(params) = 3 then
+      count:=params[3].ToInteger
+    else
+    begin
+      Response.StatusCode:=400;
+      Exit;
+    end;
+    FDQuery1.SQL.Text:='select * from items where id = :id;';
+    FDQuery1.ParamByName('id').AsInteger:=count;
+    FDQuery1.Open;
   end;
 
 
@@ -341,6 +391,15 @@ begin
       AValue:=FDQuery3.FieldByName('published').AsString
     else if APropName = 'DraftCount' then
       AValue:=FDQuery4.FieldByName('draft').AsString;
+  end
+  else if AObjectName = 'edit' then
+  begin
+    if not FDQuery1.Active or FDQuery1.IsEmpty then
+      AValue:=' '
+    else if APropName = 'title' then
+      AValue:=FDQuery1.FieldByName('title').AsString
+    else if APropName = 'content' then
+      AValue:=FDQuery1.FieldByName('text').AsString;
   end;
 end;
 

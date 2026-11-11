@@ -1,6 +1,12 @@
 object WebModule1: TWebModule1
   Actions = <
     item
+      Default = True
+      Name = 'WebActionItem12'
+      PathInfo = '/'
+      OnAction = WebModule1WebActionItem12Action
+    end
+    item
       MethodType = mtGet
       Name = 'DefaultHandler'
       PathInfo = '/blog*'
@@ -43,7 +49,14 @@ object WebModule1: TWebModule1
     item
       MethodType = mtPost
       Name = 'WebActionItem10'
-      PathInfo = '/post/new/save'
+      PathInfo = '/posts/save'
+      OnAction = WebModule1WebActionItem10Action
+    end
+    item
+      MethodType = mtGet
+      Name = 'WebActionItem11'
+      PathInfo = '/posts/edit/*'
+      Producer = WebStencilsProcessor2
     end
     item
       MethodType = mtGet
@@ -55,7 +68,7 @@ object WebModule1: TWebModule1
       MethodType = mtGet
       Name = 'WebActionItem8'
       PathInfo = '/settings'
-      OnAction = WebModule1WebActionItem8Action
+      Producer = WebStencilsProcessor2
     end
     item
       MethodType = mtPost
