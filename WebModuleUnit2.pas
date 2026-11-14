@@ -497,6 +497,8 @@ begin
   begin
     if not FDQuery1.Active or FDQuery1.IsEmpty then
       AValue:=' '
+    else if APropName = 'id' then
+      AValue:=FDQuery1.FieldByName('id').AsString
     else if APropName = 'title' then
       AValue:=FDQuery1.FieldByName('title').AsString
     else if APropName = 'content' then
