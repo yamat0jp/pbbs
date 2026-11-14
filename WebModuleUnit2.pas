@@ -23,6 +23,7 @@ type
     FDQuery2: TFDQuery;
     FDQuery3: TFDQuery;
     FDQuery4: TFDQuery;
+    WebStencilsProcessor4: TWebStencilsProcessor;
     procedure WebModule1DefaultHandlerAction(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem2Action(Sender: TObject;
@@ -38,6 +39,10 @@ type
     procedure WebModule1WebActionItem12Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem10Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem4Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem13Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { Private declarations }
@@ -64,7 +69,9 @@ type
   TModel = class
   private
     FActiveView: string;
+    FId: integer;
   public
+    property Id: integer read FId write FId;
     property ActiveView: string read FActiveView write FActiveView;
   end;
 
@@ -108,18 +115,35 @@ procedure TWebModule1.WebModule1WebActionItem10Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 var
   id: integer;
+  params: TArray<string>;
 begin
-  FDQuery1.Open('select MAX(id) as max from items;');
-  id:=FDQuery1.FieldByName('max').AsInteger+1;
-  FDQuery1.Close;
-  FDQuery1.SQL.Text:='''
-    INSERT INTO items (id,title,content,created_at)
-    VALUES (:i, :t, :c, :a);
-    ''';
-  FDQuery1.ParamByName('i').Index:=id;
+  params:=Request.PathInfo.Split(['/']);
+  if High(params) = 3 then
+  begin
+    id:=params[3].ToInteger;
+    FDQuery1.SQL.Text:='''
+      UPDATE items SET
+      title = :t, category = :c, text = :tx, author = :a, created_at = :at, status = :s
+      where id = :i;
+      ''';
+  end
+  else
+  begin
+    FDQuery1.Open('select MAX(id) as max from items;');
+    id:=FDQuery1.FieldByName('max').AsInteger+1;
+    FDQuery1.Close;
+    FDQuery1.SQL.Text:='''
+      INSERT INTO items (id,title,category,text,author,created_at,status)
+      VALUES (:i, :t, :c, :tx, :a, :at, :s);
+      ''';
+  end;
+  FDQuery1.ParamByName('i').AsInteger:=id;
   FDQuery1.ParamByName('t').AsString:=Request.ContentFields.Values['title'];
-  FDQuery1.ParamByName('c').AsString:=Request.ContentFields.Values['content'];
-  FDQuery1.ParamByName('a').AsDate:=Now;
+  FDQuery1.ParamByName('c').AsString:=Request.ContentFields.Values['category'];
+  FDQuery1.ParamByName('tx').AsString:=Request.ContentFields.Values['content'];
+  FDQuery1.ParamByName('a').AsString:=Request.ContentFields.Values['author'];
+  FDQuery1.ParamByName('s').AsString:=Request.ContentFields.Values['action'];
+  FDQuery1.ParamByName('at').AsDate:=Now;
   FDQuery1.ExecSQL;
   Response.SendRedirect('/posts');
 end;
@@ -138,6 +162,46 @@ begin
   WebStencilsProcessor1.AddVar('articles',FDQuery1,false);
   Response.Content:=WebStencilsProcessor1.Content;
   FDQuery1.Close;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem13Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  InputPass: string;
+  Cookie: TCookie;
+begin
+  Handled := True;
+
+  if Request.MethodType = mtPost then
+  begin
+    // フォームから送信されたパスワードを取得
+    InputPass := Request.ContentFields.Values['password'];
+
+    // ※本格運用時はDBのユーザーテーブルとBcryptハッシュ照合を行ってください
+    if InputPass = 'admin123' then
+    begin
+      // 認証成功：Cookieにセッショントークンを発行
+      Cookie := Response.Cookies.Add;
+      Cookie.Name := 'CMS_Session';
+      Cookie.Value := 'ValidToken_xyz987'; // 本来はDBで管理するランダムなセッションID
+      Cookie.Path := '/';
+      Cookie.HttpOnly := True; // JavaScriptからのアクセスを禁止（XSS対策）
+
+      // 編集画面へリダイレクト
+      Response.SendRedirect('/post/edit/');
+    end
+    else
+    begin
+      // 認証失敗：エラーフラグをつけてリダイレクト
+      Response.SendRedirect('/login?error=1');
+    end;
+  end
+  else
+  begin
+    // GETリクエスト時：ログイン画面を表示
+//    WebStencilsProcessor4.AddVar('error', Request.QueryFields.Values['error'] = '1');
+    Response.Content := WebStencilsProcessor4.Content;
+  end;
 end;
 
 procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
@@ -262,15 +326,32 @@ begin
   FDQuery1.Close;
 end;
 
+procedure TWebModule1.WebModule1WebActionItem4Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+var
+  params: TArray<string>;
+  id: integer;
+begin
+  params:=Request.PathInfo.Split(['/']);
+  if High(params) = 3 then
+  begin
+    id:=params[3].ToInteger;
+    FDQuery1.SQL.Text:='DELETE from items where id = :i;';
+    FDQuery1.ParamByName('i').AsInteger:=id;
+    FDQuery1.ExecSQL;
+  end;
+  Response.SendRedirect('/posts');
+end;
+
 procedure TWebModule1.WebModule1WebActionItem9Action(Sender: TObject;
   Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
 begin
   FDQuery1.SQL.Text:='''
     UPDATE params SET
-      "SiteTitle" = :t,
-      "ItemsPerPage" = :p,
-      "SiteDescription" = :d,
-      "AllowIndexing" = :a where id = 1;
+      SiteTitle = :t,
+      ItemsPerPage = :p,
+      SiteDescription = :d,
+      AllowIndexing = :a where id = 1;
     ''';
   FDQuery1.ParamByName('t').AsString:=Request.ContentFields.Values['site_title'];
   FDQuery1.ParamByName('d').AsString:=Request.ContentFields.Values['site_description'];
@@ -300,13 +381,17 @@ begin
     model.ActiveView:='dashboard'
   else if Request.PathInfo = '/posts' then
     model.ActiveView:='all-posts'
-  else if (Request.PathInfo = '/posts/new') or Request.PathInfo.StartsWith('/posts/edit/') then
+  else if Request.PathInfo = '/posts/new' then
     model.ActiveView:='new-post'
+  else if Request.PathInfo.StartsWith('/posts/edit/') then
+    model.ActiveView:='edit-post'
   else if Request.PathInfo = '/categories' then
     model.ActiveView:='categories'
   else if Request.PathInfo = '/settings' then
-    model.ActiveView:='settings';
-  WebStencilsProcessor2.AddVar('Model',model);
+    model.ActiveView:='settings'
+  else if Request.PathInfo = '/categories' then
+    model.ActiveView:='categories';
+
   if (Request.PathInfo = '/dashboard')or(Request.PathInfo = '/posts') then
   begin
     FDQuery1.Open('select * from items;');
@@ -322,12 +407,12 @@ begin
     if FDQuery1.IsEmpty then
     begin
       FDQuery1.Close;
-      FDQuery1.ExecSQL('INSERT INTO params VALUES ('''', 3, '''', true, 1);');
+      FDQuery1.ExecSQL('INSERT INTO params VALUES (1,'''','''',true,3);');
       FDQuery1.Open('select * from params;');
     end;
     WebStencilsProcessor2.AddVar('Settings',FDQuery1,false);
   end
-  else if Request.PathInfo.StartsWith('/posts/edit/') then
+  else if model.ActiveView = 'edit-post' then
   begin
     params:=Request.PathInfo.Split(['/']);
     if High(params) = 3 then
@@ -340,7 +425,23 @@ begin
     FDQuery1.SQL.Text:='select * from items where id = :id;';
     FDQuery1.ParamByName('id').AsInteger:=count;
     FDQuery1.Open;
+  end
+  else if Request.PathInfo = '/categories' then
+  begin
+    FDQuery1.Open('select * from items;');
+    FDQuery2.Open('''
+      SELECT
+      category AS "Name",
+      COUNT(*) AS "PostCount"
+      FROM items
+      WHERE category IS NOT NULL AND TRIM(category) <> ''
+      GROUP BY category
+      ORDER BY category ASC;
+      ''');
+    model.Id:=StrToIntDef(Request.QueryFields.Values['id'],0);
+    WebStencilsProcessor2.AddVar('Categories',FDQuery2,false);
   end;
+  WebStencilsProcessor2.AddVar('Model',model);
 
 
   TargetSlug := Request.QueryFields.Values['slug'];
@@ -400,6 +501,13 @@ begin
       AValue:=FDQuery1.FieldByName('title').AsString
     else if APropName = 'content' then
       AValue:=FDQuery1.FieldByName('text').AsString;
+  end
+  else if AObjectName = 'Modle' then
+  begin
+    if ApropName = 'Name' then
+      AValue:=FDQuery1.FieldByName('Name').AsString
+    else if APropName = 'Description' then
+      AValue:=FDQuery1.FieldByName('Description').AsString;
   end;
 end;
 

@@ -19,6 +19,7 @@ object WebModule1: TWebModule1
       Producer = WebStencilsProcessor2
     end
     item
+      Enabled = False
       MethodType = mtPost
       Name = 'WebActionItem2'
       PathInfo = '/admin/article/save'
@@ -29,10 +30,6 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem3'
       PathInfo = '/page*'
       OnAction = WebModule1WebActionItem3Action
-    end
-    item
-      Name = 'WebActionItem4'
-      PathInfo = '/admin/article/delete'
     end
     item
       MethodType = mtGet
@@ -49,8 +46,14 @@ object WebModule1: TWebModule1
     item
       MethodType = mtPost
       Name = 'WebActionItem10'
-      PathInfo = '/posts/save'
+      PathInfo = '/posts/save*'
       OnAction = WebModule1WebActionItem10Action
+    end
+    item
+      MethodType = mtGet
+      Name = 'WebActionItem4'
+      PathInfo = '/posts/delete/*'
+      OnAction = WebModule1WebActionItem4Action
     end
     item
       MethodType = mtGet
@@ -75,16 +78,25 @@ object WebModule1: TWebModule1
       Name = 'WebActionItem9'
       PathInfo = '/settings/save'
       OnAction = WebModule1WebActionItem9Action
+    end
+    item
+      Name = 'WebActionItem13'
+      PathInfo = '/login'
+      OnAction = WebModule1WebActionItem13Action
+    end
+    item
+      Name = 'WebActionItem14'
+      PathInfo = '/logout'
     end>
-  Height = 337
-  Width = 415
+  Height = 427
+  Width = 536
   object FDConnection1: TFDConnection
     Params.Strings = (
       'User_Name=postgres'
       'Database=blog'
       'Password=kainushi'
+      'CharacterSet=SJIS'
       'DriverID=PG')
-    Connected = True
     Left = 72
     Top = 24
   end
@@ -102,8 +114,8 @@ object WebModule1: TWebModule1
     Dispatcher = WebFileDispatcher1
     PathTemplates = <>
     RootDirectory = '.\templates\'
-    Left = 72
-    Top = 184
+    Left = 80
+    Top = 264
   end
   object WebStencilsProcessor1: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -144,8 +156,8 @@ object WebModule1: TWebModule1
       end>
     RootDirectory = '.'
     VirtualPath = '/'
-    Left = 320
-    Top = 104
+    Left = 80
+    Top = 184
   end
   object WebStencilsProcessor2: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -155,7 +167,7 @@ object WebModule1: TWebModule1
     BeforeProduce = WebStencilsProcessor2BeforeProduce
     AfterProduce = WebStencilsProcessor2AfterProduce
     Left = 320
-    Top = 184
+    Top = 112
   end
   object WebStencilsProcessor3: TWebStencilsProcessor
     Engine = WebStencilsEngine1
@@ -163,7 +175,7 @@ object WebModule1: TWebModule1
     PathTemplate = '/page/{index}'
     DataVarDuplicates = ddReplace
     Left = 320
-    Top = 264
+    Top = 192
   end
   object FDQuery2: TFDQuery
     Connection = FDConnection1
@@ -179,5 +191,12 @@ object WebModule1: TWebModule1
     Connection = FDConnection1
     Left = 184
     Top = 264
+  end
+  object WebStencilsProcessor4: TWebStencilsProcessor
+    Engine = WebStencilsEngine1
+    InputFileName = '.\templates\cms_login.html'
+    DataVarDuplicates = ddReplace
+    Left = 320
+    Top = 272
   end
 end

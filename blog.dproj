@@ -135,6 +135,7 @@
         <None Include="templates\cms_view.html"/>
         <None Include="templates\cms_page.html"/>
         <None Include="templates\cms_pagenation.html"/>
+        <None Include="templates\cms_login.html"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -170,6 +171,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="templates\cms_entry_editor.html" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="templates\cms_login.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win64">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
