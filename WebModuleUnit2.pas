@@ -117,7 +117,7 @@ var
   id: integer;
   params: TArray<string>;
 begin
-  params:=Request.PathInfo.Split(['/']);
+  params:=Request.PathInfo.Split(['/'],TStringSplitOptions.ExcludeLastEmpty);
   if High(params) = 3 then
   begin
     id:=params[3].ToInteger;
