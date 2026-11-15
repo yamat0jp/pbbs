@@ -1,0 +1,421 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusCMS - Delphi WebStencils</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 flex text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+<!-- Mobile overlay -->
+<div id="mobile-overlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden"></div>
+
+  <!-- --- SIDEBAR --- -->
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out -translate-x-full md:relative md:translate-x-0">
+  <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200">
+    <div class="flex items-center gap-2 font-bold text-xl text-indigo-600">
+      <!-- アイコン省略 -->
+      <span>NexusCMS</span>
+    </div>
+    <!-- 閉じるボタン（モバイルのみ表示） -->
+    <button id="close-menu-btn" class="md:hidden text-slate-500 hover:text-slate-700">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+  </div>
+  <!-- 以下ナビゲーション -->
+    <nav class="p-4 space-y-1">
+      <a href="/dashboard" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium @if (Model.ActiveView = 'dashboard') {bg-indigo-50 text-indigo-700} @else {text-slate-600 hover:bg-slate-100 hover:text-slate-900}">
+        <span>Dashboard</span>
+      </a>
+
+      <div class="pt-4 pb-1">
+        <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Content</p>
+      </div>
+
+      <a href="/posts" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium @if (Model.ActiveView = 'all-posts') {bg-indigo-50 text-indigo-700} @else {text-slate-600 hover:bg-slate-100 hover:text-slate-900}">
+        <span>All Posts</span>
+      </a>
+
+      <a href="/posts/new" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium @if (Model.ActiveView = 'new-post') {bg-indigo-50 text-indigo-700} @else {text-slate-600 hover:bg-slate-100 hover:text-slate-900}">
+        <span>New Post</span>
+      </a>
+
+      <a href="/categories" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium @if (Model.ActiveView = 'categories') {bg-indigo-50 text-indigo-700} @else {text-slate-600 hover:bg-slate-100 hover:text-slate-900}">
+        <span>Categories</span>
+      </a>
+
+      <div class="pt-4 pb-1">
+        <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">System</p>
+      </div>
+
+      <a href="/settings" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium @if (Model.ActiveView = 'settings') {bg-indigo-50 text-indigo-700} @else {text-slate-600 hover:bg-slate-100 hover:text-slate-900}">
+        <span>Settings</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- --- MAIN CONTENT AREA --- -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+    <!-- TOP NAVBAR -->
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-30">
+      <div class="flex items-center gap-4">
+        <!-- Search Bar -->
+        <div class="relative hidden sm:block w-64 lg:w-96">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </span>
+          <input type="text" placeholder="Search posts, categories..." class="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent rounded-lg text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button class="relative text-slate-500 hover:text-indigo-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span class="absolute top-0 right-0 block w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 border border-indigo-200 cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- DYNAMIC CONTENT -->
+    <div class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- Dashboard View -->
+      @if (Model.ActiveView = 'dashboard') {
+      <div class="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
+          <p class="text-sm text-slate-500 mt-1">ブログの現在の状況と統計情報です。</p>
+        </div>
+
+        <!-- 統計カード (Stats) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium text-slate-500 mb-1">Total Posts</div>
+              <div class="text-2xl font-bold text-slate-900">@Stats.TotalPosts</div>
+            </div>
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium text-slate-500 mb-1">Total Views</div>
+              <div class="text-2xl font-bold text-slate-900">@Stats.TotalViews</div>
+            </div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium text-slate-500 mb-1">Published</div>
+              <div class="text-2xl font-bold text-slate-900">@Stats.PublishedCount</div>
+            </div>
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium text-slate-500 mb-1">Drafts</div>
+              <div class="text-2xl font-bold text-slate-900">@Stats.DraftCount</div>
+            </div>
+            <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最近の投稿 (Recent Activity) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex justify-between items-center">
+            <h2 class="font-semibold text-slate-800">Recent Posts</h2>
+            <a href="/posts" class="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all</a>
+          </div>
+          <div class="divide-y divide-slate-200 p-2">
+            @ForEach (var post in Posts) {
+            <div class="p-4 flex justify-between items-center hover:bg-slate-50 rounded-lg transition-colors">
+              <div>
+                <a href="/posts/edit/@post.ID" class="text-sm font-medium text-slate-900 hover:text-indigo-600 transition-colors">@post.Title</a>
+                <p class="text-xs text-slate-500 mt-1">@post.Date • @post.Author</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium border @if (post.Status == 'Published') {bg-green-50 text-green-700 border-green-200} @else {bg-amber-50 text-amber-700 border-amber-200}">
+                @post.Status
+              </span>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+      <!-- All Posts View -->
+      @if (Model.ActiveView = 'all-posts') {
+      <div class="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900">Posts</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage your blog content and publications.</p>
+          </div>
+          <a href="/posts/new" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Create New Post
+          </a>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                  <th class="px-6 py-4">Title</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4">Author</th>
+                  <th class="px-6 py-4">Date</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <!-- WebStencils loop for DataSet or ObjectList -->
+                @ForEach (var post in Posts) {
+                <tr class="hover:bg-slate-50/80 transition-colors group">
+                  <td class="px-6 py-4">
+                    <div class="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors cursor-pointer">@post.Title</div>
+                    <div class="text-xs text-slate-500 mt-0.5">@post.text views</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <!-- Status Styling using Delphi logic -->
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border @if (post.Status = 'Published') {bg-green-50 text-green-700 border-green-200} @else {bg-amber-50 text-amber-700 border-amber-200}">
+                      @post.Status
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-slate-600">@post.Author</td>
+                  <td class="px-6 py-4 text-sm text-slate-500">@post.Date</td>
+                  <td class="px-6 py-4 text-right">
+                    <a href="/posts/delete/@post.ID" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors focus:outline-none">
+                      Delete
+                    </a>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <a href="/posts/edit/@post.ID" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors focus:outline-none">
+                      Edit
+                    </a>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- New Post View -->
+      @if ((Model.ActiveView = 'new-post') or (Model.ActiveView = 'edit-post')) {
+      <div class="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form method="POST" action="/posts/save/@edit.id">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900">@if (Model.ActiveView = 'new-post') {Create New } @else {Edit } Post</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/posts" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors">Cancel</a>
+              <button type="submit" name="action" value="draft" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm">Save Draft</button>
+              <button type="submit" name="action" value="published" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm">Publish Post</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <input type="text" name="title" value="@edit.title" placeholder="Post Title..." class="w-full text-3xl font-bold text-slate-900 placeholder:text-slate-300 border-none focus:ring-0 p-0 mb-6 bg-transparent outline-none" required />
+                <textarea name="content" class="w-full h-96 p-4 border border-slate-200 rounded-b-lg resize-y focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-700" placeholder="Write your amazing story here...">@edit.content</textarea>
+              </div>
+            </div>
+            <div class="space-y-6">
+              <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h3 class="font-semibold text-slate-900 mb-4">Post Settings</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                    <select name="category" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+                      <!-- WebStencils Category Loop -->
+                      @ForEach (var cat in Categories) {
+                        <option value="@cat.category">@cat.category</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      }
+      <!-- Settings View -->
+      @if (Model.ActiveView = 'settings') {
+      <div class="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-slate-900">System Settings</h1>
+          <p class="text-sm text-slate-500 mt-1">ブログ全体のシステム設定と環境設定を行います。</p>
+        </div>
+
+        <form method="POST" action="/settings/save" class="space-y-6">
+          @ForEach Settings {
+          <!-- General Settings -->
+          <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">General</h2>
+
+            <div class="space-y-5">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Site Title</label>
+                <input type="text" name="site_title" value="@loop.SiteTitle" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Site Description</label>
+                <textarea name="site_description" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 h-24">@loop.SiteDescription</textarea>
+                <p class="text-xs text-slate-500 mt-1">SEOのメタディスクリプションとして使用されます。</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Posts per page</label>
+                <input type="number" name="items_per_page" value="@loop.ItemsPerPage" class="w-full sm:w-32 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Settings -->
+          <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Advanced</h2>
+
+            <div class="space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <div>
+                  <label class="text-sm font-medium text-slate-700">Search Engine Visibility</label>
+                  <p class="text-xs text-slate-500 mt-0.5">検索エンジンによるサイトのインデックスを許可する</p>
+                </div>
+                <div class="flex items-center">
+                  <!-- チェックボックスのWebStencils連携 -->
+                  <input type="checkbox" name="allow_indexing" value="true" @if loop.AllowIndexing { checked } class="w-5 h-5 text-indigo-600 bg-white border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="reset" class="px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm">Cancel</button>
+            <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save Changes</button>
+          </div>
+          }
+        </form>
+      </div>
+      }
+
+<!-- Categories View -->
+      @if (Model.ActiveView = 'categories') {
+      <div class="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-slate-900">Categories</h1>
+          <p class="text-sm text-slate-500 mt-1">記事のカテゴリー管理と表示順・スラッグの設定を行います。</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- 左カラム (1/3): 新規追加 / 編集フォーム -->
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6">
+              <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                <h2 class="text-lg font-semibold text-slate-900">
+                  @if (Model.ID > 0) {Edit Category} @else {Add New Category}
+                </h2>
+                @if (Model.ID > 0) {
+                <a href="/categories" class="text-xs font-medium text-slate-500 hover:text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md transition-colors">
+                  Cancel
+                </a>
+                }
+              </div>
+
+              <form method="POST" action="/categories/save" class="space-y-4">
+                <!-- 編集時は対象IDを送信（新規時は0または空） -->
+                <input type="hidden" name="id" value="@Model.ID" />
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Category Name <span class="text-red-500">*</span></label>
+                  <input type="text" name="name" value="@Model.Name" placeholder="e.g. Delphi Development" required
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                </div>
+
+
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                  <textarea name="description" rows="3" placeholder="カテゴリーの概要説明..."
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">@Model.Description</textarea>
+                </div>
+
+                <div class="pt-2">
+                  <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    @if (Model.ID > 0) {Update Category} @else {Add Category}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- 右カラム (2/3): カテゴリー一覧テーブル -->
+          <div class="lg:col-span-2">
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                      <th class="px-6 py-4">Name / Description</th>
+                      <th class="px-6 py-4 text-center">Posts</th>
+                      <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200">
+                    @ForEach (var cat in Categories) {
+                    <tr class="hover:bg-slate-50/80 transition-colors group @if (Model.ID = cat.ID) {bg-indigo-50/40}">
+                      <td class="px-6 py-4">
+                        <div class="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors">@cat.Name</div>
+                        @if (cat.Description <> '') {
+                        <div class="text-xs text-slate-500 mt-0.5 line-clamp-1">@cat.Description</div>
+                        }
+                      </td>
+
+                      <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          @cat.PostCount
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1">
+                          <a href="/categories/edit/@cat.ID" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors text-xs font-medium">
+                            Edit
+                          </a>
+                          <a href="/categories/delete/@cat.ID" onclick="return confirm('「@cat.Name」を削除してもよろしいですか？');" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-xs font-medium">
+                            Delete
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      }
+    </div>
+
+  </main>
+</body>
+</html>

@@ -44,6 +44,8 @@ type
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
     procedure WebModule1WebActionItem13Action(Sender: TObject;
       Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+    procedure WebModule1WebActionItem15Action(Sender: TObject;
+      Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
   private
     { Private declarations }
     jsonstr: string;
@@ -202,6 +204,22 @@ begin
 //    WebStencilsProcessor4.AddVar('error', Request.QueryFields.Values['error'] = '1');
     Response.Content := WebStencilsProcessor4.Content;
   end;
+end;
+
+procedure TWebModule1.WebModule1WebActionItem15Action(Sender: TObject;
+  Request: TWebRequest; Response: TWebResponse; var Handled: Boolean);
+begin
+  FDQuery1.SQL.Text:='''
+    INSERT INTO categories (id,name,description)
+    VALUES (:i,:n,:d)
+    ON CONFLICT (id)
+    DO UPDATE SET name=:n,description=:d;
+    ''';
+  FDQuery1.ParamByName('i').AsInteger:=Request.ContentFields.Values['id'].ToInteger;
+  FDQuery1.ParamByName('n').AsString:=Request.ContentFields.Values['name'];
+  FDQuery1.ParamByName('d').AsString:=Request.ContentFields.Values['description'];
+  FDQuery1.ExecSQL;
+  Response.SendRedirect('/categories');
 end;
 
 procedure TWebModule1.WebModule1WebActionItem2Action(Sender: TObject;
@@ -428,18 +446,9 @@ begin
   end
   else if Request.PathInfo = '/categories' then
   begin
-    FDQuery1.Open('select * from items;');
-    FDQuery2.Open('''
-      SELECT
-      category AS "Name",
-      COUNT(*) AS "PostCount"
-      FROM items
-      WHERE category IS NOT NULL AND TRIM(category) <> ''
-      GROUP BY category
-      ORDER BY category ASC;
-      ''');
-    model.Id:=StrToIntDef(Request.QueryFields.Values['id'],0);
-    WebStencilsProcessor2.AddVar('Categories',FDQuery2,false);
+    FDQuery1.Open('select * from categories;');
+    model.Id:=FDQuery1.FieldByName('id').AsInteger;
+    WebStencilsProcessor2.AddVar('Categories',FDQuery1,false);
   end;
   WebStencilsProcessor2.AddVar('Model',model);
 
@@ -504,7 +513,7 @@ begin
     else if APropName = 'content' then
       AValue:=FDQuery1.FieldByName('text').AsString;
   end
-  else if AObjectName = 'Modle' then
+  else if AObjectName = 'Model' then
   begin
     if ApropName = 'Name' then
       AValue:=FDQuery1.FieldByName('Name').AsString

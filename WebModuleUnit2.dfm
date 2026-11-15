@@ -68,6 +68,12 @@ object WebModule1: TWebModule1
       Producer = WebStencilsProcessor2
     end
     item
+      MethodType = mtPost
+      Name = 'WebActionItem15'
+      PathInfo = '/categories/save'
+      OnAction = WebModule1WebActionItem15Action
+    end
+    item
       MethodType = mtGet
       Name = 'WebActionItem8'
       PathInfo = '/settings'
