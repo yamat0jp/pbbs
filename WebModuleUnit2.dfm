@@ -19,13 +19,6 @@ object WebModule1: TWebModule1
       Producer = WebStencilsProcessor2
     end
     item
-      Enabled = False
-      MethodType = mtPost
-      Name = 'WebActionItem2'
-      PathInfo = '/admin/article/save'
-      OnAction = WebModule1WebActionItem2Action
-    end
-    item
       MethodType = mtGet
       Name = 'WebActionItem3'
       PathInfo = '/page*'
@@ -101,8 +94,9 @@ object WebModule1: TWebModule1
       'User_Name=postgres'
       'Database=blog'
       'Password=kainushi'
-      'CharacterSet=SJIS'
+      'CharacterSet=UTF8'
       'DriverID=PG')
+    Connected = True
     Left = 72
     Top = 24
   end
