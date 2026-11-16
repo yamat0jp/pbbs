@@ -86,7 +86,7 @@ object WebModule1: TWebModule1
       'User_Name=postgres'
       'Database=bbs'
       'Password=kainushi'
-      'CharacterSet=UTF8'
+      'CharacterSet=SJIS'
       'DriverID=PG')
     Connected = True
     LoginPrompt = False
