@@ -28,7 +28,7 @@
   <br><br>
 
   <h2>利用規約</h2>
-  <p>これから書きます</p>
+  @if (Data.bool = false) {<p>これから書きます</p>} @else {@Data.Name}
 
   <p style="text-align:center;">
     <a href="/bbs/@Page.user/@Page.title">戻る</a>

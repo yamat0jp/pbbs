@@ -166,21 +166,6 @@ type
     function VerifyLogin(const Username,InputPassword: string; out data: TData): Boolean;
   end;
 
-  TSlide = class
-  private
-    FActiveClass: string;
-    FIndex: integer;
-    FImgname: string;
-    FItems: TObjectList<TData>;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    property index: integer read FIndex write FIndex;
-    property imgname: string read FImgname write FImgname;
-    property activeClass: string read FActiveClass write FActiveClass;
-    property Items: TObjectList<TData> read FItems;
-  end;
-
 var
   WebModuleClass: TComponentClass = TWebModule1;
 
@@ -1184,20 +1169,27 @@ var
   id, userid: integer;
   params: TArray<string>;
   user, title, text: string;
-  data: TData;
+  data, data2: TData;
 begin
   data:=TData.Create;
+  params:=Request.PathInfo.Split(['/']);
+  user:=params[2];
+  title:=params[3];
+  FDQuery1.SQL.Text:='select dbnumber from database where nickname = :user';
+  FDQuery1.ParamByName('user').AsString:=user;
+  FDQuery1.Open;
+  userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
+  FDQuery1.Close;
+  FDQuery1.SQL.Text:='select help from titles where usernum = :uid and url = :url;';
+  FDQuery1.ParamByName('uid').AsInteger:=userid;
+  FDQuery1.ParamByName('url').AsString:=title;
+  FDQuery1.Open;
+  data2:=TData.Create;
+  data2.name:=FDQuery1.FieldByName('help').AsString.Trim;
+  data2.bool:=not(data2.name='');
+  FDQuery1.Close;
   if Request.MethodType = mtPost then
   begin
-    params:=Request.PathInfo.Split(['/']);
-    user:=params[2];
-    title:=params[3];
-    FDQuery1.SQL.Text:=
-      'select * from database where nickname = :user';
-    FDQuery1.ParamByName('user').AsString:=user;
-    FDQuery1.Open;
-    userid:=FDQuery1.FieldByName('dbnumber').AsInteger;
-    FDQuery1.Close;
     text:=String.Format('''
       <pre>
 
@@ -1220,6 +1212,7 @@ begin
   end
   else
     data.bool:=false;
+  WebStencilsProcessor7.AddVar('Data',data2);
   WebStencilsProcessor7.AddVar('Help',data);
   Response.ContentType := 'text/html;charset=utf8';
   Response.Content := WebStencilsProcessor7.Content;
@@ -1477,19 +1470,6 @@ begin
   finally
     lst.Free;
   end;
-end;
-
-{ TSlide }
-
-constructor TSlide.Create;
-begin
-  FItems:=TObjectList<TData>.Create;
-end;
-
-destructor TSlide.Destroy;
-begin
-  FItems.Free;
-  inherited;
 end;
 
 end.

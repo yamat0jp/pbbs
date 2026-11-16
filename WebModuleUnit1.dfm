@@ -55,11 +55,6 @@ object WebModule1: TWebModule1
       OnAction = WebModule1WebActionItem2Action
     end
     item
-      MethodType = mtGet
-      Name = 'WebActionItem3'
-      PathInfo = '/blog/*'
-    end
-    item
       Name = 'WebActionItem4'
       PathInfo = '/logout/*'
       OnAction = WebModule1WebActionItem4Action
@@ -91,7 +86,7 @@ object WebModule1: TWebModule1
       'User_Name=postgres'
       'Database=bbs'
       'Password=kainushi'
-      'CharacterSet=SJIS'
+      'CharacterSet=UTF8'
       'DriverID=PG')
     Connected = True
     LoginPrompt = False
