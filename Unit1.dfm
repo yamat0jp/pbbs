@@ -95,8 +95,6 @@
     Top = 128
     Width = 265
     Height = 89
-    Lines.Strings = (
-      'new')
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 0
@@ -125,8 +123,6 @@
     Width = 177
     Height = 393
     ItemHeight = 15
-    Items.Strings = (
-      'new')
     TabOrder = 3
   end
   object ListBox2: TListBox
@@ -136,7 +132,6 @@
     Height = 137
     ItemHeight = 15
     Items.Strings = (
-      #12414#12354#12375#12356
       'master_a'
       'USER A')
     TabOrder = 4
@@ -147,10 +142,6 @@
     Width = 121
     Height = 97
     ItemHeight = 15
-    Items.Strings = (
-      'BBS'
-      'NEW'
-      'FREE')
     TabOrder = 5
   end
   object Memo3: TMemo
@@ -169,7 +160,6 @@
     Height = 23
     ReadOnly = True
     TabOrder = 7
-    Text = '0:0:0:0:0:0:0:1'
   end
   object Edit2: TEdit
     Left = 328
@@ -195,7 +185,6 @@
     Height = 23
     ReadOnly = True
     TabOrder = 10
-    Text = '1'
   end
   object Button2: TButton
     Left = 48

@@ -257,7 +257,7 @@ begin
     Value := SessionToken;
     Path := '/';
     HttpOnly := True; // JavaScriptからの不正アクセス(XSS)を防止
-    Secure := true;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
+//    Secure := true;  // 実運用でHTTPS(SSL)を使用する場合は True に変更します
     SameSite := 'strict';
     Expires:=Now+3;
   end;
@@ -420,7 +420,7 @@ begin
   FDQuery1.Close;
 
   FDQuery1.SQL.Text:='''
-    select t.name as pagetitle,dt.titlenum,dt.name,mt.comment
+    select t.name as pagetitle,dt.titlenum,dt.name,mt.comment,datetime
     from datatable dt INNER JOIN maintable mt ON dt.dbnumber = mt.dbnumber
     and dt.dbtitle = mt.dbtitle and dt.titlenum = mt.titlenum
     INNER JOIN titles t ON dt.dbtitle = t.id
@@ -707,7 +707,7 @@ begin
   else if not words.IsEmpty then
     WebStencilsProcessor6.AddVar('Datas',FDQuery1,false);
   WebStencilsProcessor6.AddVar('Bool',data);
-  Response.ContentType := 'text/html;charset=utf8';
+  Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor6.Content;
   FDQuery1.Close;
 end;
@@ -724,7 +724,8 @@ begin
   user:=params[2];
   title:=params[3];
   FDQuery1.SQL.Text:='''
-    select id,usernum from titles t INNER JOIN database ds ON t.usernum = ds.dbnumber
+    select pagecount,count,maintenance,id,usernum from titles t
+    INNER JOIN database ds ON t.usernum = ds.dbnumber
     where t.url = :title and ds.nickname = :user;
     ''';
   FDQuery1.ParamByName('user').AsString:=user;
@@ -788,7 +789,7 @@ begin
     WebStencilsProcessor4.AddVar('Supers',FDQuery1,false);
   end;
   WebStencilsProcessor4.AddVar('Word',data);
-  Response.ContentType:='text/html;charset=utf8';
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content:=WebStencilsProcessor4.Content;
   FDQuery1.Close;
 end;
@@ -830,7 +831,7 @@ begin
   data2.tag:='';
   WebStencilsProcessor13.AddVar('Msg',data);
   WebStencilsProcessor13.AddVar('Name',data2);
-  Response.ContentType:='text/html;charset=utf8';
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content:=WebStencilsProcessor13.Content;
 end;
 
@@ -881,7 +882,7 @@ begin
     data2.tag:=nickname;
     WebStencilsProcessor13.AddVar('Msg',data);
     WebStencilsProcessor13.AddVar('Name',data2);
-    Response.ContentType:='text/html;charset=utf8';
+    Response.ContentType:='text/html;charset=utf-8';
     Response.Content:=WebStencilsProcessor13.Content;
   end;
   FDQuery1.Close;
@@ -938,7 +939,7 @@ begin
     data.bool:=true;
   data.name:=userdata.name;
   WebStencilsProcessor14.AddVar('Data',data);
-  Response.ContentType:='text/html;charset=utf8';
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content:=WebStencilsProcessor14.Content;
 end;
 
@@ -1027,7 +1028,7 @@ begin
     FDCommand1.ParamByName('db').AsInteger:=userid;
     FDCommand1.ParamByName('tid').AsInteger:=tid;
     FDCommand1.ParamByName('comment').AsString:=raw;
-    FDCommand1.ParamByName('dt').AsDateTime:=timenow;
+    FDCommand1.ParamByName('dt').AsDateTime:=Now;
     FDCommand1.ParamByName('code').AsString:=code;
     FDCommand1.ParamByName('dbtitle').AsInteger:=dbtitle;
     FDCommand1.Execute;
@@ -1158,7 +1159,7 @@ begin
     data.bool:=true;
   end;
   WebStencilsProcessor8.AddVar('Post',data);
-  Response.ContentType:='text/html;charset=utf8';
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content:=WebStencilsProcessor8.Content;
   FDQuery1.Close;
 end;
@@ -1214,7 +1215,7 @@ begin
     data.bool:=false;
   WebStencilsProcessor7.AddVar('Data',data2);
   WebStencilsProcessor7.AddVar('Help',data);
-  Response.ContentType := 'text/html;charset=utf8';
+  Response.ContentType := 'text/html;charset=utf-8';
   Response.Content := WebStencilsProcessor7.Content;
 end;
 
@@ -1238,7 +1239,7 @@ begin
     data.name:='ユーザー名またはパスワードがまちがっています。';
   end;
   WebStencilsProcessor12.AddVar('Msg',data);
-  Response.ContentType:='text/html;charset=utf8';
+  Response.ContentType:='text/html;charset=utf-8';
   Response.Content:=WebStencilsProcessor12.Content;
 end;
 

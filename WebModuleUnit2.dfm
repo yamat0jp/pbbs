@@ -94,9 +94,10 @@ object WebModule1: TWebModule1
       'User_Name=postgres'
       'Database=blog'
       'Password=kainushi'
-      'CharacterSet=UTF8'
+      'CharacterSet=SJIS'
       'DriverID=PG')
     Connected = True
+    LoginPrompt = False
     Left = 72
     Top = 24
   end

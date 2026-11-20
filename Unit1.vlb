@@ -16,15 +16,15 @@ Coordinates=214,312,53,51
 Coordinates=230,188,77,33
 
 [FDTable1]
-Coordinates=1163,682,60,33
+Coordinates=1443,722,60,33
 Visible=True
 
 [FDTable4]
-Coordinates=748,652,60,33
+Coordinates=888,672,60,33
 Visible=True
 
 [FDTable5]
-Coordinates=845,652,60,33
+Coordinates=985,672,60,33
 Visible=True
 
 []
@@ -117,7 +117,7 @@ Coordinates=290,392,88,33
 Coordinates=208,392,69,33
 
 [BindSourceDB2]
-Coordinates=775,642,92,231
+Coordinates=915,662,92,231
 
 [ListBox1]
 Coordinates=196,128,84,105
@@ -130,7 +130,7 @@ Coordinates=10,429,84,105
 Visible=True
 
 [BindSourceDB3]
-Coordinates=678,642,92,159
+Coordinates=818,662,92,159
 
 [ListBox3]
 Coordinates=323,98,84,105
@@ -156,10 +156,11 @@ Coordinates=822,17,40,51
 Visible=True
 
 [BindSourceDB4]
-Coordinates=1093,672,92,159
+Coordinates=1373,712,92,159
 
 [FDTable3]
 Coordinates=323,396,60,123
+Visible=True
 
 [Label6]
 Coordinates=367,612,46,51

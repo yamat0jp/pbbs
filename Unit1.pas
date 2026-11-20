@@ -1,4 +1,4 @@
-unit Unit1;
+ï»¿unit Unit1;
 
 interface
 
@@ -89,16 +89,15 @@ type
     Label10: TLabel;
     Edit3: TEdit;
     LinkControlToField5: TLinkControlToField;
-    XVƒ{ƒ^ƒ“: TLabel;
     Button2: TButton;
     procedure FDTable4BeforeScroll(DataSet: TDataSet);
     procedure FDTable4AfterScroll(DataSet: TDataSet);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
-    { Private éŒ¾ }
+    { Private ï¿½éŒ¾ }
   public
-    { Public éŒ¾ }
+    { Public ï¿½éŒ¾ }
   end;
 
 var
@@ -119,6 +118,7 @@ begin
   end;
   FDTable5.Delete;
   FDTable3.Refresh;
+  FDTable5.Refresh;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
